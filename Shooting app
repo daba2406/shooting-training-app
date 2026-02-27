@@ -1,0 +1,11 @@
+git init 
+
+git add . 
+
+git commit -m "Initial version" 
+
+git branch -M main 
+
+git remote add origin https://github.com/djordje-jovanovic@hotmail.com/shooting-training-app.git 
+
+git push -u origin main 
