@@ -562,3 +562,235 @@ html, body, #root {
  
 
 } 
+/* ================= SETUP SCREEN ================= */ 
+
+ 
+
+.setup-container { 
+
+  height: 100vh; 
+
+  background: linear-gradient(135deg, #111, #1c1c1c); 
+
+  display: flex; 
+
+  justify-content: center; 
+
+  align-items: center; 
+
+} 
+
+ 
+
+.setup-card { 
+
+  background-color: #1a1a1a; 
+
+  padding: 40px; 
+
+  border-radius: 12px; 
+
+  width: 400px; 
+
+  text-align: center; 
+
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.6); 
+
+} 
+
+ 
+
+.setup-title { 
+
+  margin: 0; 
+
+  font-size: 26px; 
+
+  letter-spacing: 2px; 
+
+} 
+
+ 
+
+.setup-subtitle { 
+
+  margin-top: 10px; 
+
+  font-weight: normal; 
+
+  color: #888; 
+
+} 
+
+ 
+
+.setup-buttons { 
+
+  display: flex; 
+
+  flex-direction: column; 
+
+  gap: 12px; 
+
+  margin-top: 25px; 
+
+} 
+
+ 
+
+.setup-buttons button { 
+
+  padding: 12px; 
+
+  font-size: 14px; 
+
+  border-radius: 8px; 
+
+  border: 1px solid #333; 
+
+  background-color: #222; 
+
+  color: white; 
+
+  cursor: pointer; 
+
+  transition: all 0.2s ease; 
+
+} 
+
+ 
+
+.setup-buttons button:hover { 
+
+  background-color: #2e2e2e; 
+
+  border-color: #00ccff; 
+
+} 
+
+ 
+
+.setup-divider { 
+
+  height: 1px; 
+
+  background-color: #333; 
+
+  margin: 25px 0; 
+
+} 
+
+ 
+
+.archive-btn { 
+
+  width: 100%; 
+
+  padding: 10px; 
+
+  border-radius: 8px; 
+
+  background-color: #181818; 
+
+  border: 1px solid #444; 
+  color: #00ccff;
+  cursor: pointer;
+
+} 
+
+ 
+
+.archive-btn:hover { 
+
+  border-color: #00ccff; 
+
+} 
+/* ================= ARCHIVE TABLE ================= */ 
+
+ 
+
+.archive-table { 
+
+  width: 100%; 
+
+  border-collapse: collapse; 
+
+  table-layout: fixed; 
+
+} 
+
+ 
+
+.archive-table th, 
+
+.archive-table td { 
+
+  padding: 8px; 
+
+  border-bottom: 1px solid #333; 
+
+  text-align: left; 
+
+} 
+
+ 
+
+.archive-table th:nth-child(1) { width: 28%; } 
+
+.archive-table th:nth-child(2) { width: 14%; } 
+
+.archive-table th:nth-child(3) { width: 10%; } 
+
+.archive-table th:nth-child(4) { width: 12%; text-align: right; } 
+
+.archive-table th:nth-child(5) { width: 14%; } 
+
+.archive-table th:nth-child(6) { text-align: left; } 
+
+ 
+
+.archive-table td:nth-child(4) { 
+
+  text-align: right; 
+
+} 
+
+ 
+
+.delete-btn { 
+
+  background-color: #330000; 
+
+  border: 1px solid #550000; 
+
+  color: #ff5555; 
+
+  padding: 4px 10px; 
+
+  border-radius: 6px; 
+
+  cursor: pointer; 
+  display: inline-block;
+
+} 
+
+ 
+
+.delete-btn:hover { 
+
+  background-color: #440000; 
+
+} 
+.archive-table tbody tr { 
+
+  transition: background-color 0.2s ease; 
+
+} 
+
+ 
+
+.archive-table tbody tr:hover { 
+
+  background-color: #299898; 
+
+} 

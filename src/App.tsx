@@ -1,8 +1,9 @@
-import { useEffect, useState, useRef } from "react"; 
+import { useEffect, useState, useRef, StrictMode } from "react"; 
 import type {Shot, Series} from "./types";
 import "./App.css"; 
 import type { ShootingSession } from "./types"; 
 import ArchiveView from "./components/ArchiveView";
+import SetupView from "./components/SetupView";
 
 import PrintCanvasTarget from "./components/PrintCanvasTarget";
 
@@ -90,11 +91,13 @@ if (sessions.length === 0) {
 
   const [shotDisplayTime, setShotDisplayTime] = useState(0); 
 
-  const [view, setView] = useState<"shooting" | "archive">("shooting"); 
+  const [view, setView] = useState<"setup" | "shooting" | "archive">("setup"); 
 
   const [isReadOnly, setIsReadOnly] = useState(false);
   const [selectedSeriesIndex, setSelectedSeriesIndex] = useState<number | null>(null);
-
+  const [manualTimeMode, setManualTimeMode] = useState(false);
+  const [manualShotTime, setManualShotTime] = useState ("");
+ 
 
 
   const matchStartRef = useRef<number | null>(null); 
@@ -140,7 +143,11 @@ useEffect(() => {
 
             0 
 
-          ) 
+          ),
+          completed:
+          session.maxShots !== null
+          ? seriesList.flatMap(s => s.shots).length >= session.maxShots
+          : false
 
         } 
 
@@ -367,11 +374,19 @@ useEffect(() => {
 
     if (!matchRunning) return; 
 
-    if (shotRunning) return; 
+    if (!manualTimeMode) {
+      if (shotRunning) return;
+      if (!shotStartRef.current) return;
+    }
 
-    if (!shotStartRef.current) return; 
 
     if (!selectedScore) return; 
+    if (manualTimeMode) {
+      if (!manualShotTime || parseFloat(manualShotTime) <= 0) {
+        alert('Unesite vreme hica.');
+        return;
+      }
+    }
 
  
 
@@ -494,6 +509,10 @@ useEffect(() => {
       ? (performance.now() - matchStartRef.current) / 1000
       : 0;
     
+    const finalShotTime = manualTimeMode
+    ? parseFloat(manualShotTime) || 0
+    : shotDisplayTime;
+      
     const newShot: Shot = { 
 
       index: workingSeries.shots.length + 1, 
@@ -506,7 +525,7 @@ useEffect(() => {
 
       radius: pelletRadiusPx, 
 
-      shotTime: shotDisplayTime, 
+      shotTime: finalShotTime, 
 
       matchTime: matchTime
 
@@ -541,6 +560,10 @@ useEffect(() => {
     setShotDisplayTime(0); 
 
     shotStartRef.current = null; 
+
+    if (manualTimeMode) {
+      setManualShotTime("");
+    }
 
   }; 
 
@@ -739,11 +762,81 @@ const loadActiveSession = () => {
 }; 
 const startNewSession = () => { 
 
+ 
+
   const sessions = loadSessions(); 
+
+  const newSession = createNewSession(); 
+
+  const updatedSessions = [...sessions, newSession]; 
 
  
 
+  saveSessions(updatedSessions); 
+
+  setActiveSessionId(newSession.id); 
+
+ 
+
+  setSeriesList(newSession.seriesList); 
+
+  setIsReadOnly(false); 
+
+  setSelectedSeriesIndex(null); 
+
+ 
+
+  setView("shooting"); 
+  setManualTimeMode(false);
+  setManualShotTime("");
+  setSelectedScore(null);
+
+}; 
+
+ 
+
+const startNewSessionWithFormat = ( 
+
+  mode: "training" | "qualification" | "final",
+  format: "60" | "40" | "trial" | "custom" ,
+  competitionName: string,
+  date: string,
+  startTime: string
+  
+
+) => { 
+
+ 
+
+  const sessions = loadSessions(); 
+
   const newSession = createNewSession(); 
+
+ 
+
+  let maxShots: number | null = 60; 
+
+ 
+
+  if (format === "40") maxShots = 40; 
+
+  if (format === "trial") maxShots = null; 
+
+  if (format === "custom") maxShots = 60; 
+
+ 
+
+  newSession.format = format; 
+
+  newSession.maxShots = maxShots; 
+
+  newSession.competitionName = competitionName;
+
+  newSession.date = date || new Date().toISOString();
+
+  newSession.startTime = startTime;
+
+  newSession.mode = mode;
 
  
 
@@ -763,10 +856,36 @@ const startNewSession = () => {
 
   setSelectedSeriesIndex(null); 
 
+ 
+
+  setView("shooting"); 
+
 }; 
-  return ( 
+
+return ( 
 
   <> 
+  {view === "setup" && ( 
+
+  <SetupView 
+
+    onStart={(mode, format, competitionName, date, startTime) => { 
+
+      startNewSessionWithFormat(
+        mode,
+        format,
+        competitionName,
+        date,
+        startTime
+      ); 
+
+    }} 
+
+    onArchive={() => setView("archive")} 
+
+  /> 
+
+)} 
 
     {view === "archive" && ( 
 
@@ -794,6 +913,19 @@ const startNewSession = () => {
   } 
 
 }} 
+onDeleteSession={(id) => {     
+
+const sessions = loadSessions();     
+
+const updated = sessions.filter(s => s.id !== id);     
+
+saveSessions(updated);     
+
+setView("archive");   
+
+}} 
+
+ 
 
 /> 
 
@@ -801,7 +933,7 @@ const startNewSession = () => {
 
  
 
-    {view !== "archive" && ( 
+    {view === "shooting" && ( 
 
       <div className="app-container"> 
 
@@ -926,6 +1058,33 @@ const startNewSession = () => {
             ARHIVA 
 
           </button> 
+          <button 
+
+  onClick={() => { 
+
+    if (allShots.length > 0) { 
+
+      const confirmLeave = window.confirm( 
+
+        "Da li ste sigurni da želite da započnete novi meč?" 
+
+      ); 
+
+      if (!confirmLeave) return; 
+
+    } 
+
+ 
+
+    setView("setup"); 
+
+  }} 
+
+> 
+
+  NOVI MEČ 
+
+</button> 
 {isReadOnly && ( 
 
   <button 
@@ -950,10 +1109,79 @@ const startNewSession = () => {
     <button onClick={() => window.print()}>
     PRINT MEC
     </button>
+
+    <button 
+
+  onClick={() => { 
+
+    const sessions = loadSessions(); 
+
+    const activeId = getActiveSessionId(); 
+
+ 
+
+    const updated = sessions.map(s => 
+
+      s.id === activeId 
+
+        ? { ...s, completed: true } 
+
+        : s 
+
+    ); 
+
+ 
+
+    saveSessions(updated); 
+
+    alert("Meč označen kao završen."); 
+
+  }} 
+
+> 
+
+  OZNAČI KAO ZAVRŠEN 
+
+</button> 
+    <label style={{ display: "block", marginTop: "10px" }}> 
+
+  <input 
+
+    type="checkbox" 
+
+    checked={manualTimeMode} 
+
+    onChange={(e) => setManualTimeMode(e.target.checked)} 
+
+  /> 
+
+  Ručni unos vremena hica 
+
+</label> 
+
+ 
+
+{manualTimeMode && ( 
+
+  <input 
+
+    type="number" 
+
+    placeholder="Vreme hica (s)" 
+
+    value={manualShotTime} 
+
+    onChange={(e) => setManualShotTime(e.target.value)} 
+
+    style={{ marginTop: "5px", width: "100%" }} 
+
+  /> 
+
+)} 
  
 
           <button 
-            disabled={isReadOnly}
+            disabled={isReadOnly || manualTimeMode}
             onClick={() => { 
 
             matchStartRef.current = performance.now(); 
@@ -969,7 +1197,7 @@ const startNewSession = () => {
  
 
           <button 
-            disabled={isReadOnly}
+            disabled={isReadOnly || manualTimeMode}
             onClick={() => { 
 
             shotStartRef.current = performance.now(); 
@@ -985,7 +1213,7 @@ const startNewSession = () => {
  
 
           <button 
-            disabled={isReadOnly}
+            disabled={isReadOnly || manualTimeMode}
             onClick={() => setShotRunning(false)}> 
 
             STOP POGODAK 

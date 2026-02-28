@@ -37,6 +37,8 @@ export interface ShootingSession {
   id: string; 
 
   date: string; 
+  competitionName?: string;
+  startTime?: string;
 
   mode: "training" | "qualification" | "final"; 
 

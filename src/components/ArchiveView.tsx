@@ -7,6 +7,7 @@ interface Props {
   sessions: ShootingSession[]; 
 
   onOpenSession: (id: string) => void; 
+  onDeleteSession: (id: string) => void;
 
 } 
 
@@ -16,7 +17,8 @@ export default function ArchiveView({
 
   sessions, 
 
-  onOpenSession 
+  onOpenSession,
+  onDeleteSession
 
 }: Props) { 
 
@@ -38,29 +40,25 @@ export default function ArchiveView({
 
  
 
-<table style={{ 
-
-  width: "100%", 
-
-  marginTop: "20px", 
-
-  borderCollapse: "collapse" 
-
-}}> 
+<table className="archive-table"> 
 
   <thead> 
 
     <tr> 
 
-      <th style={{ textAlign: "left", padding: "8px" }}>Datum</th> 
+      <th>Datum</th> 
 
-      <th style={{ textAlign: "left", padding: "8px" }}>Tip</th> 
+      <th>Tip</th> 
 
-      <th style={{ textAlign: "center", padding: "8px" }}>Format</th> 
+      <th>Takmicenje</th>
 
-      <th style={{ textAlign: "right", padding: "8px" }}>Ukupno</th> 
+      <th>Format</th> 
 
-      <th style={{ textAlign: "center", padding: "8px" }}>Status</th> 
+      <th>Ukupno</th> 
+
+      <th>Status</th> 
+
+      <th>Akcija</th> 
 
     </tr> 
 
@@ -70,49 +68,56 @@ export default function ArchiveView({
 
     {sessions.map(session => ( 
 
-      <tr 
+      <tr key={session.id}> 
 
-        key={session.id} 
+        <td onClick={() => onOpenSession(session.id)}> 
 
-        style={{ 
-
-          cursor: "pointer", 
-
-          borderTop: "1px solid #333" 
-
-        }} 
-
-        onClick={() => onOpenSession(session.id)} 
-
-      > 
-
-        <td style={{ padding: "8px" }}> 
-
-          {new Date(session.date).toLocaleString()} 
+          {new Date(session.date).toLocaleDateString()} 
 
         </td> 
 
-        <td style={{ padding: "8px" }}> 
+        <td>{session.mode}</td> 
+        <td>{session.competitionName ?? "-"}</td>
 
-          {session.mode} 
+        <td>{session.format}</td> 
 
-        </td> 
+        <td>{session.totalResult?.toFixed(1) ?? "0.0"}</td> 
 
-        <td style={{ padding: "8px", textAlign: "center" }}> 
+        
 
-          {session.format} 
-
-        </td> 
-
-        <td style={{ padding: "8px", textAlign: "right" }}> 
-
-          {session.totalResult.toFixed(1)} 
-
-        </td> 
-
-        <td style={{ padding: "8px", textAlign: "center" }}> 
+        <td> 
 
           {session.completed ? "Završeno" : "U toku"} 
+
+        </td> 
+
+        <td> 
+
+          <button 
+
+            className="delete-btn" 
+
+            onClick={(e) => { 
+
+              e.stopPropagation(); 
+
+              const confirmDelete = window.confirm( 
+
+                "Da li ste sigurni da želite da obrišete ovu sesiju?" 
+
+              ); 
+
+              if (!confirmDelete) return; 
+
+              onDeleteSession(session.id); 
+
+            }} 
+
+          > 
+
+            Obriši 
+
+          </button> 
 
         </td> 
 
