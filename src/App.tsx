@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, StrictMode } from "react"; 
+import { useEffect, useState, useRef } from "react"; 
 import type {Shot, Series} from "./types";
 import "./App.css"; 
 import type { ShootingSession } from "./types"; 
