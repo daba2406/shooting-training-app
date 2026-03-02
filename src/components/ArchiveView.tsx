@@ -1,5 +1,7 @@
 import type { ShootingSession } from "../types"; 
 
+import { loadSessions, saveSessions } from "../sessionManager"; 
+
  
 
 interface Props { 
@@ -7,7 +9,8 @@ interface Props {
   sessions: ShootingSession[]; 
 
   onOpenSession: (id: string) => void; 
-  onDeleteSession: (id: string) => void;
+
+  onDeleteSession: (id: string) => void; 
 
 } 
 
@@ -17,8 +20,9 @@ export default function ArchiveView({
 
   sessions, 
 
-  onOpenSession,
-  onDeleteSession
+  onOpenSession, 
+
+  onDeleteSession 
 
 }: Props) { 
 
@@ -28,7 +32,127 @@ export default function ArchiveView({
 
     <div style={{ padding: "20px" }}> 
 
+ 
+
       <h2>Arhiva sesija</h2> 
+
+ 
+
+      {/* EXPORT */} 
+
+      <div style={{ marginBottom: "10px" }}> 
+
+        <button 
+
+          onClick={() => { 
+
+            const sessions = loadSessions(); 
+
+ 
+
+            const blob = new Blob( 
+
+              [JSON.stringify(sessions, null, 2)], 
+
+              { type: "application/json" } 
+
+            ); 
+
+ 
+
+            const url = URL.createObjectURL(blob); 
+
+            const a = document.createElement("a"); 
+
+            a.href = url; 
+
+            a.download = "shooting-archive.json"; 
+
+            a.click(); 
+
+ 
+
+            URL.revokeObjectURL(url); 
+
+          }} 
+
+        > 
+
+          EXPORT ARHIVE 
+
+        </button> 
+
+      </div> 
+
+ 
+
+      {/* IMPORT */} 
+
+      <div style={{ marginBottom: "20px" }}> 
+
+        <input 
+
+          type="file" 
+
+          accept="application/json" 
+
+          onChange={(e) => { 
+
+            const file = e.target.files?.[0]; 
+
+            if (!file) return; 
+
+ 
+
+            const reader = new FileReader(); 
+
+ 
+
+            reader.onload = (event) => { 
+
+              try { 
+
+                const importedSessions = JSON.parse( 
+
+                  event.target?.result as string 
+
+                ); 
+
+ 
+
+                if (!Array.isArray(importedSessions)) { 
+
+                  alert("Neispravan format fajla."); 
+
+                  return; 
+
+                } 
+
+ 
+
+                saveSessions(importedSessions); 
+
+                alert("Arhiva uspešno učitana."); 
+
+                window.location.reload(); 
+
+              } catch { 
+
+                alert("Greška pri učitavanju fajla."); 
+
+              } 
+
+            }; 
+
+ 
+
+            reader.readAsText(file); 
+
+          }} 
+
+        /> 
+
+      </div> 
 
  
 
@@ -40,94 +164,109 @@ export default function ArchiveView({
 
  
 
-<table className="archive-table"> 
+      {sessions.length > 0 && ( 
 
-  <thead> 
+        <table className="archive-table"> 
 
-    <tr> 
+          <thead> 
 
-      <th>Datum</th> 
+            <tr> 
 
-      <th>Tip</th> 
+              <th>Datum</th> 
 
-      <th>Takmicenje</th>
+              <th>Tip</th> 
 
-      <th>Format</th> 
+              <th>Takmičenje</th> 
 
-      <th>Ukupno</th> 
+              <th>Format</th> 
 
-      <th>Status</th> 
+              <th>Ukupno</th> 
 
-      <th>Akcija</th> 
+              <th>Status</th> 
 
-    </tr> 
+              <th>Akcija</th> 
 
-  </thead> 
+            </tr> 
 
-  <tbody> 
+          </thead> 
 
-    {sessions.map(session => ( 
+ 
 
-      <tr key={session.id}> 
+          <tbody> 
 
-        <td onClick={() => onOpenSession(session.id)}> 
+            {[...sessions] 
 
-          {new Date(session.date).toLocaleDateString()} 
+              .sort((a, b) => 
 
-        </td> 
+                new Date(b.date).getTime() - new Date(a.date).getTime() 
 
-        <td>{session.mode}</td> 
-        <td>{session.competitionName ?? "-"}</td>
+              ) 
 
-        <td>{session.format}</td> 
+              .map(session => ( 
 
-        <td>{session.totalResult?.toFixed(1) ?? "0.0"}</td> 
+                <tr key={session.id}> 
 
-        
+                  <td onClick={() => onOpenSession(session.id)}> 
 
-        <td> 
+                    {new Date(session.date).toLocaleDateString()} 
 
-          {session.completed ? "Završeno" : "U toku"} 
+                  </td> 
 
-        </td> 
+                  <td>{session.mode}</td> 
 
-        <td> 
+                  <td>{session.competitionName ?? "-"}</td> 
 
-          <button 
+                  <td>{session.format}</td> 
 
-            className="delete-btn" 
+                  <td>{session.totalResult?.toFixed(1) ?? "0.0"}</td> 
 
-            onClick={(e) => { 
+                  <td> 
 
-              e.stopPropagation(); 
+                    {session.completed ? "Završeno" : "U toku"} 
 
-              const confirmDelete = window.confirm( 
+                  </td> 
 
-                "Da li ste sigurni da želite da obrišete ovu sesiju?" 
+                  <td> 
 
-              ); 
+                    <button 
 
-              if (!confirmDelete) return; 
+                      className="delete-btn" 
 
-              onDeleteSession(session.id); 
+                      onClick={(e) => { 
 
-            }} 
+                        e.stopPropagation(); 
 
-          > 
+                        const confirmDelete = window.confirm( 
 
-            Obriši 
+                          "Da li ste sigurni da želite da obrišete ovu sesiju?" 
 
-          </button> 
+                        ); 
 
-        </td> 
+                        if (!confirmDelete) return; 
 
-      </tr> 
+                        onDeleteSession(session.id); 
 
-    ))} 
+                      }} 
 
-  </tbody> 
+                    > 
 
-</table> 
+                      Obriši 
+
+                    </button> 
+
+                  </td> 
+
+                </tr> 
+
+              ))} 
+
+          </tbody> 
+
+        </table> 
+
+      )} 
+
+ 
 
     </div> 
 
