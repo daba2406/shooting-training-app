@@ -41,29 +41,27 @@ export default function App() {
 
 const sessions = loadSessions(); 
 
+const activeId = getActiveSessionId(); 
+
  
 
 let activeSession: ShootingSession; 
 
  
 
-const activeId = getActiveSessionId(); 
+const foundSession = sessions.find(s => s.id === activeId); 
 
  
 
-if (sessions.length === 0) { 
+if (foundSession) { 
 
-  activeSession = createNewSession(); 
-
-  saveSessions([activeSession]); 
-
-  setActiveSessionId(activeSession.id); 
+  activeSession = foundSession; 
 
 } else { 
 
-  activeSession = 
+  activeSession = createNewSession(); 
 
-    sessions.find(s => s.id === activeId) || sessions[0]; 
+  setActiveSessionId(activeSession.id); 
 
 } 
 
@@ -97,6 +95,9 @@ if (sessions.length === 0) {
   const [selectedSeriesIndex, setSelectedSeriesIndex] = useState<number | null>(null);
   const [manualTimeMode, setManualTimeMode] = useState(false);
   const [manualShotTime, setManualShotTime] = useState ("");
+  const [matchStartTimestamp, setMatchStartTimestamp] = useState<number | null>(null);
+
+  const [isFullScreen, setIsFullScreen] = useState(false);
  
 
 
@@ -200,6 +201,26 @@ useEffect(() => {
     }; 
 
   }, [shotRunning]); 
+
+  // ================= FULLSCREEN LISTENER ================= 
+
+useEffect(() => { 
+
+  const handleChange = () => { 
+
+    setIsFullScreen(!!document.fullscreenElement); 
+
+  }; 
+
+  document.addEventListener("fullscreenchange", handleChange); 
+
+  return () => { 
+
+    document.removeEventListener("fullscreenchange", handleChange); 
+
+  }; 
+
+}, []); 
 
  
 
@@ -372,7 +393,15 @@ useEffect(() => {
   const handleClick = (event: React.MouseEvent<HTMLCanvasElement>) => { 
     if (isReadOnly) return; 
 
-    if (!matchRunning) return; 
+    if (!matchRunning) { 
+
+  // Ако није стартован меč, а уносимо погодак 
+
+  matchStartRef.current = performance.now(); 
+
+  setMatchRunning(true); 
+
+} 
 
     if (!manualTimeMode) {
       if (shotRunning) return;
@@ -555,6 +584,36 @@ useEffect(() => {
 
     setSeriesList(updatedSeriesList); 
 
+    const sessions = loadSessions(); 
+    const activeId = getActiveSessionId(); 
+    const exists = sessions.some(s => s.id === activeId); 
+    if (!exists) { 
+    const newArchiveSession: ShootingSession = { 
+  
+    id: activeId as string, 
+
+    date: activeSession.date, 
+
+    mode: activeSession.mode, 
+
+    format: activeSession.format, 
+
+    maxShots: activeSession.maxShots, 
+
+    seriesList: updatedSeriesList, 
+
+    totalResult: 0, 
+
+    completed: false 
+
+  }; 
+
+ 
+
+  saveSessions([...sessions, newArchiveSession]); 
+
+} 
+
  
 
     setShotDisplayTime(0); 
@@ -576,6 +635,126 @@ useEffect(() => {
  
 
   const allShots = seriesList.flatMap(s => s.shots); 
+
+  // ===== KONVERZIJA U mm (GLOBALNO) ===== 
+
+const visibleMm = 7.75; 
+
+const radius = 450 / 2 - 10; 
+
+const mmToPx = radius / visibleMm; 
+
+const pxToMm = 1 / mmToPx; 
+
+  const averageScore =
+  allShots.length > 0
+  ? allShots.reduce((sum, s) => sum + s.value, 0) / allShots.length
+  : 0;
+
+  const standardDeviation = 
+
+  allShots.length > 1 
+
+    ? Math.sqrt( 
+
+        allShots.reduce((sum, s) => { 
+
+          const diff = s.value - averageScore; 
+
+          return sum + diff * diff; 
+
+        }, 0) / (allShots.length - 1) 
+
+      ) 
+
+    : 0; 
+
+    let extremeSpread = 0; 
+
+ 
+
+for (let i = 0; i < allShots.length; i++) { 
+
+  for (let j = i + 1; j < allShots.length; j++) { 
+
+ 
+
+    const dx = allShots[i].x - allShots[j].x; 
+
+    const dy = allShots[i].y - allShots[j].y; 
+
+ 
+
+    const distance = Math.sqrt(dx * dx + dy * dy); 
+
+ 
+
+    if (distance > extremeSpread) { 
+
+      extremeSpread = distance; 
+
+    } 
+
+  } 
+
+} 
+const extremeSpreadMm = extremeSpread * pxToMm;
+  
+  // ================= DISTRIBUCIJA POGODAKA ================= 
+
+ 
+
+const totalShotCount = allShots.length; 
+
+ 
+
+const shotDistribution: Record<string, number> = { 
+
+  "10.9": 0, 
+
+  "10.8": 0, 
+
+  "10.7": 0, 
+
+  "10.6": 0, 
+
+  "10.5": 0, 
+
+  "10.4": 0, 
+
+  "10.3": 0, 
+
+  "10.2": 0, 
+
+  "10.1": 0, 
+
+  "10.0": 0, 
+
+  "9.x": 0 
+
+}; 
+
+ 
+
+allShots.forEach(shot => { 
+
+  if (shot.value >= 10) { 
+
+    const key = shot.value.toFixed(1); 
+
+    if (shotDistribution[key] !== undefined) { 
+
+      shotDistribution[key]++; 
+
+    } 
+
+  } else { 
+
+    shotDistribution["9.x"]++; 
+
+  } 
+
+}); 
 
   const hitCount = allShots.filter(s => s.value >= 10.3).length; 
 
@@ -681,18 +860,6 @@ if (last5Shots.length > 1) {
 
   const canvasCenter = 450 / 2; // 225 
 
- 
-
-  const visibleMm = 7.75; 
-
-  const radius = 450 / 2 - 10; 
-
-  const mmToPx = radius / visibleMm; 
-
-  const pxToMm = 1 / mmToPx; 
-
- 
-
   const deltaXpx = avgX - canvasCenter; 
 
   const deltaYpx = canvasCenter - avgY; 
@@ -764,32 +931,15 @@ const startNewSession = () => {
 
  
 
-  const sessions = loadSessions(); 
-
   const newSession = createNewSession(); 
-
-  const updatedSessions = [...sessions, newSession]; 
-
- 
-
-  saveSessions(updatedSessions); 
-
   setActiveSessionId(newSession.id); 
-
- 
-
   setSeriesList(newSession.seriesList); 
-
   setIsReadOnly(false); 
-
   setSelectedSeriesIndex(null); 
-
- 
-
-  setView("shooting"); 
   setManualTimeMode(false);
   setManualShotTime("");
   setSelectedScore(null);
+  setView("shooting"); 
 
 }; 
 
@@ -806,11 +956,7 @@ const startNewSessionWithFormat = (
 
 ) => { 
 
- 
-
-  const sessions = loadSessions(); 
-
-  const newSession = createNewSession(); 
+   const newSession = createNewSession(); 
 
  
 
@@ -838,14 +984,6 @@ const startNewSessionWithFormat = (
 
   newSession.mode = mode;
 
- 
-
-  const updatedSessions = [...sessions, newSession]; 
-
- 
-
-  saveSessions(updatedSessions); 
-
   setActiveSessionId(newSession.id); 
 
  
@@ -856,11 +994,147 @@ const startNewSessionWithFormat = (
 
   setSelectedSeriesIndex(null); 
 
- 
+ setSelectedScore(null);
+ setManualTimeMode(false);
+ setManualShotTime("");
 
   setView("shooting"); 
 
 }; 
+const formatMatchTime = (seconds: number) => { 
+
+ 
+
+  if (!matchStartTimestamp) return "00:00:00"; 
+
+ 
+
+  const realTime = new Date( 
+
+    matchStartTimestamp + seconds * 1000 
+
+  ); 
+
+ 
+
+  const hours = realTime.getHours().toString().padStart(2, "0"); 
+
+  const minutes = realTime.getMinutes().toString().padStart(2, "0"); 
+
+  const secs = realTime.getSeconds().toString().padStart(2, "0"); 
+
+ 
+
+  return `${hours}:${minutes}:${secs}`; 
+
+}; 
+
+const enterFullScreen = () => { 
+
+  if (document.documentElement.requestFullscreen) { 
+
+    document.documentElement.requestFullscreen(); 
+
+  } 
+
+}; 
+
+ 
+
+const exitFullScreen = () => { 
+
+  if (document.fullscreenElement) { 
+
+    document.exitFullscreen(); 
+
+  } 
+
+}; 
+// ===== MEAN RADIUS ===== 
+
+ 
+
+let meanRadiusPx = 0; 
+
+ 
+
+if (allShots.length > 1) { 
+
+ 
+
+  const avgX = 
+
+    allShots.reduce((s, sh) => s + sh.x, 0) / allShots.length; 
+
+ 
+
+  const avgY = 
+
+    allShots.reduce((s, sh) => s + sh.y, 0) / allShots.length; 
+
+ 
+
+  const totalDistance = allShots.reduce((sum, shot) => { 
+
+    const dx = shot.x - avgX; 
+
+    const dy = shot.y - avgY; 
+
+    return sum + Math.sqrt(dx * dx + dy * dy); 
+
+  }, 0); 
+
+ 
+
+  meanRadiusPx = totalDistance / allShots.length; 
+
+} 
+ 
+
+const meanRadiusMm = meanRadiusPx * pxToMm; 
+// ===== MEAN RADIUS PO SERIJI ===== 
+
+ 
+
+const meanRadiusBySeries = seriesList.map(series => { 
+
+ 
+
+  if (series.shots.length <= 1) return 0; 
+
+ 
+
+  const avgX = 
+
+    series.shots.reduce((s, sh) => s + sh.x, 0) / series.shots.length; 
+
+ 
+
+  const avgY = 
+
+    series.shots.reduce((s, sh) => s + sh.y, 0) / series.shots.length; 
+
+ 
+
+  const totalDistance = series.shots.reduce((sum, shot) => { 
+
+    const dx = shot.x - avgX; 
+
+    const dy = shot.y - avgY; 
+
+    return sum + Math.sqrt(dx * dx + dy * dy); 
+
+  }, 0); 
+
+ 
+
+  const meanRadiusPxSeries = totalDistance / series.shots.length; 
+
+ 
+
+  return meanRadiusPxSeries * pxToMm; 
+
+}); 
 
 return ( 
 
@@ -943,6 +1217,25 @@ setView("archive");
         <div>Ukupno: {matchTotal.toFixed(1)}</div>
         <div>Broj hitaca: {allShots.length}</div>
         <div>Ukupno vreme meca: {totalMatchTime.toFixed(2)} s</div>
+        <div>Prosek: {averageScore.toFixed(2)}</div> 
+        <div>SD: {standardDeviation.toFixed(3)}</div> 
+        <div>Extreme Spread: {extremeSpreadMm.toFixed(2)} mm</div> 
+        <div>Mean Radius: {meanRadiusMm.toFixed(2)} mm</div>
+  <div style={{ marginTop: "10px" }}> 
+
+  <strong>Mean Radius po seriji:</strong> 
+
+  {meanRadiusBySeries.map((mr, i) => ( 
+
+    <div key={i}> 
+
+      Serija {i + 1}: {mr.toFixed(2)} mm 
+
+    </div> 
+
+  ))} 
+
+</div> 
         </div>
         <div className="print-only"> 
 
@@ -980,7 +1273,7 @@ setView("archive");
 
               <th>Vreme</th> 
 
-              <th>Match time</th> 
+              <th>Vreme u mecu</th> 
 
             </tr> 
 
@@ -999,8 +1292,7 @@ setView("archive");
                 <td>{getShotDirection(shot)}</td> 
 
                 <td>{shot.shotTime.toFixed(2)}</td> 
-
-                <td>{(shot.matchTime ?? 0).toFixed(2)}</td> 
+                <td>{formatMatchTime(shot.matchTime ?? 0)}</td> 
 
               </tr> 
 
@@ -1053,96 +1345,131 @@ setView("archive");
 )} 
  
 
-          <button onClick={() => setView("archive")}> 
-
-            ARHIVA 
-
-          </button> 
-          <button 
-
-  onClick={() => { 
-
-    if (allShots.length > 0) { 
-
-      const confirmLeave = window.confirm( 
-
-        "Da li ste sigurni da želite da započnete novi meč?" 
-
-      ); 
-
-      if (!confirmLeave) return; 
-
-    } 
+         <div className="top-controls"> 
 
  
 
-    setView("setup"); 
+  <button onClick={() => setView("archive")}> 
 
-  }} 
+    ARHIVA 
 
-> 
+  </button> 
 
-  NOVI MEČ 
+ 
 
-</button> 
-{isReadOnly && ( 
-
-  <button 
+  <button  
 
     onClick={() => { 
 
-      setIsReadOnly(false); 
+      if (allShots.length > 0) { 
 
-      setSelectedSeriesIndex(null); 
+        const confirmLeave = window.confirm( 
 
-      loadActiveSession(); 
+          "Da li ste sigurni da želite da započnete novi meč?" 
+
+        ); 
+
+        if (!confirmLeave) return; 
+
+      } 
+
+      setView("setup"); 
 
     }} 
 
   > 
 
-    NAZAD NA MEČ 
+    NOVI MEČ 
 
   </button> 
 
-)}  
-    <button onClick={() => window.print()}>
-    PRINT MEC
-    </button>
+ 
+
+  {isReadOnly && ( 
 
     <button 
 
+      onClick={() => { 
+
+        setIsReadOnly(false); 
+
+        setSelectedSeriesIndex(null); 
+
+        loadActiveSession(); 
+
+      }} 
+
+    > 
+
+      NAZAD 
+
+    </button> 
+
+  )} 
+
+ 
+
+  <button onClick={() => window.print()}> 
+
+    PRINT 
+
+  </button> 
+
+ 
+
+  <button 
+
+    onClick={() => { 
+
+      const sessions = loadSessions(); 
+
+      const activeId = getActiveSessionId(); 
+
+      const updated = sessions.map(s => 
+
+        s.id === activeId 
+
+          ? { ...s, completed: true } 
+
+          : s 
+
+      ); 
+
+      saveSessions(updated); 
+
+      alert("Meč označen kao završen."); 
+
+    }} 
+
+  > 
+
+    ZAVRŠI 
+
+  </button> 
+<button 
+
   onClick={() => { 
 
-    const sessions = loadSessions(); 
+    if (!isFullScreen) { 
 
-    const activeId = getActiveSessionId(); 
+      enterFullScreen(); 
 
- 
+    } else { 
 
-    const updated = sessions.map(s => 
+      exitFullScreen(); 
 
-      s.id === activeId 
-
-        ? { ...s, completed: true } 
-
-        : s 
-
-    ); 
-
- 
-
-    saveSessions(updated); 
-
-    alert("Meč označen kao završen."); 
+    } 
 
   }} 
 
 > 
 
-  OZNAČI KAO ZAVRŠEN 
+  {isFullScreen ? "EXIT FS" : "FULL SCREEN"} 
 
 </button> 
+ 
+
+</div> 
     <label style={{ display: "block", marginTop: "10px" }}> 
 
   <input 
@@ -1181,18 +1508,24 @@ setView("archive");
  
 
           <button 
-            disabled={isReadOnly || manualTimeMode}
-            onClick={() => { 
 
-            matchStartRef.current = performance.now(); 
+  disabled={isReadOnly || manualTimeMode} 
 
-            setMatchRunning(true); 
+  onClick={() => { 
 
-          }}> 
+    matchStartRef.current = performance.now(); 
 
-            START MEČA 
+    setMatchStartTimestamp(Date.now()); 
 
-          </button> 
+    setMatchRunning(true); 
+
+  }} 
+
+> 
+
+  START MEČА 
+
+</button> 
 
  
 
@@ -1226,20 +1559,23 @@ setView("archive");
 
  
 
+          {false && (
           <button 
 
-  disabled={isReadOnly} 
+          disabled={isReadOnly} 
 
-  onClick={startNewSession} 
+          onClick={startNewSession} 
 
-> 
+        > 
 
-  NOVA SESIJA 
+          NOVA SESIJA 
 
-</button> 
+          </button>
+          )} 
 
  
-
+{!isReadOnly && (
+  <>
           <div className="score-buttons high-row"> 
 
             {highScores.map(score => ( 
@@ -1285,8 +1621,55 @@ setView("archive");
               </button> 
 
             ))} 
-
           </div> 
+          </>
+)}
+
+          <div style={{ marginTop: "8px" }}> 
+
+  <h4>Statistika pogodaka</h4> 
+
+ 
+
+  <div className="stats-grid"> 
+
+    {Object.entries(shotDistribution).map(([key, count]) => { 
+
+ 
+
+      const percent = 
+
+        totalShotCount > 0 
+
+          ? ((count / totalShotCount) * 100).toFixed(1) 
+
+          : "0.0"; 
+
+ 
+
+      return ( 
+
+        <div 
+
+          key={key} 
+
+          className="stats-item" 
+
+        > 
+
+          <span>{key}</span> 
+
+          <span>{count} ({percent}%)</span> 
+
+        </div> 
+
+      ); 
+
+    })} 
+
+  </div> 
+
+</div> 
 
  
 
@@ -1402,6 +1785,8 @@ setView("archive");
 
                   <th>Vreme</th> 
 
+                  <th>Vreme u mecu</th>
+
                 </tr> 
 
               </thead> 
@@ -1423,6 +1808,7 @@ setView("archive");
                     </td> 
 
                     <td>{shot.shotTime.toFixed(2)}</td> 
+                    <td>{formatMatchTime(shot.matchTime ?? 0)}</td>
 
                   </tr> 
 

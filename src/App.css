@@ -53,9 +53,9 @@ html, body, #root {
 
   grid-template-columns: repeat(5, 1fr); 
 
-  gap: 6px; 
+  gap: 3px; 
 
-  margin-top: 10px; 
+  margin-top: 6px; 
 
 } 
 
@@ -65,7 +65,8 @@ html, body, #root {
 
 .small-btn { 
 
-  font-size: 14px; 
+  font-size: 12px;
+  padding: 4px; 
 
 } 
 
@@ -794,3 +795,62 @@ html, body, #root {
   background-color: #299898; 
 
 } 
+.data-panel h4 { 
+
+  margin-bottom: 10px; 
+
+  border-bottom: 1px solid #333; 
+
+  padding-bottom: 5px; 
+
+} 
+.top-controls { 
+
+  display: grid; 
+
+  grid-template-columns: 1fr 1fr; 
+
+  gap: 4px; 
+
+  margin-bottom: 8px; 
+
+} 
+
+ 
+
+.top-controls button { 
+
+  padding: 4px 6px; 
+
+  font-size: 11px; 
+
+} 
+.stats-grid { 
+
+  display: grid; 
+
+  grid-template-columns: 1fr 1fr; 
+
+  gap: 4px 10px; 
+
+  font-size: 12px; 
+
+} 
+
+ 
+
+.stats-item { 
+
+  display: flex; 
+
+  justify-content: space-between; 
+
+} 
+.data-panel h4 {
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+
+.data-panel {
+  font-size: 13px;
+}

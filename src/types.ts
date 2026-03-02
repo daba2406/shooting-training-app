@@ -45,6 +45,7 @@ export interface ShootingSession {
   format: "60" | "40" | "trial" | "custom"; 
 
   maxShots: number | null; 
+  matchStartTimestamp?: number;
 
   seriesList: Series[]; 
 
