@@ -273,15 +273,9 @@ useEffect(() => {
 
           ), 
 
-          completed: 
+          completed: activeSessionState.completed,
 
-            activeSessionState.maxShots !== null 
 
-              ? activeSessionState.seriesList.flatMap(s => s.shots).length >= 
-
-                activeSessionState.maxShots 
-
-              : false 
 
         } 
 
@@ -948,6 +942,7 @@ const matchTimeExpired =
   activeSessionState.format === "60" && 
 
   elapsedTime >= QUALIFICATION_TIME_LIMIT; 
+  
   useEffect(() => { 
 
   if (activeSessionState.completed) return; 
@@ -972,13 +967,20 @@ const matchTimeExpired =
 
     setActiveSessionState(prev => ({ 
 
-      ...prev, 
+  ...prev, 
 
-      completed: true, 
+  completed: true, 
 
-      matchEndedTimestamp: now 
+  matchEndedTimestamp: now, 
 
-    })); 
+  finishReason: 
+  maxShots !== null && totalShots >= maxShots 
+
+    ? "shots_limit" 
+
+    : "time_limit" 
+
+})); 
 
   } 
 
@@ -1433,7 +1435,7 @@ const updated = sessions.filter(s => s.id !== id);
 
 saveSessions(updated);     
 
-setView("archive");   
+setSessionsState(updated);   
 
 }} 
 
@@ -1754,7 +1756,9 @@ setView("archive");
 
       completed: true, 
 
-      matchEndedTimestamp: now 
+      matchEndedTimestamp: now,
+      finishReason: "manual"
+
 
     })); 
 

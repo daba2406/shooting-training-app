@@ -854,3 +854,92 @@ html, body, #root {
 .data-panel {
   font-size: 13px;
 }
+.archive-table { 
+
+  width: 100%; 
+
+  border-collapse: collapse; 
+
+  background: #ffffff; 
+
+} 
+
+ 
+
+.archive-table th { 
+
+  text-align: left; 
+
+  padding: 10px; 
+
+  background: #ffffff; 
+
+  font-size: 13px; 
+
+  letter-spacing: 0.5px; 
+
+} 
+
+ 
+
+.archive-table td { 
+
+  padding: 10px; 
+
+  border-bottom: none; 
+
+} 
+
+ 
+
+.archive-table tbody tr:hover { 
+
+  background-color: #ffffff; 
+
+  transition: background-color 0.2s ease; 
+
+} 
+.archive-table { 
+
+  width: 100%; 
+
+  border-collapse: separate; 
+  border-spacing: 0;
+
+} 
+
+ 
+
+.archive-table th { 
+
+  text-align: left; 
+
+  padding: 10px; 
+
+  background: #207c80; 
+
+  font-size: 13px; 
+
+  letter-spacing: 0.5px; 
+
+} 
+
+ 
+
+.archive-table td { 
+
+  padding: 10px; 
+
+  border-bottom: 1px solid #333; 
+
+} 
+
+ 
+
+.archive-table tbody tr:hover { 
+
+  background-color: #207c80; 
+
+  transition: background-color 0.2s ease; 
+
+} 

@@ -2,7 +2,7 @@ import type { ShootingSession } from "../types";
 
 import { loadSessions, saveSessions } from "../sessionManager"; 
 
- 
+import {useState} from "react";
 
 interface Props { 
 
@@ -27,6 +27,35 @@ export default function ArchiveView({
 }: Props) { 
 
  
+ const [filterMode, setFilterMode] = useState<
+ "all" | "training" | "qualification" | "final"
+ >("all");
+
+const [sortField, setSortField] = useState<
+"date" | "total" | "duration" | "status"
+>("date");
+
+const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+
+const handleSort = ( 
+
+  field: "date" | "total" | "duration" | "status" 
+
+) => { 
+
+  if (sortField === field) { 
+
+    setSortDirection(prev => (prev === "asc" ? "desc" : "asc")); 
+
+  } else { 
+
+    setSortField(field); 
+
+    setSortDirection("desc"); 
+
+  } 
+
+}; 
 
   return ( 
 
@@ -35,6 +64,18 @@ export default function ArchiveView({
  
 
       <h2>Arhiva sesija</h2> 
+
+      <div style={{ marginBottom: "15px" }}> 
+
+  <button onClick={() => setFilterMode("all")}>Sve</button> 
+
+  <button onClick={() => setFilterMode("training")}>Training</button> 
+
+  <button onClick={() => setFilterMode("qualification")}>Qualification</button> 
+
+  <button onClick={() => setFilterMode("final")}>Final</button> 
+
+</div> 
 
  
 
@@ -168,43 +209,198 @@ export default function ArchiveView({
 
         <table className="archive-table"> 
 
-          <thead> 
+<thead> 
 
-            <tr> 
+  <tr> 
 
-              <th>Datum</th> 
+    <th style={{ width: "120px", cursor: "pointer" }}
+    
+    onClick={() => handleSort("date")}
+    >
+      Datum
+      </th> 
 
-              <th>Tip</th> 
+    <th style={{ width: "100px" }}>Tip</th> 
 
-              <th>Takmičenje</th> 
+    <th style={{ width: "180px" }}>Takmičenje</th> 
 
-              <th>Format</th> 
+    <th style={{ width: "80px" }}>Format</th> 
 
-              <th>Ukupno</th> 
+    <th style={{ cursor: "pointer", width: "90px", textAlign: "left" }}
+    onClick={() => handleSort("total")}
+    >
+      Ukupno
+      </th>
 
-              <th>Status</th> 
+    <th style={{ cursor: "pointer", width: "80px", textAlign: "center"}}
+    onClick={() => handleSort("duration")}
+    >
+      Trajanje
+      </th>
 
-              <th>Akcija</th> 
+    <th style={{ cursor: "pointer", width: "120px", textAlign: "center" }}
+    onClick={() => handleSort("status")}
+    >
+      Status
+      </th> 
 
-            </tr> 
+    <th style={{ width: "80px", textAlign: "left" }}>Akcija</th> 
 
-          </thead> 
+  </tr> 
+
+</thead> 
 
  
 
           <tbody> 
 
-            {[...sessions] 
+{[...sessions] 
 
-              .sort((a, b) => 
+  .filter(session => 
 
-                new Date(b.date).getTime() - new Date(a.date).getTime() 
+    filterMode === "all" 
 
-              ) 
+      ? true 
 
-              .map(session => ( 
+      : session.mode === filterMode 
 
-                <tr key={session.id}> 
+  ) 
+
+  .sort((a, b) => { 
+
+  let comparison = 0; 
+
+ 
+
+  if (sortField === "date") { 
+
+    comparison = 
+
+      new Date(a.date).getTime() - new Date(b.date).getTime(); 
+
+  } 
+
+ 
+
+  if (sortField === "total") { 
+
+    comparison = (a.totalResult ?? 0) - (b.totalResult ?? 0); 
+
+  } 
+
+ 
+
+  if (sortField === "duration") { 
+
+    const aDuration = 
+
+      a.matchStartTimestamp && a.matchEndedTimestamp 
+
+        ? a.matchEndedTimestamp - a.matchStartTimestamp 
+
+        : 0; 
+
+ 
+
+    const bDuration = 
+
+      b.matchStartTimestamp && b.matchEndedTimestamp 
+
+        ? b.matchEndedTimestamp - b.matchStartTimestamp 
+
+        : 0; 
+
+ 
+
+    comparison = aDuration - bDuration; 
+
+  } 
+
+ 
+
+  if (sortField === "status") { 
+
+  const statusValue = (s: ShootingSession) => { 
+
+    if (!s.completed) return 0; 
+
+    if (s.finishReason === "manual") return 1; 
+
+    if (s.finishReason === "shots_limit") return 2; 
+
+    if (s.finishReason === "time_limit") return 3; 
+
+    return 1; 
+
+  }; 
+
+ 
+
+  comparison = statusValue(a) - statusValue(b); 
+
+} 
+
+ 
+
+  return sortDirection === "asc" ? comparison : -comparison; 
+
+}) 
+
+  .map(session => {  
+
+ 
+
+  let duration = "-"; 
+
+ 
+
+  if (session.matchStartTimestamp && session.matchEndedTimestamp) { 
+
+    const diffMs = 
+
+      session.matchEndedTimestamp - session.matchStartTimestamp; 
+
+ 
+
+    const totalSeconds = Math.floor(diffMs / 1000); 
+
+ 
+
+    const hours = Math.floor(totalSeconds / 3600) 
+
+      .toString() 
+
+      .padStart(2, "0"); 
+
+ 
+
+    const minutes = Math.floor((totalSeconds % 3600) / 60) 
+
+      .toString() 
+
+      .padStart(2, "0"); 
+
+ 
+
+    const seconds = (totalSeconds % 60) 
+
+      .toString() 
+
+      .padStart(2, "0"); 
+
+ 
+
+    duration = `${hours}:${minutes}:${seconds}`; 
+
+  } 
+
+ 
+
+  return ( 
+
+                <tr 
+                key={session.id}
+                style={{ cursor: "pointer" }}> 
 
                   <td onClick={() => onOpenSession(session.id)}> 
 
@@ -216,15 +412,105 @@ export default function ArchiveView({
 
                   <td>{session.competitionName ?? "-"}</td> 
 
-                  <td>{session.format}</td> 
+                  <td style={{ textAlign: "right" }}>
+                    {session.format}</td> 
 
-                  <td>{session.totalResult?.toFixed(1) ?? "0.0"}</td> 
+                  <td style={{ width: "90px", textAlign: "left" }}>
+                    {session.totalResult?.toFixed(1) ?? "0.0"}</td> 
+                  <td style={{ textAlign: "center" }}>
+                    {duration}
+                  </td>
 
-                  <td> 
 
-                    {session.completed ? "Završeno" : "U toku"} 
+  {!session.completed && ( 
 
-                  </td> 
+    <span 
+
+      style={{  
+
+        backgroundColor: "#ffc107", 
+
+        color: "#000", 
+
+        padding: "4px 8px", 
+
+        borderRadius: "12px", 
+
+        fontSize: "12px", 
+
+        fontWeight: "bold" 
+
+      }} 
+
+    > 
+
+      U toku 
+
+    </span> 
+
+  )} 
+
+ 
+
+ <td style={{ width: "180px", textAlign: "left" }}> 
+
+  <span 
+
+    style={{ 
+
+      display: "inline-block", 
+
+      minWidth: "140px", 
+
+      padding: "6px 12px", 
+
+      borderRadius: "20px", 
+
+      fontSize: "12px", 
+
+      fontWeight: 600, 
+
+      textAlign: "center", 
+
+      backgroundColor: !session.completed 
+
+        ? "#ffe082" 
+
+        : session.finishReason === "manual" 
+
+        ? "#81c784" 
+
+        : session.finishReason === "shots_limit" 
+
+        ? "#64b5f6" 
+
+        : session.finishReason === "time_limit" 
+
+        ? "#e57373" 
+
+        : "#81c784", 
+
+      color: "#1b1b1b" 
+
+    }} 
+
+  > 
+
+    {!session.completed && "U toku"} 
+
+ 
+
+    {session.completed && session.finishReason === "manual" && "Ručno završeno"} 
+
+    {session.completed && session.finishReason === "shots_limit" && "Limit hitaca"} 
+
+    {session.completed && session.finishReason === "time_limit" && "Isteklo vreme"} 
+
+    {session.completed && !session.finishReason && "Završeno"} 
+
+  </span> 
+
+</td> 
 
                   <td> 
 
@@ -257,8 +543,9 @@ export default function ArchiveView({
                   </td> 
 
                 </tr> 
+  );
 
-              ))} 
+}) }
 
           </tbody> 
 
