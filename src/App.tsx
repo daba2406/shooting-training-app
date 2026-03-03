@@ -26,8 +26,7 @@ import {
  
 
 export default function App() { 
-
- 
+ const QUALIFICATION_TIME_LIMIT = 75 * 60; //sekunde
 
   const MAX_SERIES = 6; 
 
@@ -45,33 +44,60 @@ const activeId = getActiveSessionId();
 
  
 
-let activeSession: ShootingSession; 
-
- 
-
 const foundSession = sessions.find(s => s.id === activeId); 
 
  
 
-if (foundSession) { 
+const [activeSessionState, setActiveSessionState] = useState<ShootingSession>
+(foundSession ?? createNewSession()); 
+const seriesList = activeSessionState.seriesList
 
-  activeSession = foundSession; 
+useEffect(() => { 
 
-} else { 
+  const sessions = loadSessions(); 
 
-  activeSession = createNewSession(); 
+  const activeId = getActiveSessionId(); 
 
-  setActiveSessionId(activeSession.id); 
-
-} 
+  const active = sessions.find(s => s.id === activeId); 
 
  
 
-  const [seriesList, setSeriesList] = useState<Series[]>( 
+  if (active?.matchStartTimestamp) { 
 
-  activeSession.seriesList 
+    setActiveSessionState(active); 
 
-); 
+    setMatchRunning(true); 
+
+  } 
+
+}, []); 
+
+ 
+
+useEffect(() => { 
+
+  if (!foundSession) { 
+
+    setActiveSessionId(activeSessionState.id); 
+
+  } 
+
+}, []); 
+// ✅ SINKRONIZACIJA MATCH START TIMESTAMP NAKON REFRESH-A 
+
+useEffect(() => { 
+
+  if (activeSessionState?.matchStartTimestamp) { 
+
+    
+
+  } 
+
+}, []); 
+ 
+
+
+
 
  
 
@@ -95,17 +121,116 @@ if (foundSession) {
   const [selectedSeriesIndex, setSelectedSeriesIndex] = useState<number | null>(null);
   const [manualTimeMode, setManualTimeMode] = useState(false);
   const [manualShotTime, setManualShotTime] = useState ("");
-  const [matchStartTimestamp, setMatchStartTimestamp] = useState<number | null>(null);
 
   const [isFullScreen, setIsFullScreen] = useState(false);
- 
-
-
-  const matchStartRef = useRef<number | null>(null); 
+  const [, forceTick] = useState(0);
 
   const shotStartRef = useRef<number | null>(null); 
 
   const intervalRef = useRef<number | null>(null); 
+  const [sessionsState, setSessionsState] = useState<ShootingSession[]>(loadSessions());
+
+  const getCurrentMatchTime = () => { 
+
+  if (!activeSessionState.matchStartTimestamp) return 0; 
+
+ 
+
+  // ✅ Ako je meč ručno završen – zamrzni vreme 
+
+  const referenceTime = 
+
+    activeSessionState.matchEndedTimestamp ?? Date.now(); 
+
+ 
+
+  const totalPaused = activeSessionState.totalPausedTime ?? 0; 
+
+ 
+
+  // ✅ Ako je trenutno pauza i meč nije završen 
+
+  if ( 
+
+    activeSessionState.pauseStartTimestamp && 
+
+    !activeSessionState.matchEndedTimestamp 
+
+  ) { 
+
+    const currentPauseDuration = 
+
+      Date.now() - activeSessionState.pauseStartTimestamp; 
+
+ 
+
+    return ( 
+
+      (Date.now() - 
+
+        activeSessionState.matchStartTimestamp - 
+
+        totalPaused - 
+
+        currentPauseDuration) / 
+
+      1000 
+
+    ); 
+
+  } 
+
+ 
+
+  return ( 
+
+    (referenceTime - 
+
+      activeSessionState.matchStartTimestamp - 
+
+      totalPaused) / 
+
+    1000 
+
+  ); 
+
+}; 
+
+const addMatchEvent = ( 
+
+  type: "leave_line" | "pause_on_line" | "dry_fire" 
+
+) => { 
+
+  if (!activeSessionState.matchStartTimestamp) return; 
+
+ 
+
+  const now = Date.now(); 
+
+ 
+
+  const event = { 
+
+    type, 
+
+    timestamp: now, 
+
+    matchTime: getCurrentMatchTime() 
+
+  }; 
+
+ 
+
+  setActiveSessionState(prev => ({ 
+
+    ...prev, 
+
+    matchEvents: [...(prev.matchEvents ?? []), event] 
+
+  })); 
+
+}; 
 
  
 
@@ -122,11 +247,15 @@ if (foundSession) {
 
 useEffect(() => { 
 
- if (isReadOnly) return;
+  if (isReadOnly) return; 
+
+ 
 
   const sessions = loadSessions(); 
 
-  const activeId = getActiveSessionId(); 
+  const activeId = activeSessionState.id; 
+
+ 
 
   const updatedSessions = sessions.map(session => 
 
@@ -134,21 +263,25 @@ useEffect(() => {
 
       ? { 
 
-          ...session, 
+          ...activeSessionState, 
 
-          seriesList, 
-
-          totalResult: seriesList.reduce( 
+          totalResult: activeSessionState.seriesList.reduce( 
 
             (s, ser) => s + ser.total, 
 
             0 
 
-          ),
-          completed:
-          session.maxShots !== null
-          ? seriesList.flatMap(s => s.shots).length >= session.maxShots
-          : false
+          ), 
+
+          completed: 
+
+            activeSessionState.maxShots !== null 
+
+              ? activeSessionState.seriesList.flatMap(s => s.shots).length >= 
+
+                activeSessionState.maxShots 
+
+              : false 
 
         } 
 
@@ -159,10 +292,9 @@ useEffect(() => {
  
 
   saveSessions(updatedSessions); 
+  setSessionsState(updatedSessions);
 
- 
-
-}, [seriesList, isReadOnly]); 
+}, [activeSessionState, isReadOnly]); 
 
  
 
@@ -222,7 +354,26 @@ useEffect(() => {
 
 }, []); 
 
+ useEffect(() => { 
+
+  if (!activeSessionState.matchStartTimestamp || activeSessionState.matchEndedTimestamp
+
+  ) 
+  return; 
+
  
+
+  const interval = setInterval(() => { 
+
+    forceTick(prev => prev + 1); 
+
+  }, 1000); 
+
+ 
+
+  return () => clearInterval(interval); 
+
+}, [activeSessionState.matchStartTimestamp]); 
 
   // ================= META ================= 
 
@@ -391,15 +542,23 @@ useEffect(() => {
  
 
   const handleClick = (event: React.MouseEvent<HTMLCanvasElement>) => { 
+    if (activeSessionState.completed) return; 
+
+ 
+
+if (matchTimeExpired) { 
+
+  alert("Vreme meča je isteklo."); 
+
+  return; 
+
+} 
     if (isReadOnly) return; 
 
     if (!matchRunning) { 
 
-  // Ако није стартован меč, а уносимо погодак 
-
-  matchStartRef.current = performance.now(); 
-
-  setMatchRunning(true); 
+  alert("Prvo pokrenite mec.");
+  return;
 
 } 
 
@@ -422,6 +581,9 @@ useEffect(() => {
     let updatedSeriesList = [...seriesList]; 
 
     let workingSeries = currentSeries; 
+    let seriesIndex = updatedSeriesList.findIndex(
+      s => s.index == workingSeries.index
+    );
 
  
 
@@ -450,6 +612,7 @@ useEffect(() => {
       updatedSeriesList = [...seriesList, newSeries]; 
 
       workingSeries = newSeries; 
+      seriesIndex = updatedSeriesList.length -1;
 
     } 
 
@@ -534,8 +697,8 @@ useEffect(() => {
  
 
     const matchTime = 
-      matchStartRef.current
-      ? (performance.now() - matchStartRef.current) / 1000
+      activeSessionState.matchStartTimestamp
+      ? (Date.now() - activeSessionState.matchStartTimestamp) / 1000
       : 0;
     
     const finalShotTime = manualTimeMode
@@ -568,7 +731,7 @@ useEffect(() => {
 
  
 
-    updatedSeriesList[updatedSeriesList.length - 1] = { 
+    updatedSeriesList[seriesIndex] = { 
 
       ...workingSeries, 
 
@@ -582,7 +745,10 @@ useEffect(() => {
 
  
 
-    setSeriesList(updatedSeriesList); 
+    setActiveSessionState(prev => ({
+      ...prev,
+      seriesList: updatedSeriesList
+  })); 
 
     const sessions = loadSessions(); 
     const activeId = getActiveSessionId(); 
@@ -592,13 +758,13 @@ useEffect(() => {
   
     id: activeId as string, 
 
-    date: activeSession.date, 
+    date: activeSessionState.date, 
 
-    mode: activeSession.mode, 
+    mode: activeSessionState.mode, 
 
-    format: activeSession.format, 
+    format: activeSessionState.format, 
 
-    maxShots: activeSession.maxShots, 
+    maxShots: activeSessionState.maxShots, 
 
     seriesList: updatedSeriesList, 
 
@@ -763,10 +929,86 @@ allShots.forEach(shot => {
   const matchTotal = seriesList.reduce((s, ser) => s + ser.total, 0); 
 
   const totalShots = allShots.length; 
+  const elapsedTime = getCurrentMatchTime(); 
+
+ 
+
+const remainingTime = 
+
+  activeSessionState.format === "60" 
+
+    ? Math.max(0, QUALIFICATION_TIME_LIMIT - elapsedTime) 
+
+    : null; 
+
+ 
+
+const matchTimeExpired = 
+
+  activeSessionState.format === "60" && 
+
+  elapsedTime >= QUALIFICATION_TIME_LIMIT; 
+  useEffect(() => { 
+
+  if (activeSessionState.completed) return; 
+
+ 
+
+  const maxShots = activeSessionState.maxShots; 
+
+ 
+
+  const shotsLimitReached = 
+
+    maxShots !== null && totalShots >= maxShots; 
+
+ 
+
+  if (shotsLimitReached || matchTimeExpired) { 
+
+    const now = Date.now(); 
+
+ 
+
+    setActiveSessionState(prev => ({ 
+
+      ...prev, 
+
+      completed: true, 
+
+      matchEndedTimestamp: now 
+
+    })); 
+
+  } 
+
+}, [totalShots, matchTimeExpired]); 
 
   const expectedResult = 
 
     totalShots > 0 ? (matchTotal / totalShots) * 60 : 0; 
+const idealTimePerShot = 75; // sekundi po hicu (75min / 60) 
+
+ 
+
+const expectedShotsByNow = 
+
+  activeSessionState.format === "60" 
+
+    ? elapsedTime / idealTimePerShot 
+
+    : 0; 
+
+ 
+
+const tempoDifference = 
+
+  activeSessionState.format === "60" 
+
+    ? totalShots - expectedShotsByNow 
+
+    : 0; 
+
     // ===== DIRECTION ARROW ===== 
 
     const getShotDirection = (shot: Shot) => { 
@@ -922,7 +1164,7 @@ const loadActiveSession = () => {
 
   if (active) { 
 
-    setSeriesList(active.seriesList); 
+    setActiveSessionState(active); 
 
   } 
 
@@ -932,8 +1174,8 @@ const startNewSession = () => {
  
 
   const newSession = createNewSession(); 
+  setActiveSessionState(newSession);
   setActiveSessionId(newSession.id); 
-  setSeriesList(newSession.seriesList); 
   setIsReadOnly(false); 
   setSelectedSeriesIndex(null); 
   setManualTimeMode(false);
@@ -986,9 +1228,8 @@ const startNewSessionWithFormat = (
 
   setActiveSessionId(newSession.id); 
 
- 
+ setActiveSessionState(newSession);
 
-  setSeriesList(newSession.seriesList); 
 
   setIsReadOnly(false); 
 
@@ -1001,21 +1242,19 @@ const startNewSessionWithFormat = (
   setView("shooting"); 
 
 }; 
-const formatMatchTime = (seconds: number) => { 
+const formatMatchTime = ( 
 
- 
+  seconds: number) => { 
 
-  if (!matchStartTimestamp) return "00:00:00"; 
+  if (!activeSessionState.matchStartTimestamp) 
 
- 
+    return "00:00:00"; 
 
-  const realTime = new Date( 
+   const realTime = new Date( 
 
-    matchStartTimestamp + seconds * 1000 
+    activeSessionState.matchStartTimestamp + seconds * 1000 
 
   ); 
-
- 
 
   const hours = realTime.getHours().toString().padStart(2, "0"); 
 
@@ -1163,9 +1402,7 @@ return (
 
     {view === "archive" && ( 
 
-      <ArchiveView 
-
-  sessions={loadSessions()} 
+      <ArchiveView sessions={sessionsState} 
 
   onOpenSession={(id) => { 
 
@@ -1177,8 +1414,9 @@ return (
 
   if (selected) { 
 
+    setActiveSessionId(id);
     
-    setSeriesList(selected.seriesList); 
+    setActiveSessionState(selected);
 
     setIsReadOnly(true); 
 
@@ -1297,6 +1535,61 @@ setView("archive");
               </tr> 
 
             ))} 
+            {activeSessionState.matchEvents && 
+
+  activeSessionState.matchEvents.length > 0 && ( 
+
+    <div style={{ marginTop: "20px" }}> 
+
+            
+
+      <h3>Događaji tokom meča</h3> 
+
+ 
+
+      <table> 
+
+        <thead> 
+
+          <tr> 
+
+            <th>Tip</th> 
+
+            <th>Vreme u meču (s)</th> 
+
+          </tr> 
+
+        </thead> 
+
+        <tbody> 
+
+          {activeSessionState.matchEvents.map((event, index) => ( 
+
+            <tr key={index}> 
+
+              <td> 
+
+  {event.type === "leave_line" && "Izlazak sa linije"} 
+
+  {event.type === "pause_on_line" && "Pauza na liniji"} 
+
+  {event.type === "dry_fire" && "Prazan okidač"} 
+
+</td>  
+
+              <td>{event.matchTime.toFixed(2)}</td> 
+
+            </tr> 
+
+          ))} 
+
+        </tbody> 
+
+      </table> 
+
+    </div> 
+
+)} 
 
           </tbody> 
 
@@ -1341,9 +1634,37 @@ setView("archive");
     ARHIVSKA SESIJA – READ ONLY 
 
   </div> 
+  
+)} 
+ {activeSessionState.completed && !isReadOnly && ( 
+
+  <div 
+
+    style={{ 
+
+      background: "#1a3a1a", 
+
+      color: "#4cff4c", 
+
+      padding: "10px", 
+
+      marginBottom: "10px", 
+
+      textAlign: "center", 
+
+      fontWeight: "bold", 
+
+      fontSize: "18px" 
+
+    }} 
+
+  > 
+
+    MEČ ZAVRŠEN 
+
+  </div> 
 
 )} 
- 
 
          <div className="top-controls"> 
 
@@ -1419,33 +1740,31 @@ setView("archive");
 
   <button 
 
-    onClick={() => { 
+  disabled={activeSessionState.completed} 
 
-      const sessions = loadSessions(); 
+  onClick={() => { 
 
-      const activeId = getActiveSessionId(); 
+    const now = Date.now(); 
 
-      const updated = sessions.map(s => 
+ 
 
-        s.id === activeId 
+    setActiveSessionState(prev => ({ 
 
-          ? { ...s, completed: true } 
+      ...prev, 
 
-          : s 
+      completed: true, 
 
-      ); 
+      matchEndedTimestamp: now 
 
-      saveSessions(updated); 
+    })); 
 
-      alert("Meč označen kao završen."); 
+  }} 
 
-    }} 
+> 
 
-  > 
+  ZAVRŠI 
 
-    ZAVRŠI 
-
-  </button> 
+</button> 
 <button 
 
   onClick={() => { 
@@ -1509,13 +1828,35 @@ setView("archive");
 
           <button 
 
-  disabled={isReadOnly || manualTimeMode} 
+  disabled={isReadOnly || manualTimeMode || activeSessionState.completed} 
 
   onClick={() => { 
 
-    matchStartRef.current = performance.now(); 
+     const now = Date.now(); 
 
-    setMatchStartTimestamp(Date.now()); 
+    
+    
+    const sessions = loadSessions(); 
+
+    const activeId = getActiveSessionId(); 
+
+    const updated = sessions.map(s => 
+
+      s.id === activeId 
+
+        ? { ...s, matchStartTimestamp: now } 
+
+        : s 
+
+    ); 
+
+     saveSessions(updated); 
+    setActiveSessionState(prev => ({
+      ...prev,
+      matchStartTimestamp: now,
+      matchEndedTimestamp: null,
+      completed: false
+    }));
 
     setMatchRunning(true); 
 
@@ -1530,7 +1871,7 @@ setView("archive");
  
 
           <button 
-            disabled={isReadOnly || manualTimeMode}
+            disabled={isReadOnly || manualTimeMode || activeSessionState.completed}
             onClick={() => { 
 
             shotStartRef.current = performance.now(); 
@@ -1546,7 +1887,7 @@ setView("archive");
  
 
           <button 
-            disabled={isReadOnly || manualTimeMode}
+            disabled={isReadOnly || manualTimeMode || activeSessionState.completed}
             onClick={() => setShotRunning(false)}> 
 
             STOP POGODAK 
@@ -1555,7 +1896,89 @@ setView("archive");
 
  
 
-          <p>Vreme: {shotDisplayTime.toFixed(2)} s</p> 
+          <p>Vreme: {shotDisplayTime.toFixed(2)} s</p>
+
+          {activeSessionState.format === "60" && ( 
+
+  <div style={{ marginTop: "10px", fontSize: "18px", fontWeight: "bold" }}> 
+
+    Preostalo vreme:{" "} 
+
+    {remainingTime !== null 
+
+      ? `${Math.floor(remainingTime / 60) 
+
+          .toString() 
+
+          .padStart(2, "0")}:${Math.floor( 
+
+          remainingTime % 60 
+
+        ) 
+
+          .toString() 
+
+          .padStart(2, "0")}` 
+
+      : "--:--"} 
+
+  </div> 
+  
+
+)} 
+{activeSessionState.format === "60" && ( 
+
+  <div style={{ marginTop: "5px" }}> 
+
+    Tempo:{" "} 
+
+    {tempoDifference >= 0 ? "ISPRED" : "IZA"}{" "} 
+
+    ({tempoDifference.toFixed(1)} hitaca) 
+
+  </div> 
+
+)}  
+
+          <div style={{ marginTop: "10px" }}> 
+
+  <strong>Događaji u meču</strong> 
+
+ 
+
+  <div style={{ display: "flex", gap: "8px", marginTop: "5px" }}> 
+
+    <button 
+    disabled={activeSessionState.completed}
+    onClick={() => addMatchEvent("leave_line")}> 
+
+      IZLAZAK SA LINIJE 
+
+    </button> 
+
+ 
+
+    <button 
+    disabled={activeSessionState.completed}
+    onClick={() => addMatchEvent("pause_on_line")}> 
+
+      PAUZA NA LINIJI 
+
+    </button> 
+
+ 
+
+    <button 
+    disabled={activeSessionState.completed}
+    onClick={() => addMatchEvent("dry_fire")}> 
+
+      PRAZAN OKIDAČ 
+
+    </button> 
+
+  </div> 
+
+</div> 
 
  
 
@@ -1583,7 +2006,7 @@ setView("archive");
               <button 
 
                 key={score} 
-                disabled={isReadOnly}
+                disabled={isReadOnly || activeSessionState.completed}
 
                 className={`big-btn ${selectedScore === score ? "active-btn" : ""}`} 
 

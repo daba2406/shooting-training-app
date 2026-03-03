@@ -70,8 +70,13 @@ export const createNewSession = (): ShootingSession => {
 
     totalResult: 0, 
 
-    completed: false 
+    completed: false, 
+
+    matchEvents: [],
+
+    matchEndedTimestamp: null,
 
   }; 
+  
 
 }; 

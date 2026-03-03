@@ -53,4 +53,32 @@ export interface ShootingSession {
 
   completed: boolean; 
 
+  pauseStartTimestamp?: number | null; 
+
+totalPausedTime?: number; 
+
+matchEvents?: MatchEvent[]; 
+
+matchEndedTimestamp?: number | null;
+
 } 
+export type MatchEventType = 
+
+  | "leave_line" 
+
+  | "pause_on_line" 
+
+  | "dry_fire"; 
+
+ 
+
+export interface MatchEvent { 
+
+  type: MatchEventType; 
+
+  timestamp: number; 
+
+  matchTime: number; 
+
+} 
+
