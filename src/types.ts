@@ -52,6 +52,8 @@ export interface ShootingSession {
   totalResult: number; 
 
   completed: boolean; 
+  
+  finishReason?: "manual" | "shots_limit" | "time_limit";
 
   pauseStartTimestamp?: number | null; 
 
@@ -60,6 +62,8 @@ totalPausedTime?: number;
 matchEvents?: MatchEvent[]; 
 
 matchEndedTimestamp?: number | null;
+
+
 
 } 
 export type MatchEventType = 
