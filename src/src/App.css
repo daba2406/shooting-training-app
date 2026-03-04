@@ -1,0 +1,945 @@
+html, body, #root { 
+
+  height: 100%; 
+
+  margin: 0; 
+
+} 
+
+ 
+
+.app-container { 
+
+  display: flex; 
+
+  height: 100%; 
+
+  font-family: Arial, sans-serif; 
+
+} 
+
+ 
+
+/* ===== LEVI PANEL ===== */ 
+
+ 
+
+.data-panel { 
+
+  width: 220px;
+  flex: 1; 
+
+  padding: 15px; 
+
+  background: #f0f0f0; 
+
+  display: flex; 
+
+  flex-direction: column; 
+
+  gap: 10px; 
+
+} 
+
+ 
+
+/* ===== DUGMIĆI ===== */ 
+
+ 
+
+.score-buttons { 
+
+  display: grid; 
+
+  grid-template-columns: repeat(5, 1fr); 
+
+  gap: 3px; 
+
+  margin-top: 6px; 
+
+} 
+
+ 
+
+.big-btn, 
+
+.small-btn { 
+
+  font-size: 12px;
+  padding: 4px; 
+
+} 
+
+ 
+
+.high-row { 
+
+  margin-bottom: 15px; 
+
+} 
+
+ 
+
+.low-row { 
+
+  margin-bottom: 15px; 
+
+} 
+
+ 
+
+.big-btn { 
+
+  font-size: 16px; 
+
+  padding: 10px 14px; 
+
+  min-width: 60px; 
+
+  cursor: pointer; 
+
+  background: #ddd; 
+
+  border: 1px solid #aaa; 
+
+  transition: all 0.2s ease; 
+
+} 
+
+ 
+
+.small-btn { 
+
+  font-size: 12px; 
+
+  padding: 8px 10px; 
+
+  min-width: 50px; 
+
+  cursor: pointer; 
+
+  background: #eee; 
+
+  border: 1px solid #aaa; 
+
+  transition: all 0.2s ease; 
+
+} 
+
+ 
+
+/* Aktivno dugme */ 
+
+ 
+
+.active-btn { 
+
+  background: #555 !important; 
+
+  color: white !important; 
+
+  border: 2px solid #222 !important; 
+
+} 
+
+ 
+
+/* ===== META ===== */ 
+
+ 
+
+.meta-panel { 
+
+  flex: 1.5; 
+
+  display: flex; 
+
+  justify-content: center; 
+
+  flex-direction: column;
+
+  align-items: center; 
+
+  background: #111; 
+
+} 
+
+ 
+
+/* ===== DESNI PANEL ===== */ 
+
+ 
+
+.shot-list-panel { 
+
+  flex: 1; 
+
+  display: flex; 
+
+  flex-direction: column; 
+
+  background: #222; 
+
+  color: white; 
+
+  padding: 10px; 
+
+} 
+
+ 
+
+/* ===== GORNJI DEO – TABELA ===== */ 
+
+ 
+
+.shots-table { 
+
+  flex: 1; 
+
+  overflow-y: auto; 
+
+} 
+
+ 
+
+.shots-table table { 
+
+  width: 100%; 
+
+  border-collapse: collapse; 
+
+} 
+
+ 
+
+.shots-table th, 
+
+.shots-table td { 
+
+  padding: 8px; 
+
+  text-align: center; 
+
+  border-bottom: 1px solid #444; 
+
+} 
+
+ 
+
+.shots-table th { 
+
+  font-weight: bold; 
+
+} 
+
+ 
+
+/* ===== SREDNJI DEO – SERIJE ===== */ 
+
+ 
+
+.series-grid { 
+
+  display: grid; 
+
+  grid-template-columns: repeat(3, 1fr); 
+
+  gap: 8px; 
+
+  margin-top: 10px; 
+
+  margin-bottom: 10px; 
+
+} 
+
+ 
+
+.series-cell { 
+
+  background: #333; 
+
+  padding: 8px; 
+
+  text-align: center; 
+
+  border-radius: 4px; 
+
+} 
+
+ 
+
+/* Završena serija */ 
+
+ 
+
+.series-completed { 
+
+  background: #2e7d32 !important; 
+
+  color: white; 
+
+} 
+
+ 
+
+/* ===== DONJI DEO – STATISTIKA ===== */ 
+
+ 
+
+.stats-row { 
+
+  display: flex; 
+
+  justify-content: space-between; 
+
+  margin-top: auto; 
+
+  padding-top: 10px; 
+
+  border-top: 1px solid #444; 
+
+} 
+
+ 
+
+.stats-left { 
+
+  text-align: left; 
+
+} 
+
+ 
+
+.stats-right { 
+
+  text-align: right; 
+
+} 
+
+ 
+
+.stats-left div, 
+
+.stats-right div { 
+
+  margin-bottom: 4px; 
+
+} 
+.offset-panel { 
+
+  margin-top: 30px;   /* spušta ga niže */ 
+
+  padding: 12px 20px; 
+
+  background-color: #111; 
+
+  border: 1px solid #333; 
+
+  border-radius: 8px; 
+
+  text-align: center; 
+
+  min-width: 220px; 
+
+} 
+
+ 
+
+.offset-title { 
+
+  font-size: 12px; 
+
+  letter-spacing: 1px; 
+
+  color: #888; 
+
+  margin-bottom: 8px; 
+
+} 
+
+ 
+
+.offset-values { 
+
+  font-size: 18px; 
+
+  font-weight: bold; 
+
+  color: white; 
+
+  display: flex; 
+
+  justify-content: space-between; 
+
+} 
+.click-correction { 
+
+  margin-top: 14px; 
+
+  padding-top: 10px; 
+
+  border-top: 1px solid #333; 
+
+} 
+
+ 
+
+.click-title { 
+
+  font-size: 12px; 
+
+  color: #888; 
+
+  margin-bottom: 6px; 
+
+  letter-spacing: 1px; 
+
+} 
+
+ 
+
+.click-values { 
+
+  font-size: 16px; 
+
+  font-weight: bold; 
+
+  display: flex; 
+
+  justify-content: space-between; 
+
+  color: #ddd; 
+
+} 
+.app-container { 
+
+  display: flex; 
+
+  gap: 20px; 
+
+  padding: 20px; 
+
+  background-color: #111; 
+
+  color: rgb(8, 8, 8); 
+
+  min-height: 100vh; 
+
+  box-sizing: border-box; 
+
+} 
+.series-selected { 
+
+  border: 2px solid #00ccff; 
+
+  box-shadow: 0 0 8px rgba(0, 204, 255, 0.5); 
+
+} 
+.series-cell { 
+
+  background-color: #1a1a1a; 
+
+  padding: 6px; 
+
+  text-align: center; 
+
+  border-radius: 6px; 
+
+  border: 1px solid #333; 
+
+  transition: all 0.2s ease; 
+
+} 
+
+.series-cell:hover { 
+
+  background-color: #222; 
+
+} 
+.print-header, 
+
+.print-only { 
+
+  display: none; 
+
+} 
+
+ 
+
+@media print { 
+
+ 
+
+  body { 
+
+    background: white; 
+
+    color: black; 
+
+  } 
+
+ 
+
+  .data-panel, 
+
+  .offset-panel, 
+
+  .series-grid, 
+
+  .shots-table { 
+
+    display: none; 
+
+  } 
+
+ 
+
+  .print-header, 
+
+  .print-only { 
+
+    display: block; 
+
+  } 
+
+ 
+
+  table { 
+
+    width: 100%; 
+
+    border-collapse: collapse; 
+
+    font-size: 12px; 
+
+  } 
+
+ 
+
+  th, td { 
+
+    border: 1px solid #999; 
+
+    padding: 4px; 
+
+    text-align: center; 
+
+  } 
+
+ 
+
+} 
+.print-series-block { 
+
+  margin-bottom: 30px; 
+
+  page-break-inside: avoid; 
+
+} 
+
+ 
+
+.print-series-content { 
+
+  display: flex; 
+
+  gap: 20px; 
+
+  align-items: flex-start; 
+
+} 
+@media print { 
+
+  .stats-row {
+    display: none;
+  }
+
+  .meta-panel { 
+
+    display: none; 
+
+  } 
+
+ 
+
+} 
+/* ================= SETUP SCREEN ================= */ 
+
+ 
+
+.setup-container { 
+
+  height: 100vh; 
+
+  background: linear-gradient(135deg, #111, #1c1c1c); 
+
+  display: flex; 
+
+  justify-content: center; 
+
+  align-items: center; 
+
+} 
+
+ 
+
+.setup-card { 
+
+  background-color: #1a1a1a; 
+
+  padding: 40px; 
+
+  border-radius: 12px; 
+
+  width: 400px; 
+
+  text-align: center; 
+
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.6); 
+
+} 
+
+ 
+
+.setup-title { 
+
+  margin: 0; 
+
+  font-size: 26px; 
+
+  letter-spacing: 2px; 
+
+} 
+
+ 
+
+.setup-subtitle { 
+
+  margin-top: 10px; 
+
+  font-weight: normal; 
+
+  color: #888; 
+
+} 
+
+ 
+
+.setup-buttons { 
+
+  display: flex; 
+
+  flex-direction: column; 
+
+  gap: 12px; 
+
+  margin-top: 25px; 
+
+} 
+
+ 
+
+.setup-buttons button { 
+
+  padding: 12px; 
+
+  font-size: 14px; 
+
+  border-radius: 8px; 
+
+  border: 1px solid #333; 
+
+  background-color: #222; 
+
+  color: white; 
+
+  cursor: pointer; 
+
+  transition: all 0.2s ease; 
+
+} 
+
+ 
+
+.setup-buttons button:hover { 
+
+  background-color: #2e2e2e; 
+
+  border-color: #00ccff; 
+
+} 
+
+ 
+
+.setup-divider { 
+
+  height: 1px; 
+
+  background-color: #333; 
+
+  margin: 25px 0; 
+
+} 
+
+ 
+
+.archive-btn { 
+
+  width: 100%; 
+
+  padding: 10px; 
+
+  border-radius: 8px; 
+
+  background-color: #181818; 
+
+  border: 1px solid #444; 
+  color: #00ccff;
+  cursor: pointer;
+
+} 
+
+ 
+
+.archive-btn:hover { 
+
+  border-color: #00ccff; 
+
+} 
+/* ================= ARCHIVE TABLE ================= */ 
+
+ 
+
+.archive-table { 
+
+  width: 100%; 
+
+  border-collapse: collapse; 
+
+  table-layout: fixed; 
+
+} 
+
+ 
+
+.archive-table th, 
+
+.archive-table td { 
+
+  padding: 8px; 
+
+  border-bottom: 1px solid #333; 
+
+  text-align: left; 
+
+} 
+
+ 
+
+.archive-table th:nth-child(1) { width: 28%; } 
+
+.archive-table th:nth-child(2) { width: 14%; } 
+
+.archive-table th:nth-child(3) { width: 10%; } 
+
+.archive-table th:nth-child(4) { width: 12%; text-align: right; } 
+
+.archive-table th:nth-child(5) { width: 14%; } 
+
+.archive-table th:nth-child(6) { text-align: left; } 
+
+ 
+
+.archive-table td:nth-child(4) { 
+
+  text-align: right; 
+
+} 
+
+ 
+
+.delete-btn { 
+
+  background-color: #330000; 
+
+  border: 1px solid #550000; 
+
+  color: #ff5555; 
+
+  padding: 4px 10px; 
+
+  border-radius: 6px; 
+
+  cursor: pointer; 
+  display: inline-block;
+
+} 
+
+ 
+
+.delete-btn:hover { 
+
+  background-color: #440000; 
+
+} 
+.archive-table tbody tr { 
+
+  transition: background-color 0.2s ease; 
+
+} 
+
+ 
+
+.archive-table tbody tr:hover { 
+
+  background-color: #299898; 
+
+} 
+.data-panel h4 { 
+
+  margin-bottom: 10px; 
+
+  border-bottom: 1px solid #333; 
+
+  padding-bottom: 5px; 
+
+} 
+.top-controls { 
+
+  display: grid; 
+
+  grid-template-columns: 1fr 1fr; 
+
+  gap: 4px; 
+
+  margin-bottom: 8px; 
+
+} 
+
+ 
+
+.top-controls button { 
+
+  padding: 4px 6px; 
+
+  font-size: 11px; 
+
+} 
+.stats-grid { 
+
+  display: grid; 
+
+  grid-template-columns: 1fr 1fr; 
+
+  gap: 4px 10px; 
+
+  font-size: 12px; 
+
+} 
+
+ 
+
+.stats-item { 
+
+  display: flex; 
+
+  justify-content: space-between; 
+
+} 
+.data-panel h4 {
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+
+.data-panel {
+  font-size: 13px;
+}
+.archive-table { 
+
+  width: 100%; 
+
+  border-collapse: collapse; 
+
+  background: #ffffff; 
+
+} 
+
+ 
+
+.archive-table th { 
+
+  text-align: left; 
+
+  padding: 10px; 
+
+  background: #ffffff; 
+
+  font-size: 13px; 
+
+  letter-spacing: 0.5px; 
+
+} 
+
+ 
+
+.archive-table td { 
+
+  padding: 10px; 
+
+  border-bottom: none; 
+
+} 
+
+ 
+
+.archive-table tbody tr:hover { 
+
+  background-color: #ffffff; 
+
+  transition: background-color 0.2s ease; 
+
+} 
+.archive-table { 
+
+  width: 100%; 
+
+  border-collapse: separate; 
+  border-spacing: 0;
+
+} 
+
+ 
+
+.archive-table th { 
+
+  text-align: left; 
+
+  padding: 10px; 
+
+  background: #207c80; 
+
+  font-size: 13px; 
+
+  letter-spacing: 0.5px; 
+
+} 
+
+ 
+
+.archive-table td { 
+
+  padding: 10px; 
+
+  border-bottom: 1px solid #333; 
+
+} 
+
+ 
+
+.archive-table tbody tr:hover { 
+
+  background-color: #207c80; 
+
+  transition: background-color 0.2s ease; 
+
+} 
