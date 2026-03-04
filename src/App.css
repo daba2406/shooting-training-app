@@ -531,7 +531,7 @@ html, body, #root {
 } 
 .print-series-block { 
 
-  margin-bottom: 30px; 
+  margin-bottom: 10px; 
 
   page-break-inside: avoid; 
 
@@ -1089,27 +1089,136 @@ html, body, #root {
  
 
 } 
+
 @media print { 
 
  
 
-  body * { 
+  /* Сакриј све главне UI панеле */ 
 
-    visibility: hidden; 
+  .data-panel, 
+
+  .meta-panel, 
+
+  .shot-list-panel, 
+
+  .top-controls, 
+
+  .series-grid, 
+
+  .offset-panel { 
+
+    display: none !important; 
 
   } 
 
  
 
+  /* Прикажи само print делове */ 
+
   .print-header, 
 
-  .print-header *, 
+  .print-only { 
 
-  .print-only, 
+    display: block !important; 
 
-  .print-only * { 
+  } 
 
-    visibility: visible; 
+ 
+
+} 
+
+@media print { 
+
+ 
+
+  @page { 
+
+    size: A4 portrait; 
+
+    margin: 20mm; 
+
+  } 
+
+ 
+
+} 
+
+@media print { 
+
+ 
+
+  body { 
+
+    margin: 0; 
+
+  } 
+
+ 
+
+} 
+@media print { 
+
+ 
+
+  .print-only > div:last-child { 
+
+    page-break-after: auto !important; 
+
+    break-after: auto !important; 
+
+  } 
+
+ 
+
+} 
+@media print { 
+
+ 
+
+  .print-only { 
+
+    padding-bottom: 0 !important; 
+
+    margin-bottom: 0 !important; 
+
+  } 
+
+ 
+
+} 
+@media print { 
+
+ 
+
+  .print-header { 
+
+    page-break-after: always; 
+
+  } 
+
+ 
+
+} 
+@media print { 
+
+ 
+
+  @page { 
+
+    size: A4 portrait; 
+
+    margin: 20mm; 
+
+ 
+
+    @bottom-center { 
+
+      content: "Strana " counter(page); 
+
+      font-size: 12px; 
+
+    } 
 
   } 
 

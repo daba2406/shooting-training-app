@@ -95,7 +95,55 @@ useEffect(() => {
 }, []); 
  
 
+   const formatDateForPrint = (dateString: string) => { 
 
+  const dateObj = new Date(dateString); 
+
+ 
+
+  const day = dateObj.getDate(); 
+
+  const year = dateObj.getFullYear(); 
+
+ 
+
+  const months = [ 
+
+    "Januar", 
+
+    "Februar", 
+
+    "Mart", 
+
+    "April", 
+
+    "Maj", 
+
+    "Jun", 
+
+    "Jul", 
+
+    "Avgust", 
+
+    "Septembar", 
+
+    "Oktobar", 
+
+    "Novembar", 
+
+    "Decembar" 
+
+  ]; 
+
+ 
+
+  const month = months[dateObj.getMonth()]; 
+
+ 
+
+  return `${day} ${month} ${year}`; 
+
+}; 
 
 
  
@@ -120,7 +168,7 @@ useEffect(() => {
   const [selectedSeriesIndex, setSelectedSeriesIndex] = useState<number | null>(null);
   const [manualTimeMode, setManualTimeMode] = useState(false);
   const [manualShotTime, setManualShotTime] = useState ("");
-
+  
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [, forceTick] = useState(0);
 
@@ -161,7 +209,7 @@ useEffect(() => {
 
       Date.now() - activeSessionState.pauseStartTimestamp; 
 
- 
+
 
     return ( 
 
@@ -179,7 +227,7 @@ useEffect(() => {
 
   } 
 
- 
+  
 
   return ( 
 
@@ -244,6 +292,24 @@ const addMatchEvent = (
     matchEvents: [...(prev.matchEvents ?? []), event] 
 
   })); 
+
+}; 
+
+const getOpenEventIndex = () => { 
+
+  const events = activeSessionState.matchEvents ?? []; 
+
+ 
+
+  return events.findIndex( 
+
+    e => 
+
+      e.seriesIndex === currentSeries.index && 
+
+      e.endMatchTime === e.startMatchTime // још није затворен 
+
+  ); 
 
 }; 
 
@@ -1268,7 +1334,8 @@ const startNewSessionWithFormat = (
   format: "60" | "40" | "trial" | "custom" ,
   competitionName: string,
   date: string,
-  startTime: string
+  startTime: string,
+  shooterName: string
   
 
 ) => { 
@@ -1298,6 +1365,8 @@ const startNewSessionWithFormat = (
   newSession.date = date || new Date().toISOString();
 
   newSession.startTime = startTime;
+
+  newSession.shooterName = shooterName;
 
   newSession.mode = mode;
 
@@ -1537,14 +1606,15 @@ return (
 
   <SetupView 
 
-    onStart={(mode, format, competitionName, date, startTime) => { 
+    onStart={(mode, format, competitionName, date, startTime, shooterName) => { 
 
       startNewSessionWithFormat(
         mode,
         format,
         competitionName,
         date,
-        startTime
+        startTime,
+        shooterName
       ); 
 
     }} 
@@ -1623,8 +1693,9 @@ setSessionsState(updated);
  
 
       <div><strong>Takmičenje:</strong> {activeSessionState.competitionName ?? "Trening"}</div> 
-
-      <div><strong>Datum:</strong> {new Date(activeSessionState.date).toLocaleDateString()}</div> 
+      <div><strong>Strelac:</strong> {activeSessionState.shooterName ?? "-"}</div>
+      <div><strong>Datum:</strong>{" "} 
+      {formatDateForPrint(activeSessionState.date)} </div> 
 
       <div><strong>Vreme početka:</strong> {activeSessionState.startTime ?? "-"}</div> 
 
@@ -1658,6 +1729,7 @@ setSessionsState(updated);
 
             )} 
 
+            
           </div> 
 
       )} 
@@ -1796,33 +1868,81 @@ setSessionsState(updated);
 
         <PrintCanvasTarget series={series} /> 
 
+ {(() => { 
+
+  const seriesEvents = 
+
+    (activeSessionState.matchEvents ?? []).filter( 
+
+      event => event.seriesIndex === series.index 
+
+    ); 
+
  
 
-        <table> 
+  const seriesTimeline = [ 
 
-          <thead> 
+    ...series.shots.map(shot => ({ 
 
-            <tr> 
+      type: "shot" as const, 
 
-              <th>#</th> 
+      time: shot.matchTime, 
 
-              <th>Vrednost</th> 
+      data: shot 
 
-              <th>Smer</th> 
+    })), 
 
-              <th>Vreme</th> 
+    ...seriesEvents.map(event => ({ 
 
-              <th>Vreme u mecu</th> 
+      type: "event" as const, 
 
-            </tr> 
+      time: event.startMatchTime ?? event.matchTime, 
 
-          </thead> 
+      data: event 
 
-          <tbody> 
+    })) 
 
-            {series.shots.map(shot => ( 
+  ].sort((a, b) => a.time - b.time); 
 
-              <tr key={shot.index}> 
+ 
+
+  return ( 
+
+    <table> 
+
+      <thead> 
+
+        <tr> 
+
+          <th>#</th> 
+
+          <th>Vrednost</th> 
+
+          <th>Smer</th> 
+
+          <th>Vreme</th> 
+
+          <th>Vreme u mecu</th> 
+
+        </tr> 
+
+      </thead> 
+
+      <tbody> 
+
+        {seriesTimeline.map((item, index) => { 
+
+ 
+
+          if (item.type === "shot") { 
+
+            const shot = item.data; 
+
+ 
+
+            return ( 
+
+              <tr key={`shot-${index}`}> 
 
                 <td>{shot.index}</td> 
 
@@ -1831,17 +1951,62 @@ setSessionsState(updated);
                 <td>{getShotDirection(shot)}</td> 
 
                 <td>{shot.shotTime.toFixed(2)}</td> 
+
                 <td>{formatMatchTime(shot.matchTime ?? 0)}</td> 
 
               </tr> 
 
-            ))} 
+            ); 
 
-          </tbody> 
+          } 
 
-        </table> 
+ 
 
-  
+          if (item.type === "event") { 
+
+            const event = item.data; 
+
+ 
+
+            return ( 
+
+              <tr key={`event-${index}`}> 
+
+                <td colSpan={5} style={{ fontSize: "12px", fontStyle: "italic" }}> 
+
+                  {event.type === "dry_fire" && "⚪ OKIDANJE NA PRAZNO"} 
+
+                  {event.type === "pause_on_line" && "⏸ PAUZA NA LINIJI"} 
+
+                  {event.type === "leave_line" && "↩ IZLAZAK SA LINIJE"} 
+
+                  {" — "} 
+
+                  {event.duration?.toFixed(2)} s 
+
+                </td> 
+
+              </tr> 
+
+            ); 
+
+          } 
+
+ 
+
+          return null; 
+
+        })} 
+
+      </tbody> 
+
+    </table> 
+
+  ); 
+
+})()} 
+
+
 
       </div> 
 
@@ -2037,6 +2202,7 @@ setSessionsState(updated);
 </button> 
  
 
+
 </div> 
     <label style={{ display: "block", marginTop: "10px" }}> 
 
@@ -2122,6 +2288,52 @@ setSessionsState(updated);
           <button 
             disabled={isReadOnly || manualTimeMode || activeSessionState.completed}
             onClick={() => { 
+
+ 
+
+  // ✅ ако постоји активан event (pauza / izlazak), затвори га 
+
+  const openEventIndex = getOpenEventIndex(); 
+
+ 
+
+  if (openEventIndex !== -1) { 
+
+ 
+
+    const endMatchTime = getCurrentMatchTime(); 
+
+ 
+
+    setActiveSessionState(prev => { 
+
+ 
+
+      const updatedEvents = [...(prev.matchEvents ?? [])]; 
+
+ 
+
+      const event = updatedEvents[openEventIndex]; 
+
+ 
+
+      event.endMatchTime = endMatchTime; 
+
+      event.duration = endMatchTime - event.startMatchTime; 
+
+ 
+
+      return { 
+
+        ...prev, 
+
+        matchEvents: updatedEvents 
+
+      }; 
+
+    }); 
+
+  } 
 
             shotStartRef.current = performance.now(); 
 
@@ -2515,35 +2727,59 @@ setSessionsState(updated);
 
   key={`event-${index}`} 
 
-  style={{ backgroundColor: "#1f1f1f" }} 
+  style={{ 
+
+    backgroundColor: 
+
+      event.type === "pause_on_line" 
+
+        ? "#2c2415" 
+
+        : event.type === "leave_line" 
+
+        ? "#2a1f1f" 
+
+        : "#1f1f1f" 
+
+  }} 
 
 > 
 
-  <td 
+<td 
 
-    colSpan={5} 
+  colSpan={5} 
 
-    style={{ 
+  style={{ 
 
-      textAlign: "center", 
+    textAlign: "center", 
 
-      fontSize: "12px", 
+    fontSize: "12px", 
 
-      fontWeight: 500, 
+    fontWeight: 500, 
 
-      color: "#9ecbff", 
+    letterSpacing: "0.3px", 
 
-      letterSpacing: "0.3px" 
+    color: 
 
-    }} 
+      event.type === "pause_on_line" 
 
-  >  
+        ? "#ffb74d" 
 
-          ⏱ {event.type === "dry_fire" && "OKIDANJE NA PRAZNO"} 
+        : event.type === "leave_line" 
 
-          {event.type === "leave_line" && "IZLAZAK SA LINIJE"} 
+        ? "#ef5350" 
 
-          {event.type === "pause_on_line" && "PAUZA NA LINIJI"} 
+        : "#9ecbff" 
+
+  }} 
+
+> 
+
+{event.type === "dry_fire" && "⚪ OKIDANJE NA PRAZNO"} 
+
+{event.type === "leave_line" && "↩ IZLAZAK SA LINIJE"} 
+
+{event.type === "pause_on_line" && "⏸ PAUZA NA LINIJI"} 
 
           {" — "} 
 

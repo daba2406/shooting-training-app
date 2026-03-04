@@ -14,7 +14,9 @@ interface Props {
 
     date: string, 
 
-    startTime: string 
+    startTime: string, 
+
+    shooterName: string
 
   ) => void; 
 
@@ -35,6 +37,7 @@ export default function SetupView({ onStart, onArchive }: Props) {
  
 
   const [competitionName, setCompetitionName] = useState(""); 
+  const [shooterName, setShooterName] = useState("")
 
   const [date, setDate] = useState(""); 
 
@@ -72,7 +75,17 @@ export default function SetupView({ onStart, onArchive }: Props) {
 
         /> 
 
- 
+        <input 
+
+      type="text" 
+
+  placeholder="Ime i prezime strelca" 
+
+  value={shooterName} 
+
+  onChange={(e) => setShooterName(e.target.value)} 
+
+/> 
 
         <input 
 
@@ -156,7 +169,7 @@ export default function SetupView({ onStart, onArchive }: Props) {
 
               <button onClick={() => 
 
-                onStart("training", "60", competitionName, date, startTime) 
+                onStart("training", "60", competitionName, date, startTime, shooterName) 
 
               }> 
 
@@ -168,7 +181,7 @@ export default function SetupView({ onStart, onArchive }: Props) {
 
               <button onClick={() => 
 
-                onStart("training", "40", competitionName, date, startTime) 
+                onStart("training", "40", competitionName, date, startTime, shooterName) 
 
               }> 
 
@@ -180,7 +193,7 @@ export default function SetupView({ onStart, onArchive }: Props) {
 
               <button onClick={() => 
 
-                onStart("training", "trial", competitionName, date, startTime) 
+                onStart("training", "trial", competitionName, date, startTime, shooterName) 
 
               }> 
 
@@ -192,7 +205,7 @@ export default function SetupView({ onStart, onArchive }: Props) {
 
               <button onClick={() => 
 
-                onStart("training", "custom", competitionName, date, startTime) 
+                onStart("training", "custom", competitionName, date, startTime, shooterName) 
 
               }> 
 
@@ -224,7 +237,7 @@ export default function SetupView({ onStart, onArchive }: Props) {
 
               <button onClick={() => 
 
-                onStart("qualification", "60", competitionName, date, startTime) 
+                onStart("qualification", "60", competitionName, date, startTime, shooterName) 
 
               }> 
 
@@ -236,7 +249,7 @@ export default function SetupView({ onStart, onArchive }: Props) {
 
               <button onClick={() => 
 
-                onStart("final", "60", competitionName, date, startTime) 
+                onStart("final", "60", competitionName, date, startTime, shooterName) 
 
               }> 
 
