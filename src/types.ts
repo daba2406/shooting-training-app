@@ -52,7 +52,7 @@ export interface ShootingSession {
   totalResult: number; 
 
   completed: boolean; 
-  
+
   finishReason?: "manual" | "shots_limit" | "time_limit";
 
   pauseStartTimestamp?: number | null; 
@@ -83,6 +83,14 @@ export interface MatchEvent {
   timestamp: number; 
 
   matchTime: number; 
+
+  startMatchTime: number; // novo 
+
+  endMatchTime?: number;  // novo 
+
+  duration?: number;      // novo 
+
+  seriesIndex: number;    // novo 
 
 } 
 

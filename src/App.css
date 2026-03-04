@@ -943,3 +943,176 @@ html, body, #root {
   transition: background-color 0.2s ease; 
 
 } 
+
+@media print { 
+
+ 
+
+  .print-summary-wrapper { 
+
+    display: flex; 
+
+    justify-content: space-between;
+
+    grid-template-columns: 65% 35%; 
+
+    gap: 20px; 
+
+    align-items: flex-start; 
+
+  } 
+
+ 
+
+  .print-summary-left { 
+
+    width: 65%; 
+
+  } 
+
+ 
+
+  .print-summary-right { 
+
+    width: 40%; 
+
+  } 
+
+ 
+
+  .print-stats-table { 
+
+    width: 100%; 
+
+    border-collapse: collapse; 
+
+  } 
+
+ 
+
+  .print-stats-table th, 
+
+  .print-stats-table td { 
+
+    padding: 4px; 
+
+    text-align: center; 
+
+  } 
+
+ 
+
+  .print-stats-table th { 
+
+    border-bottom: 1px solid #000; 
+
+  } 
+
+ 
+} 
+
+@media print { 
+
+ 
+
+  .app-container { 
+
+    display: block !important; 
+
+  } 
+
+ 
+
+  .data-panel, 
+
+  .meta-panel, 
+
+  .shot-list-panel { 
+
+    display: block !important; 
+
+  } 
+
+ 
+
+
+
+} 
+@media print { 
+
+ 
+
+  .app-container { 
+
+    display: block !important; 
+
+  } 
+
+ 
+
+  .data-panel, 
+
+  .meta-panel, 
+
+  .shot-list-panel { 
+
+    display: block !important; 
+
+  } 
+
+ 
+
+
+} 
+@media print { 
+
+ 
+
+  .print-series-content { 
+
+    display: flex; 
+
+    gap: 20px; 
+
+  } 
+
+ 
+
+  .print-series-content table { 
+
+    width: 250px; 
+
+    font-size: 12px; 
+
+  } 
+
+ 
+
+} 
+@media print { 
+
+ 
+
+  body * { 
+
+    visibility: hidden; 
+
+  } 
+
+ 
+
+  .print-header, 
+
+  .print-header *, 
+
+  .print-only, 
+
+  .print-only * { 
+
+    visibility: visible; 
+
+  } 
+
+ 
+
+} 

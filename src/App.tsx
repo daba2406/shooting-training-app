@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from "react"; 
-import type {Shot, Series} from "./types";
-import "./App.css"; 
-import type { ShootingSession } from "./types"; 
+import type {Shot, Series, ShootingSession, MatchEvent} from "./types";
+import "./App.css";  
 import ArchiveView from "./components/ArchiveView";
 import SetupView from "./components/SetupView";
 
@@ -202,11 +201,15 @@ const addMatchEvent = (
 
 ) => { 
 
+ 
+
   if (!activeSessionState.matchStartTimestamp) return; 
 
  
 
   const now = Date.now(); 
+
+  const startMatchTime = getCurrentMatchTime(); 
 
  
 
@@ -216,7 +219,19 @@ const addMatchEvent = (
 
     timestamp: now, 
 
-    matchTime: getCurrentMatchTime() 
+    matchTime: startMatchTime, 
+
+ 
+
+    startMatchTime, 
+
+    endMatchTime: startMatchTime, 
+
+    duration: 0, 
+
+ 
+
+    seriesIndex: currentSeries.index 
 
   }; 
 
@@ -229,6 +244,64 @@ const addMatchEvent = (
     matchEvents: [...(prev.matchEvents ?? []), event] 
 
   })); 
+
+}; 
+
+const registerDryFire = () => { 
+
+ 
+
+  if (!activeSessionState.matchStartTimestamp) return; 
+
+ 
+
+  if (!shotStartRef.current) return; 
+
+ 
+
+  const endMatchTime = getCurrentMatchTime(); 
+
+  const duration = shotDisplayTime; 
+
+ 
+
+  const event = { 
+
+    type: "dry_fire" as const, 
+
+    timestamp: Date.now(), 
+
+    matchTime: endMatchTime, 
+
+ 
+
+    startMatchTime: endMatchTime - duration, 
+
+    endMatchTime, 
+
+    duration, 
+
+ 
+
+    seriesIndex: currentSeries.index 
+
+  }; 
+
+ 
+
+  setActiveSessionState(prev => ({ 
+
+    ...prev, 
+
+    matchEvents: [...(prev.matchEvents ?? []), event] 
+
+  })); 
+
+ 
+
+  setShotDisplayTime(0); 
+
+  shotStartRef.current = null; 
 
 }; 
 
@@ -1269,6 +1342,39 @@ const formatMatchTime = (
   return `${hours}:${minutes}:${secs}`; 
 
 }; 
+const formatDuration = (ms: number) => { 
+
+  const totalSeconds = Math.floor(ms / 1000); 
+
+ 
+
+  const hours = Math.floor(totalSeconds / 3600) 
+
+    .toString() 
+
+    .padStart(2, "0"); 
+
+ 
+
+  const minutes = Math.floor((totalSeconds % 3600) / 60) 
+
+    .toString() 
+
+    .padStart(2, "0"); 
+
+ 
+
+  const seconds = (totalSeconds % 60) 
+
+    .toString() 
+
+    .padStart(2, "0"); 
+
+ 
+
+  return `${hours}:${minutes}:${seconds}`; 
+
+}; 
 
 const enterFullScreen = () => { 
 
@@ -1377,6 +1483,53 @@ const meanRadiusBySeries = seriesList.map(series => {
 
 }); 
 
+const seriesPairs: Series[][] = []; 
+
+ 
+
+for (let i = 0; i < seriesList.length; i += 2) { 
+
+  seriesPairs.push(seriesList.slice(i, i + 2)); 
+
+} 
+const seriesEvents = 
+
+  (activeSessionState.matchEvents ?? []).filter( 
+
+    event => event.seriesIndex === currentSeries.index 
+
+  ); 
+
+ type TimelineItem = 
+
+  | { type: "shot"; time: number; data: Shot } 
+
+  | { type: "event"; time: number; data: MatchEvent }; 
+
+const seriesTimeline: TimelineItem[] = [ 
+
+  ...currentSeries.shots.map((shot): TimelineItem => ({ 
+
+    type: "shot", 
+
+    time: shot.matchTime, 
+
+    data: shot 
+
+  })), 
+
+  ...seriesEvents.map((event): TimelineItem => ({ 
+
+    type: "event", 
+
+    time: event.matchTime, 
+
+    data: event 
+
+  })) 
+
+].sort((a, b) => a.time - b.time); 
+
 return ( 
 
   <> 
@@ -1451,43 +1604,189 @@ setSessionsState(updated);
 
       <div className="app-container"> 
 
-      <div className="print-header">
-                <h2>IZVESTAJ MECA</h2>
-        <div>Datum: {new Date().toLocaleString()}</div>
-        <div>Ukupno: {matchTotal.toFixed(1)}</div>
-        <div>Broj hitaca: {allShots.length}</div>
-        <div>Ukupno vreme meca: {totalMatchTime.toFixed(2)} s</div>
-        <div>Prosek: {averageScore.toFixed(2)}</div> 
-        <div>SD: {standardDeviation.toFixed(3)}</div> 
-        <div>Extreme Spread: {extremeSpreadMm.toFixed(2)} mm</div> 
-        <div>Mean Radius: {meanRadiusMm.toFixed(2)} mm</div>
-  <div style={{ marginTop: "10px" }}> 
-
-  <strong>Mean Radius po seriji:</strong> 
-
-  {meanRadiusBySeries.map((mr, i) => ( 
-
-    <div key={i}> 
-
-      Serija {i + 1}: {mr.toFixed(2)} mm 
-
-    </div> 
-
-  ))} 
-
-</div> 
-        </div>
-        <div className="print-only"> 
+<div className="print-header"> 
 
  
 
-  {seriesList.map((series, i) => ( 
+  <h2 style={{ marginBottom: "15px" }}>IZVEŠTAJ MEČA</h2> 
 
-    <div key={i} className="print-series-block"> 
+ 
+
+  <div className="print-summary-wrapper"> 
+
+ 
+
+    {/* LEVA STRANA */} 
+
+    <div className="print-summary-left"> 
+
+ 
+
+      <div><strong>Takmičenje:</strong> {activeSessionState.competitionName ?? "Trening"}</div> 
+
+      <div><strong>Datum:</strong> {new Date(activeSessionState.date).toLocaleDateString()}</div> 
+
+      <div><strong>Vreme početka:</strong> {activeSessionState.startTime ?? "-"}</div> 
+
+ 
+
+      <hr style={{ margin: "10px 0" }} /> 
+
+ 
+
+      <div><strong>Ukupno:</strong> {matchTotal.toFixed(1)}</div> 
+
+      <div><strong>Broj hitaca:</strong> {allShots.length}</div> 
+
+      <div><strong>Ukupno vreme meča:</strong> {totalMatchTime.toFixed(2)} s</div> 
+
+ 
+
+      {activeSessionState.matchStartTimestamp && 
+
+        activeSessionState.matchEndedTimestamp && ( 
+
+          <div> 
+
+            <strong>Trajanje:</strong>{" "} 
+
+            {formatDuration( 
+
+              activeSessionState.matchEndedTimestamp - 
+
+              activeSessionState.matchStartTimestamp 
+
+            )} 
+
+          </div> 
+
+      )} 
+
+ 
+
+      <div><strong>Prosek:</strong> {averageScore.toFixed(2)}</div> 
+
+      <div><strong>SD:</strong> {standardDeviation.toFixed(3)}</div> 
+
+      <div><strong>Extreme Spread:</strong> {extremeSpreadMm.toFixed(2)} mm</div> 
+
+      <div><strong>Mean Radius:</strong> {meanRadiusMm.toFixed(2)} mm</div> 
+
+ 
+
+      <div style={{ marginTop: "10px" }}> 
+
+        <strong>Mean Radius po seriji:</strong> 
+
+        {meanRadiusBySeries.map((mr, i) => ( 
+
+          <div key={i}>Serija {i + 1}: {mr.toFixed(2)} mm</div> 
+
+        ))} 
+
+      </div> 
+
+ 
+
+    </div> 
+
+ 
+
+    {/* DESNA STRANA */} 
+
+    <div className="print-summary-right"> 
+
+ 
+
+      <h3 style={{ marginBottom: "10px" }}>Statistika pogodaka</h3> 
+
+ 
+
+      <table className="print-stats-table"> 
+
+        <thead> 
+
+          <tr> 
+
+            <th>Vrednost</th> 
+
+            <th>Broj</th> 
+
+            <th>%</th> 
+
+          </tr> 
+
+        </thead> 
+
+        <tbody> 
+
+          {Object.entries(shotDistribution).map(([key, count]) => { 
+
+ 
+
+            const percent = 
+
+              totalShotCount > 0 
+
+                ? ((count / totalShotCount) * 100).toFixed(1) 
+
+                : "0.0"; 
+
+ 
+
+            return ( 
+
+              <tr key={key}> 
+
+                <td>{key}</td> 
+
+                <td>{count}</td> 
+
+                <td>{percent}%</td> 
+
+              </tr> 
+
+            ); 
+
+          })} 
+
+        </tbody> 
+
+      </table> 
+
+ 
+
+    </div> 
+
+ 
+
+  </div> 
+
+ 
+
+</div> 
+      
+        
+        <div className="print-only"> 
+         
+
+ 
+
+{seriesList.map((series, i) => ( 
+
+  <div 
+
+    key={i} 
+
+    className="print-series-block" 
+
+
+  > 
 
  
 
       <h3>Serija {i + 1} — Ukupno: {series.total.toFixed(1)}</h3> 
+
 
  
 
@@ -1537,73 +1836,19 @@ setSessionsState(updated);
               </tr> 
 
             ))} 
-            {activeSessionState.matchEvents && 
-
-  activeSessionState.matchEvents.length > 0 && ( 
-
-    <div style={{ marginTop: "20px" }}> 
-
-            
-
-      <h3>Događaji tokom meča</h3> 
-
- 
-
-      <table> 
-
-        <thead> 
-
-          <tr> 
-
-            <th>Tip</th> 
-
-            <th>Vreme u meču (s)</th> 
-
-          </tr> 
-
-        </thead> 
-
-        <tbody> 
-
-          {activeSessionState.matchEvents.map((event, index) => ( 
-
-            <tr key={index}> 
-
-              <td> 
-
-  {event.type === "leave_line" && "Izlazak sa linije"} 
-
-  {event.type === "pause_on_line" && "Pauza na liniji"} 
-
-  {event.type === "dry_fire" && "Prazan okidač"} 
-
-</td>  
-
-              <td>{event.matchTime.toFixed(2)}</td> 
-
-            </tr> 
-
-          ))} 
-
-        </tbody> 
-
-      </table> 
-
-    </div> 
-
-)} 
 
           </tbody> 
 
         </table> 
 
- 
+  
 
       </div> 
 
  
 
     </div> 
+    
 
   ))} 
 
@@ -1972,13 +2217,17 @@ setSessionsState(updated);
 
  
 
-    <button 
-    disabled={activeSessionState.completed}
-    onClick={() => addMatchEvent("dry_fire")}> 
+<button 
 
-      PRAZAN OKIDAČ 
+  disabled={!shotDisplayTime || activeSessionState.completed} 
 
-    </button> 
+  onClick={registerDryFire} 
+
+> 
+
+  OKIDANJE NA PRAZNO 
+
+</button> 
 
   </div> 
 
@@ -2220,26 +2469,99 @@ setSessionsState(updated);
 
               <tbody> 
 
-                {currentSeries.shots.map(shot => ( 
+                
 
-                  <tr key={shot.index}> 
+                {seriesTimeline.map((item, index) => { 
 
-                    <td>{shot.index}</td> 
+ 
 
-                    <td>{shot.value.toFixed(1)}</td> 
+  if (item.type === "shot") { 
 
-                    <td style={{ fontSize: "18px", textAlign: "center" }}> 
+    const shot = item.data; 
 
-                      {getShotDirection(shot)} 
+ 
 
-                    </td> 
+    return ( 
 
-                    <td>{shot.shotTime.toFixed(2)}</td> 
-                    <td>{formatMatchTime(shot.matchTime ?? 0)}</td>
+      <tr key={`shot-${index}`}> 
 
-                  </tr> 
+        <td>{shot.index}</td> 
 
-                ))} 
+        <td>{shot.value.toFixed(1)}</td> 
+
+        <td>{getShotDirection(shot)}</td> 
+
+        <td>{shot.shotTime.toFixed(2)}</td> 
+
+        <td>{formatMatchTime(shot.matchTime ?? 0)}</td> 
+
+      </tr> 
+
+    ); 
+
+  } 
+
+ 
+
+  if (item.type === "event") { 
+
+    const event = item.data; 
+
+ 
+
+    return ( 
+
+      <tr 
+
+  key={`event-${index}`} 
+
+  style={{ backgroundColor: "#1f1f1f" }} 
+
+> 
+
+  <td 
+
+    colSpan={5} 
+
+    style={{ 
+
+      textAlign: "center", 
+
+      fontSize: "12px", 
+
+      fontWeight: 500, 
+
+      color: "#9ecbff", 
+
+      letterSpacing: "0.3px" 
+
+    }} 
+
+  >  
+
+          ⏱ {event.type === "dry_fire" && "OKIDANJE NA PRAZNO"} 
+
+          {event.type === "leave_line" && "IZLAZAK SA LINIJE"} 
+
+          {event.type === "pause_on_line" && "PAUZA NA LINIJI"} 
+
+          {" — "} 
+
+          {event.duration?.toFixed(2) ?? event.matchTime.toFixed(2)} s 
+
+        </td> 
+
+      </tr> 
+
+    ); 
+
+  } 
+
+ 
+
+  return null; 
+
+})} 
 
               </tbody> 
 
@@ -2255,7 +2577,15 @@ setSessionsState(updated);
 
     const s = seriesList[i]; 
 
+ const seriesPairs: typeof seriesList[] = []; 
+
  
+
+for (let i = 0; i < seriesList.length; i += 2) { 
+
+  seriesPairs.push(seriesList.slice(i, i + 2)); 
+
+} 
 
     return ( 
 
