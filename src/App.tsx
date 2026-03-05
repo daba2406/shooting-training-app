@@ -935,6 +935,9 @@ if (matchTimeExpired) {
 
   const allShots = seriesList.flatMap(s => s.shots); 
 
+
+
+
   // ===== KONVERZIJA U mm (GLOBALNO) ===== 
 
 const visibleMm = 7.75; 
@@ -1411,6 +1414,41 @@ const formatMatchTime = (
   return `${hours}:${minutes}:${secs}`; 
 
 }; 
+
+const formatDurationHMS = (seconds: number) => { 
+
+  const totalSeconds = Math.floor(seconds); 
+
+ 
+
+  const hours = Math.floor(totalSeconds / 3600) 
+
+    .toString() 
+
+    .padStart(2, "0"); 
+
+ 
+
+  const minutes = Math.floor((totalSeconds % 3600) / 60) 
+
+    .toString() 
+
+    .padStart(2, "0"); 
+
+ 
+
+  const secs = (totalSeconds % 60) 
+
+    .toString() 
+
+    .padStart(2, "0"); 
+
+ 
+
+  return `${hours}:${minutes}:${secs}`; 
+
+}; 
+
 const formatDuration = (ms: number) => { 
 
   const totalSeconds = Math.floor(ms / 1000); 
@@ -1661,8 +1699,7 @@ saveSessions(updated);
 setSessionsState(updated);   
 
 }} 
-
- 
+onBack={() => setView("setup")} 
 
 /> 
 
@@ -1709,7 +1746,7 @@ setSessionsState(updated);
 
       <div><strong>Broj hitaca:</strong> {allShots.length}</div> 
 
-      <div><strong>Ukupno vreme meča:</strong> {totalMatchTime.toFixed(2)} s</div> 
+      <div><strong>Ukupno vreme meča:</strong> {formatDurationHMS(totalMatchTime)}</div> 
 
  
 
@@ -2046,10 +2083,13 @@ setSessionsState(updated);
     ARHIVSKA SESIJA – READ ONLY 
 
   </div> 
+
+  
   
 )} 
  {activeSessionState.completed && !isReadOnly && ( 
 
+  
   <div 
 
     style={{ 
@@ -2644,8 +2684,6 @@ setSessionsState(updated);
               </div> 
 
             </div> 
-
- 
 
           </div> 
 

@@ -12,6 +12,8 @@ interface Props {
 
   onDeleteSession: (id: string) => void; 
 
+  onBack: () => void;
+
 } 
 
  
@@ -22,11 +24,13 @@ export default function ArchiveView({
 
   onOpenSession, 
 
-  onDeleteSession 
+  onDeleteSession,
 
-}: Props) { 
+  onBack
 
- 
+}: Props) 
+
+{ 
  const [filterMode, setFilterMode] = useState<
  "all" | "training" | "qualification" | "final"
  >("all");
@@ -66,6 +70,36 @@ const handleSort = (
       <h2>Arhiva sesija</h2> 
 
       <div style={{ marginBottom: "15px" }}> 
+  
+  <div style={{ marginBottom: "15px" }}> 
+
+  <button 
+
+    onClick={onBack} 
+
+    style={{ 
+
+      padding: "6px 12px", 
+
+      backgroundColor: "#222", 
+
+      border: "1px solid #555", 
+
+      color: "#fff", 
+
+      cursor: "pointer", 
+
+      borderRadius: "4px" 
+
+    }} 
+
+  > 
+
+    ← Povratak na glavni ekran 
+
+  </button> 
+
+</div> 
 
   <button onClick={() => setFilterMode("all")}>Sve</button> 
 
@@ -422,33 +456,7 @@ const handleSort = (
                   </td>
 
 
-  {!session.completed && ( 
 
-    <span 
-
-      style={{  
-
-        backgroundColor: "#ffc107", 
-
-        color: "#000", 
-
-        padding: "4px 8px", 
-
-        borderRadius: "12px", 
-
-        fontSize: "12px", 
-
-        fontWeight: "bold" 
-
-      }} 
-
-    > 
-
-      U toku 
-
-    </span> 
-
-  )} 
 
  
 
