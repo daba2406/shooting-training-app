@@ -82,6 +82,41 @@ useEffect(() => {
   } 
 
 }, []); 
+
+const [historyStack, setHistoryStack] = useState<ShootingSession[]>([]); 
+const [redoStack, setRedoStack] = useState<ShootingSession[]>([]); 
+
+const MAX_HISTORY = 50;
+const pushToHistory = (session: ShootingSession) => { 
+
+  const snapshot = JSON.parse(JSON.stringify(session)); 
+
+ 
+
+  setHistoryStack(prev => { 
+
+    const updated = [...prev, snapshot]; 
+
+ 
+
+    if (updated.length > MAX_HISTORY) { 
+
+      return updated.slice(updated.length - MAX_HISTORY); 
+
+    } 
+
+ 
+
+    return updated; 
+
+  }); 
+
+ 
+
+  setRedoStack([]); 
+
+}; 
+
 // ✅ SINKRONIZACIJA MATCH START TIMESTAMP NAKON REFRESH-A 
 
 useEffect(() => { 
@@ -285,7 +320,7 @@ const addMatchEvent = (
 
   }; 
 
- 
+  pushToHistory(activeSessionState); 
 
   setActiveSessionState(prev => ({ 
 
@@ -355,7 +390,7 @@ const registerDryFire = () => {
 
   }; 
 
- 
+  pushToHistory(activeSessionState); 
 
   setActiveSessionState(prev => ({ 
 
@@ -916,7 +951,7 @@ if (matchTimeExpired) {
 
     }; 
 
- 
+    pushToHistory(activeSessionState); 
 
     setActiveSessionState(prev => ({
       ...prev,
@@ -2243,6 +2278,7 @@ onBack={() => setView("setup")}
 
   onClick={() => { 
 
+    pushToHistory(activeSessionState);
     const now = Date.now(); 
 
  
@@ -2288,7 +2324,103 @@ onBack={() => setView("setup")}
 
 </button> 
  
+<button 
 
+  disabled={historyStack.length === 0} 
+
+  onClick={() => { 
+
+    if (historyStack.length === 0) return; 
+    const previous = historyStack[historyStack.length - 1]; 
+    // ✅ тренутно стање иде у redoStack 
+
+  setRedoStack(prev => [ 
+
+    ...prev, 
+
+    JSON.parse(JSON.stringify(activeSessionState)) 
+
+  ]);  
+
+    setActiveSessionState(previous); 
+
+    setHistoryStack(prev => prev.slice(0, -1)); 
+
+  }} 
+
+  style={{ 
+
+    marginLeft: "", 
+
+    background: "transparent", 
+
+    border: "1px solid #444", 
+
+    
+
+    cursor: historyStack.length === 0 ? "default" : "pointer", 
+
+    fontSize: "11px", 
+
+    padding: "2px 8px"
+
+  }} 
+
+> 
+
+  UNDO 
+
+</button> 
+
+<button 
+
+  disabled={redoStack.length === 0} 
+
+  onClick={() => { 
+
+ 
+
+    if (redoStack.length === 0) return; 
+
+ 
+
+    const next = redoStack[redoStack.length - 1]; 
+
+ 
+
+    // ✅ тренутно стање враћамо у history 
+
+    setHistoryStack(prev => [ 
+
+      ...prev, 
+
+      JSON.parse(JSON.stringify(activeSessionState)) 
+
+    ]); 
+
+ 
+
+    setActiveSessionState(next); 
+
+    setRedoStack(prev => prev.slice(0, -1)); 
+
+  }} 
+
+  style={{ 
+
+    marginLeft: "", 
+
+    fontSize: "11px", 
+
+    padding: "2px 8px" 
+
+  }} 
+
+> 
+
+  REDO 
+
+</button> 
 
 </div> 
     <label style={{ display: "block", marginTop: "10px" }}> 
@@ -2456,7 +2588,7 @@ setShotRunning(true);
 
           </button> 
 
- 
+          
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}> 
 
