@@ -160,7 +160,9 @@ useEffect(() => {
 
   const [shotRunning, setShotRunning] = useState(false); 
 
-  const [shotDisplayTime, setShotDisplayTime] = useState(0); 
+  
+
+  const [shotElapsed, setShotElapsed] = useState(0);
 
   const [view, setView] = useState<"setup" | "shooting" | "archive">("setup"); 
 
@@ -327,7 +329,7 @@ const registerDryFire = () => {
 
   const endMatchTime = getCurrentMatchTime(); 
 
-  const duration = shotDisplayTime; 
+  const duration = shotElapsed; 
 
  
 
@@ -363,9 +365,15 @@ const registerDryFire = () => {
 
   })); 
 
- 
+ // ✅ RESET štoperice nakon dry fire 
 
-  setShotDisplayTime(0); 
+setShotElapsed(0); 
+
+shotStartRef.current = null; 
+
+setShotRunning(false); 
+
+  setShotElapsed(0); 
 
   shotStartRef.current = null; 
 
@@ -437,35 +445,67 @@ useEffect(() => {
 
   useEffect(() => { 
 
-    if (shotRunning) { 
+ 
 
-      intervalRef.current = window.setInterval(() => { 
+  if (shotRunning) { 
 
-        if (shotStartRef.current) { 
+ 
 
-          const now = performance.now(); 
+    intervalRef.current = window.setInterval(() => { 
 
-          setShotDisplayTime((now - shotStartRef.current) / 1000); 
+ 
 
-        } 
+      if (shotStartRef.current !== null) { 
 
-      }, 50); 
+ 
 
-    } else { 
+        const now = performance.now(); 
 
-      if (intervalRef.current !== null) clearInterval(intervalRef.current); 
+        const elapsed = (now - shotStartRef.current) / 1000; 
+
+ 
+
+        setShotElapsed(elapsed); 
+
+ 
+
+      } 
+
+ 
+
+    }, 50); 
+
+ 
+
+  } else { 
+
+ 
+
+    if (intervalRef.current !== null) { 
+
+      clearInterval(intervalRef.current); 
 
     } 
 
  
 
-    return () => { 
+  } 
 
-      if (intervalRef.current !== null) clearInterval(intervalRef.current); 
+ 
 
-    }; 
+  return () => { 
 
-  }, [shotRunning]); 
+    if (intervalRef.current !== null) { 
+
+      clearInterval(intervalRef.current); 
+
+    } 
+
+  }; 
+
+ 
+
+}, [shotRunning]); 
 
   // ================= FULLSCREEN LISTENER ================= 
 
@@ -836,7 +876,7 @@ if (matchTimeExpired) {
     
     const finalShotTime = manualTimeMode
     ? parseFloat(manualShotTime) || 0
-    : shotDisplayTime;
+    : shotElapsed;
       
     const newShot: Shot = { 
 
@@ -882,6 +922,13 @@ if (matchTimeExpired) {
       ...prev,
       seriesList: updatedSeriesList
   })); 
+  // ✅ RESET štoperice nakon pogotka 
+
+setShotElapsed(0); 
+
+shotStartRef.current = null; 
+
+setShotRunning(false); 
 
     const sessions = loadSessions(); 
     const activeId = getActiveSessionId(); 
@@ -915,7 +962,7 @@ if (matchTimeExpired) {
 
  
 
-    setShotDisplayTime(0); 
+    setShotElapsed(0); 
 
     shotStartRef.current = null; 
 
@@ -2375,9 +2422,23 @@ onBack={() => setView("setup")}
 
   } 
 
-            shotStartRef.current = performance.now(); 
+            if (shotStartRef.current === null) { 
 
-            setShotRunning(true); 
+  // reset старт 
+
+  shotStartRef.current = performance.now(); 
+
+} else { 
+
+  // resume 
+
+  shotStartRef.current = performance.now() - shotElapsed * 1000; 
+
+} 
+
+ 
+
+setShotRunning(true);  
 
           }}> 
 
@@ -2397,7 +2458,55 @@ onBack={() => setView("setup")}
 
  
 
-          <p>Vreme: {shotDisplayTime.toFixed(2)} s</p>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}> 
+
+  <div> 
+
+    Vreme: {shotElapsed.toFixed(2)} s 
+
+  </div> 
+
+ 
+
+  {!shotRunning && shotElapsed > 0 && ( 
+
+    <button 
+
+      onClick={() => { 
+
+        setShotElapsed(0); 
+
+        shotStartRef.current = null; 
+
+        setShotRunning(false); 
+
+      }} 
+
+      style={{ 
+
+        background: "none", 
+
+        border: "none", 
+
+        color: "#ff5555", 
+
+        cursor: "pointer", 
+
+        fontSize: "12px", 
+
+        textDecoration: "underline" 
+
+      }} 
+
+    > 
+
+      RESET 
+
+    </button> 
+
+  )} 
+
+</div> 
 
           {activeSessionState.format === "60" && ( 
 
@@ -2471,7 +2580,7 @@ onBack={() => setView("setup")}
 
 <button 
 
-  disabled={!shotDisplayTime || activeSessionState.completed} 
+  disabled={!shotElapsed || activeSessionState.completed} 
 
   onClick={registerDryFire} 
 
