@@ -1017,8 +1017,241 @@ setShotRunning(false);
 
   const allShots = seriesList.flatMap(s => s.shots); 
 
+  // ✅ Analiza po vremenu opaljenja 
 
+ 
 
+const timeBuckets: { 
+
+  under25: number[]; 
+
+  between25and30: number[]; 
+
+  over30: number[]; 
+
+} = { 
+
+  under25: [], 
+
+  between25and30: [], 
+
+  over30: [] 
+
+}; 
+
+ 
+
+allShots.forEach(shot => { 
+
+  const time = shot.shotTime; 
+
+  const value = shot.value; 
+
+ 
+
+  if (time < 25) { 
+
+    timeBuckets.under25.push(value); 
+
+  } else if (time >= 25 && time <= 30) { 
+
+    timeBuckets.between25and30.push(value); 
+
+  } else { 
+
+    timeBuckets.over30.push(value); 
+
+  } 
+
+}); 
+
+ 
+
+const timeAnalysis = { 
+
+  under25: { 
+
+    count: timeBuckets.under25.length, 
+
+    avg: 
+
+      timeBuckets.under25.length > 0 
+
+        ? ( 
+
+            timeBuckets.under25.reduce((a, b) => a + b, 0) / 
+
+            timeBuckets.under25.length 
+
+          ).toFixed(1) 
+
+        : "-" 
+
+  }, 
+
+  between25and30: { 
+
+    count: timeBuckets.between25and30.length, 
+
+    avg: 
+
+      timeBuckets.between25and30.length > 0 
+
+        ? ( 
+
+            timeBuckets.between25and30.reduce((a, b) => a + b, 0) / 
+
+            timeBuckets.between25and30.length 
+
+          ).toFixed(1) 
+
+        : "-" 
+
+  }, 
+
+  over30: { 
+
+    count: timeBuckets.over30.length, 
+
+    avg: 
+
+      timeBuckets.over30.length > 0 
+
+        ? ( 
+
+            timeBuckets.over30.reduce((a, b) => a + b, 0) / 
+
+            timeBuckets.over30.length 
+
+          ).toFixed(1) 
+
+        : "-" 
+
+  } 
+
+}; 
+
+  // ✅ Analitika po serijama 
+
+const analyticsTable = { 
+
+  max: seriesList.map(series => { 
+
+    if (series.shots.length === 0) return { value: "-", time: "-" }; 
+
+ 
+
+    const values = series.shots.map(s => s.value); 
+
+    const times = series.shots.map(s => s.shotTime); 
+
+ 
+
+    return { 
+
+      value: Math.max(...values).toFixed(1), 
+
+      time: Math.max(...times).toFixed(0) 
+
+    }; 
+
+  }), 
+
+ 
+
+  min: seriesList.map(series => { 
+
+    if (series.shots.length === 0) return { value: "-", time: "-" }; 
+
+ 
+
+    const values = series.shots.map(s => s.value); 
+
+    const times = series.shots.map(s => s.shotTime); 
+
+ 
+
+    return { 
+
+      value: Math.min(...values).toFixed(1), 
+
+      time: Math.min(...times).toFixed(0) 
+
+    }; 
+
+  }), 
+
+ 
+
+  avg: seriesList.map(series => { 
+
+    if (series.shots.length === 0) return { value: "-", time: "-" }; 
+
+ 
+
+    const values = series.shots.map(s => s.value); 
+
+    const times = series.shots.map(s => s.shotTime); 
+
+ 
+
+    return { 
+
+      value: (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1), 
+
+      time: (times.reduce((a, b) => a + b, 0) / times.length).toFixed(0) 
+
+    }; 
+
+  }) 
+
+}; 
+
+  // ===== PRVIH 5 I DRUGIH 5 U SERIJI ===== //
+
+  const firstSecondFive = seriesList.map(series => { 
+
+ 
+
+  if (series.shots.length < 10) { 
+
+    return { 
+
+      index: series.index, 
+
+      firstFive: "-", 
+
+      secondFive: "-" 
+
+    }; 
+
+  } 
+
+ 
+
+  const first = series.shots.slice(0, 5) 
+
+    .reduce((sum, shot) => sum + shot.value, 0); 
+
+ 
+
+  const second = series.shots.slice(5, 10) 
+
+    .reduce((sum, shot) => sum + shot.value, 0); 
+
+ 
+
+  return { 
+
+    index: series.index, 
+
+    firstFive: first.toFixed(1), 
+
+    secondFive: second.toFixed(1) 
+
+  }; 
+
+}); 
 
   // ===== KONVERZIJA U mm (GLOBALNO) ===== 
 
@@ -1825,6 +2058,13 @@ onBack={() => setView("setup")}
  
 
       <div><strong>Ukupno:</strong> {matchTotal.toFixed(1)}</div> 
+      <div style={{ display: "flex", gap: "20px" }}> 
+
+        <div><strong>HIT:</strong> {hitCount}</div> 
+
+        <div><strong>MUŠ:</strong> {musCount}</div> 
+
+      </div> 
 
       <div><strong>Broj hitaca:</strong> {allShots.length}</div> 
 
@@ -1877,13 +2117,291 @@ onBack={() => setView("setup")}
 
       </div> 
 
+    <div style={{ marginTop: "20px" }}> 
+
+  <strong>Analitika po serijama:</strong> 
+
  
 
+  <table 
+
+    style={{ 
+
+      width: "100%", 
+
+      marginTop: "10px", 
+
+      borderCollapse: "collapse", 
+
+      fontSize: "12px" 
+
+    }} 
+
+  > 
+
+    <thead> 
+
+      <tr> 
+
+        <th></th> 
+
+        {seriesList.map(series => ( 
+
+          <th colSpan={2} key={series.index}> 
+
+            Serija {series.index} 
+            <span style={{ fontWeight: "normal" }}>
+              {" "} ({series.total.toFixed(1)})
+            </span>
+          </th> 
+
+        ))} 
+
+      </tr> 
+
+      <tr> 
+
+        <th></th> 
+
+        {seriesList.map(series => ( 
+
+          <> 
+
+            <th key={`v-${series.index}`}>Vrednost</th> 
+
+            <th key={`t-${series.index}`}>Vreme</th> 
+
+          </> 
+
+        ))} 
+
+      </tr> 
+
+    </thead> 
+
+ 
+
+    <tbody> 
+
+      <tr> 
+
+        <td><strong>MAX</strong></td> 
+
+        {analyticsTable.max.map((row, i) => ( 
+
+          <> 
+
+            <td key={`max-v-${i}`}>{row.value}</td> 
+
+            <td key={`max-t-${i}`}>{row.time}</td> 
+
+          </> 
+
+        ))} 
+
+      </tr> 
+
+ 
+
+      <tr> 
+
+        <td><strong>MIN</strong></td> 
+
+        {analyticsTable.min.map((row, i) => ( 
+
+          <> 
+
+            <td key={`min-v-${i}`}>{row.value}</td> 
+
+            <td key={`min-t-${i}`}>{row.time}</td> 
+
+          </> 
+
+        ))} 
+
+      </tr> 
+
+ 
+
+      <tr> 
+
+        <td><strong>AVG</strong></td> 
+
+        {analyticsTable.avg.map((row, i) => ( 
+
+          <> 
+
+            <td key={`avg-v-${i}`}>{row.value}</td> 
+
+            <td key={`avg-t-${i}`}>{row.time}</td> 
+
+          </> 
+
+        ))} 
+
+      </tr> 
+
+    </tbody> 
+
+  </table> 
+
+</div>  
+
+<div style={{ marginTop: "20px" }}> 
+
+  <strong>Raspodela serije (5 + 5):</strong> 
+
+ 
+
+  <table 
+
+    style={{ 
+
+      width: "100%", 
+
+      marginTop: "10px", 
+
+      borderCollapse: "collapse", 
+
+      fontSize: "12px" 
+
+    }} 
+
+  > 
+
+    <thead> 
+
+      <tr> 
+
+        <th></th> 
+
+        {seriesList.map(series => ( 
+
+          <th key={series.index}> 
+
+            Serija {series.index} 
+
+          </th> 
+
+        ))} 
+
+      </tr> 
+
+    </thead> 
+
+ 
+
+    <tbody> 
+
+      <tr> 
+
+        <td><strong>Prvih 5</strong></td> 
+
+        {firstSecondFive.map(row => ( 
+
+          <td key={`f-${row.index}`}>{row.firstFive}</td> 
+
+        ))} 
+
+      </tr> 
+
+ 
+
+      <tr> 
+
+        <td><strong>Drugih 5</strong></td> 
+
+        {firstSecondFive.map(row => ( 
+
+          <td key={`s-${row.index}`}>{row.secondFive}</td> 
+
+        ))} 
+
+      </tr> 
+
+    </tbody> 
+
+  </table> 
+
+</div> 
+
+ <div style={{ marginTop: "20px" }}> 
+
+  <strong>Analiza po vremenu opaljenja:</strong> 
+
+ 
+
+  <table 
+
+    style={{ 
+
+      width: "75%", 
+
+      marginTop: "10px", 
+
+      borderCollapse: "collapse", 
+
+      fontSize: "12px" 
+
+    }} 
+
+  > 
+
+    <thead> 
+
+      <tr> 
+
+        <th>Vreme (s)</th> 
+
+        <th>Broj pogodaka</th> 
+
+        <th>Prosečna vrednost</th> 
+
+      </tr> 
+
+    </thead> 
+
+    <tbody> 
+
+      <tr> 
+
+        <td>&lt; 25</td> 
+
+        <td>{timeAnalysis.under25.count}</td> 
+
+        <td>{timeAnalysis.under25.avg}</td> 
+
+      </tr> 
+
+      <tr> 
+
+        <td>25 – 30</td> 
+
+        <td>{timeAnalysis.between25and30.count}</td> 
+
+        <td>{timeAnalysis.between25and30.avg}</td> 
+
+      </tr> 
+
+      <tr> 
+
+        <td>&gt; 30</td> 
+
+        <td>{timeAnalysis.over30.count}</td> 
+
+        <td>{timeAnalysis.over30.avg}</td> 
+
+      </tr> 
+
+    </tbody> 
+
+  </table> 
+
+</div> 
+ 
     </div> 
 
- 
-
-    {/* DESNA STRANA */} 
+     {/* DESNA STRANA */} 
 
     <div className="print-summary-right"> 
 

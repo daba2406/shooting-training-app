@@ -101,13 +101,31 @@ export default function SetupView({ onStart, onArchive }: Props) {
 
         <input 
 
-          type="time" 
+  type="text" 
 
-          value={startTime} 
+  placeholder="HH:MM" 
 
-          onChange={(e) => setStartTime(e.target.value)} 
+  value={startTime} 
 
-        /> 
+  onChange={(e) => setStartTime(e.target.value)} 
+
+  pattern="^([01]\d|2[0-3]):([0-5]\d)$" 
+
+  inputMode="numeric" 
+
+  maxLength={5} 
+
+  style={{ 
+
+    width: "90px", 
+
+    textAlign: "center", 
+
+    letterSpacing: "1px" 
+
+  }} 
+
+/> 
 
  
 
