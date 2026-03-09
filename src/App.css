@@ -1225,3 +1225,20 @@ html, body, #root {
  
 
 } 
+/* ===== FINAL MODE LAYOUT ADJUSTMENT ===== */ 
+
+ 
+
+.shot-list-panel.final-mode .shots-table { 
+
+  flex: 0.95;   /* povećavamo udeo */ 
+
+} 
+
+ 
+
+.shot-list-panel.final-mode .series-grid { 
+
+  margin-top: 20px;  /* dodatni razmak */ 
+
+} 

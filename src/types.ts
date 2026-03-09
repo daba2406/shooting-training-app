@@ -28,6 +28,8 @@ export interface Series {
 
   completed: boolean; 
 
+  type?: "normal" | "shotoff";
+
 } 
 
  

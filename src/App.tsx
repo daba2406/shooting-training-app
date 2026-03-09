@@ -743,7 +743,51 @@ useEffect(() => {
 
   }, [seriesList, selectedSeriesIndex, isReadOnly]); 
 
+ // ===== FINAL MODE: Dynamic series limit ===== 
+
+const getMaxShotsForSeries = (seriesIndex: number) => { 
+
+  if (activeSessionState.mode !== "final") { 
+
+    return MAX_SHOTS;
+
+  } 
+
  
+
+  // Finale struktura: 
+
+  // Serija 1 i 2 -> 5 hitaca 
+
+  // Ostale -> 2 hica 
+
+  if (seriesIndex === 1 || seriesIndex === 2) { 
+
+    return 5; 
+
+  } 
+
+ 
+
+  return 2; 
+
+}; 
+
+// ===== FINAL MODE: Dynamic series count ===== 
+
+const getMaxSeriesCount = () => { 
+
+  if (activeSessionState.mode === "final") { 
+
+    return 9; // 2 serije po 5 + 7 serija po 2 
+
+  } 
+
+ 
+
+  return MAX_SERIES; 
+
+}; 
 
   // ================= CLICK ================= 
 
@@ -799,7 +843,9 @@ if (matchTimeExpired) {
 
  
 
-      if (seriesList.length >= MAX_SERIES) return; 
+      const maxSeriesCount = getMaxSeriesCount(); 
+
+      if (seriesList.length >= maxSeriesCount) return; 
 
  
 
@@ -826,7 +872,11 @@ if (matchTimeExpired) {
 
  
 
-    if (workingSeries.shots.length >= MAX_SHOTS) return; 
+    const maxShotsThisSeries = getMaxShotsForSeries(workingSeries.index); 
+
+ 
+
+    if (workingSeries.shots.length >= maxShotsThisSeries) return; 
 
  
 
@@ -947,7 +997,7 @@ if (matchTimeExpired) {
 
       total: seriesTotal, 
 
-      completed: updatedShots.length === MAX_SHOTS 
+      completed: updatedShots.length === maxShotsThisSeries 
 
     }; 
 
@@ -1015,7 +1065,11 @@ setShotRunning(false);
 
  
 
-  const allShots = seriesList.flatMap(s => s.shots); 
+  const allShots = seriesList 
+
+  .filter(s => s.type !== "shotoff") 
+
+  .flatMap(s => s.shots); 
 
   // ✅ Analiza po vremenu opaljenja 
 
@@ -1671,6 +1725,7 @@ const startNewSessionWithFormat = (
   if (format === "trial") maxShots = null; 
 
   if (format === "custom") maxShots = 60; 
+  if (mode === "final") maxShots = 24;
 
  
 
@@ -2329,8 +2384,6 @@ onBack={() => setView("setup")}
 
   <strong>Analiza po vremenu opaljenja:</strong> 
 
- 
-
   <table 
 
     style={{ 
@@ -2405,11 +2458,9 @@ onBack={() => setView("setup")}
 
     <div className="print-summary-right"> 
 
- 
 
       <h3 style={{ marginBottom: "10px" }}>Statistika pogodaka</h3> 
 
- 
 
       <table className="print-stats-table"> 
 
@@ -2643,23 +2694,17 @@ onBack={() => setView("setup")}
 
 })()} 
 
-
-
       </div> 
 
- 
 
     </div> 
-    
+   
 
   ))} 
 
- 
 
 </div> 
 
-
- 
 
         <div className="data-panel"> 
         {isReadOnly && ( 
@@ -2683,8 +2728,7 @@ onBack={() => setView("setup")}
     ARHIVSKA SESIJA – READ ONLY 
 
   </div> 
-
-  
+ 
   
 )} 
  {activeSessionState.completed && !isReadOnly && ( 
@@ -2729,7 +2773,6 @@ onBack={() => setView("setup")}
   </button> 
 
  
-
   <button  
 
     onClick={() => { 
@@ -2780,9 +2823,7 @@ onBack={() => setView("setup")}
 
   )} 
 
- 
-
-  <button onClick={() => window.print()}> 
+   <button onClick={() => window.print()}> 
 
     PRINT 
 
@@ -2798,9 +2839,6 @@ onBack={() => setView("setup")}
 
     pushToHistory(activeSessionState);
     const now = Date.now(); 
-
- 
-
     setActiveSessionState(prev => ({ 
 
       ...prev, 
@@ -2900,11 +2938,7 @@ onBack={() => setView("setup")}
 
     if (redoStack.length === 0) return; 
 
- 
-
     const next = redoStack[redoStack.length - 1]; 
-
- 
 
     // ✅ тренутно стање враћамо у history 
 
@@ -2956,8 +2990,6 @@ onBack={() => setView("setup")}
   Ručni unos vremena hica 
 
 </label> 
-
- 
 
 {manualTimeMode && ( 
 
@@ -3026,39 +3058,23 @@ onBack={() => setView("setup")}
             disabled={isReadOnly || manualTimeMode || activeSessionState.completed}
             onClick={() => { 
 
- 
-
   // ✅ ако постоји активан event (pauza / izlazak), затвори га 
 
   const openEventIndex = getOpenEventIndex(); 
 
- 
-
   if (openEventIndex !== -1) { 
-
- 
 
     const endMatchTime = getCurrentMatchTime(); 
 
- 
-
     setActiveSessionState(prev => { 
-
- 
 
       const updatedEvents = [...(prev.matchEvents ?? [])]; 
 
- 
-
       const event = updatedEvents[openEventIndex]; 
-
- 
 
       event.endMatchTime = endMatchTime; 
 
       event.duration = endMatchTime - event.startMatchTime; 
-
- 
 
       return { 
 
@@ -3086,8 +3102,6 @@ onBack={() => setView("setup")}
 
 } 
 
- 
-
 setShotRunning(true);  
 
           }}> 
@@ -3095,8 +3109,6 @@ setShotRunning(true);
             START POGODAK 
 
           </button> 
-
- 
 
           <button 
             disabled={isReadOnly || manualTimeMode || activeSessionState.completed}
@@ -3106,8 +3118,6 @@ setShotRunning(true);
 
           </button> 
 
-          
-
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}> 
 
   <div> 
@@ -3115,8 +3125,6 @@ setShotRunning(true);
     Vreme: {shotElapsed.toFixed(2)} s 
 
   </div> 
-
- 
 
   {!shotRunning && shotElapsed > 0 && ( 
 
@@ -3204,8 +3212,6 @@ setShotRunning(true);
 
   <strong>Događaji u meču</strong> 
 
- 
-
   <div style={{ display: "flex", gap: "8px", marginTop: "5px" }}> 
 
     <button 
@@ -3215,8 +3221,6 @@ setShotRunning(true);
       IZLAZAK SA LINIJE 
 
     </button> 
-
- 
 
     <button 
     disabled={activeSessionState.completed}
@@ -3243,8 +3247,6 @@ setShotRunning(true);
   </div> 
 
 </div> 
-
- 
 
           {false && (
           <button 
@@ -3286,8 +3288,6 @@ setShotRunning(true);
 
           </div> 
 
- 
-
           <div className="score-buttons low-row"> 
 
             {lowScores.map(score => ( 
@@ -3316,13 +3316,9 @@ setShotRunning(true);
 
   <h4>Statistika pogodaka</h4> 
 
- 
-
   <div className="stats-grid"> 
 
     {Object.entries(shotDistribution).map(([key, count]) => { 
-
- 
 
       const percent = 
 
@@ -3331,8 +3327,6 @@ setShotRunning(true);
           ? ((count / totalShotCount) * 100).toFixed(1) 
 
           : "0.0"; 
-
- 
 
       return ( 
 
@@ -3358,11 +3352,7 @@ setShotRunning(true);
 
 </div> 
 
- 
-
         </div> 
-
- 
 
         <div className="meta-panel"> 
 
@@ -3410,8 +3400,6 @@ setShotRunning(true);
 
             </div> 
 
- 
-
             <div className="click-correction"> 
 
               <div className="click-title"> 
@@ -3448,11 +3436,8 @@ setShotRunning(true);
 
         </div> 
 
- 
-
-        <div className="shot-list-panel"> 
-
- 
+        <div className={`shot-list-panel 
+          ${activeSessionState.mode === "final" ? "final-mode" : ""}`}> 
 
           <div className="shots-table"> 
 
@@ -3478,17 +3463,11 @@ setShotRunning(true);
 
               <tbody> 
 
-                
-
                 {seriesTimeline.map((item, index) => { 
-
- 
 
   if (item.type === "shot") { 
 
     const shot = item.data; 
-
- 
 
     return ( 
 
@@ -3515,8 +3494,6 @@ setShotRunning(true);
   if (item.type === "event") { 
 
     const event = item.data; 
-
- 
 
     return ( 
 
@@ -3590,8 +3567,6 @@ setShotRunning(true);
 
   } 
 
- 
-
   return null; 
 
 })} 
@@ -3606,13 +3581,11 @@ setShotRunning(true);
 
           <div className="series-grid"> 
 
-  {Array.from({ length: 6 }).map((_, i) => { 
+  {Array.from({ length: getMaxSeriesCount() }).map((_, i) => { 
 
     const s = seriesList[i]; 
 
  const seriesPairs: typeof seriesList[] = []; 
-
- 
 
 for (let i = 0; i < seriesList.length; i += 2) { 
 
@@ -3660,8 +3633,6 @@ for (let i = 0; i < seriesList.length; i += 2) {
 
 </div> 
 
- 
-
           <div className="stats-row"> 
 
             <div className="stats-left"> 
@@ -3671,8 +3642,6 @@ for (let i = 0; i < seriesList.length; i += 2) {
               <div>MUŠ: {musCount}</div> 
 
             </div> 
-
- 
 
             <div className="stats-right"> 
 
@@ -3684,11 +3653,7 @@ for (let i = 0; i < seriesList.length; i += 2) {
 
           </div> 
 
- 
-
         </div> 
-
- 
 
       </div> 
 
