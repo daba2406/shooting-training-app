@@ -747,19 +747,14 @@ useEffect(() => {
 
 const getMaxShotsForSeries = (seriesIndex: number) => { 
 
+
   if (activeSessionState.mode !== "final") { 
 
-    return MAX_SHOTS;
+    return MAX_SHOTS; 
 
   } 
 
  
-
-  // Finale struktura: 
-
-  // Serija 1 i 2 -> 5 hitaca 
-
-  // Ostale -> 2 hica 
 
   if (seriesIndex === 1 || seriesIndex === 2) { 
 
@@ -784,21 +779,20 @@ const getMaxSeriesCount = () => {
   } 
 
  
-
   return MAX_SERIES; 
 
 }; 
+
 
   // ================= CLICK ================= 
 
  
 
   const handleClick = (event: React.MouseEvent<HTMLCanvasElement>) => { 
-    if (activeSessionState.completed) return; 
 
- 
+  if (activeSessionState.completed) return; 
 
-if (matchTimeExpired) { 
+  if (matchTimeExpired) {  
 
   alert("Vreme meča je isteklo."); 
 
@@ -841,14 +835,9 @@ if (matchTimeExpired) {
 
     if (currentSeries.completed) { 
 
- 
-
-      const maxSeriesCount = getMaxSeriesCount(); 
-
+       const maxSeriesCount = getMaxSeriesCount(); 
       if (seriesList.length >= maxSeriesCount) return; 
-
  
-
       const newSeries: Series = { 
 
         index: seriesList.length + 1, 
@@ -981,7 +970,6 @@ if (matchTimeExpired) {
 
     }; 
 
- 
 
     const updatedShots = [...workingSeries.shots, newShot]; 
 
@@ -1066,8 +1054,6 @@ setShotRunning(false);
  
 
   const allShots = seriesList 
-
-  .filter(s => s.type !== "shotoff") 
 
   .flatMap(s => s.shots); 
 
@@ -1450,7 +1436,8 @@ const remainingTime =
 
 const matchTimeExpired = 
 
-  activeSessionState.format === "60" && 
+activeSessionState.mode !== "final" &&   
+activeSessionState.format === "60" && 
 
   elapsedTime >= QUALIFICATION_TIME_LIMIT; 
   
@@ -1497,9 +1484,14 @@ const matchTimeExpired =
 
 }, [totalShots, matchTimeExpired]); 
 
-  const expectedResult = 
+const projectionBase = 
 
-    totalShots > 0 ? (matchTotal / totalShots) * 60 : 0; 
+  activeSessionState.mode === "final" ? 24 : 60; 
+
+const expectedResult = 
+
+  totalShots > 0 ? (matchTotal / totalShots) * projectionBase : 0; 
+
 const idealTimePerShot = 75; // sekundi po hicu (75min / 60) 
 
  
@@ -3166,7 +3158,9 @@ setShotRunning(true);
 
 </div> 
 
-          {activeSessionState.format === "60" && ( 
+          {activeSessionState.mode !== "final" && 
+
+          activeSessionState.format === "60" && ( 
 
   <div style={{ marginTop: "10px", fontSize: "18px", fontWeight: "bold" }}> 
 
