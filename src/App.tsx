@@ -19,6 +19,7 @@ import {
   setActiveSessionId 
 
 } from "./sessionManager"; 
+import AnalyticsView from "./components/AnalyticsView";
 
  
 
@@ -199,7 +200,11 @@ useEffect(() => {
 
   const [shotElapsed, setShotElapsed] = useState(0);
 
-  const [view, setView] = useState<"setup" | "shooting" | "archive">("setup"); 
+  const [view, setView] = useState< 
+
+  "setup" | "shooting" | "archive" | "analytics" 
+
+>("setup"); 
 
   const [isReadOnly, setIsReadOnly] = useState(false);
   const [selectedSeriesIndex, setSelectedSeriesIndex] = useState<number | null>(null);
@@ -2078,6 +2083,7 @@ return (
     }} 
 
     onArchive={() => setView("archive")} 
+    onAnalytics={() => setView("analytics")}
 
   /> 
 
@@ -2125,21 +2131,33 @@ onBack={() => setView("setup")}
 
     )} 
 
+{view === "analytics" && ( 
+
+  <AnalyticsView 
+
+    sessions={sessionsState} 
+
+    onBack={() => setView("setup")} 
+
+  /> 
+
+)} 
  
 
     {view === "shooting" && ( 
+      
 
       <div className="app-container"> 
 
-<div className="print-header"> 
+      <div className="print-header"> 
 
  
 
-  <h2 style={{ marginBottom: "15px" }}>IZVEŠTAJ MEČA</h2> 
+    <h2 style={{ marginBottom: "15px" }}>IZVEŠTAJ MEČA</h2> 
 
  
 
-  <div className="print-summary-wrapper"> 
+    <div className="print-summary-wrapper"> 
 
  
 

@@ -569,7 +569,7 @@ html, body, #root {
 
 .setup-container { 
 
-  height: 100vh; 
+  min-height: 100vh; 
 
   background: linear-gradient(135deg, #111, #1c1c1c); 
 
@@ -578,6 +578,7 @@ html, body, #root {
   justify-content: center; 
 
   align-items: center; 
+  padding: 20px 0;
 
 } 
 
@@ -587,7 +588,7 @@ html, body, #root {
 
   background-color: #1a1a1a; 
 
-  padding: 40px; 
+  padding: 28px; 
 
   border-radius: 12px; 
 
@@ -631,9 +632,9 @@ html, body, #root {
 
   flex-direction: column; 
 
-  gap: 12px; 
+  gap: 4px; 
 
-  margin-top: 25px; 
+  margin-top: 10px; 
 
 } 
 
@@ -677,7 +678,7 @@ html, body, #root {
 
   background-color: #333; 
 
-  margin: 25px 0; 
+  margin: 15px 0; 
 
 } 
 

@@ -23,12 +23,13 @@ interface Props {
  
 
   onArchive: () => void; 
+  onAnalytics: () => void;
 
 } 
 
  
 
-export default function SetupView({ onStart, onArchive }: Props) { 
+export default function SetupView({ onStart, onArchive, onAnalytics }: Props) { 
 
  
 
@@ -55,11 +56,7 @@ export default function SetupView({ onStart, onArchive }: Props) {
 
  
 
-        <h1 className="setup-title">SHOOTING CONTROL</h1> 
-
- 
-
-        <h2 className="setup-subtitle">Podaci o meču</h2> 
+        <h2 className="setup-subtitle">Podaci o meču/treningu</h2> 
 
  
 
@@ -294,6 +291,20 @@ export default function SetupView({ onStart, onArchive }: Props) {
           Arhiva 
 
         </button> 
+
+        <button 
+
+  className="archive-btn" 
+
+  onClick={onAnalytics} 
+
+  style={{ marginTop: "5px" }} 
+
+> 
+
+  Analytics 
+
+</button> 
 
  
 
