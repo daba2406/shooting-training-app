@@ -1625,7 +1625,15 @@ const isRight = dx > threshold;
 
 }; 
 
+const getShotColor = (value: number) => { 
 
+  if (value >= 10.5) return "#4caf50"; // zelena 
+
+  if (value >= 10.3) return "#fbc02d"; // žuta 
+
+  return "#e53935"; // crvena 
+
+}; 
 
     // ===== LAST 5 OFFSET (mm) ===== 
 
@@ -2687,7 +2695,21 @@ onBack={() => setView("setup")}
 
                 <td>{shot.index}</td> 
 
-                <td>{shot.value.toFixed(1)}</td> 
+                <td 
+
+  style={{ 
+
+    color: getShotColor(shot.value), 
+
+    fontWeight: 600 
+
+  }} 
+
+> 
+
+  {shot.value.toFixed(1)} 
+
+</td> 
 
                 <td>{getShotDirection(shot)}</td> 
 
@@ -3572,7 +3594,21 @@ setShotRunning(true);
 
         <td>{shot.index}</td> 
 
-        <td>{shot.value.toFixed(1)}</td> 
+        <td 
+
+        style={{ 
+
+        color: getShotColor(shot.value), 
+
+        fontWeight: 600 
+
+        }} 
+
+        > 
+
+        {shot.value.toFixed(1)} 
+
+        </td> 
 
         <td>{getShotDirection(shot)}</td> 
 
