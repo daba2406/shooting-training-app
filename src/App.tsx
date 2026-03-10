@@ -1057,6 +1057,56 @@ setShotRunning(false);
 
   .flatMap(s => s.shots); 
 
+  // ===== STREAK LOGIKA ===== 
+
+ 
+
+let current103 = 0; 
+
+let max103 = 0; 
+
+ 
+
+let current105 = 0; 
+
+let max105 = 0; 
+
+ 
+
+allShots.forEach(shot => { 
+
+  // 10.3+ 
+
+  if (shot.value >= 10.3) { 
+
+    current103++; 
+
+    if (current103 > max103) max103 = current103; 
+
+  } else { 
+
+    current103 = 0; 
+
+  } 
+
+ 
+
+  // 10.5+ 
+
+  if (shot.value >= 10.5) { 
+
+    current105++; 
+
+    if (current105 > max105) max105 = current105; 
+
+  } else { 
+
+    current105 = 0; 
+
+  } 
+
+}); 
+
   // ✅ Analiza po vremenu opaljenja 
 
  
@@ -2145,6 +2195,17 @@ onBack={() => setView("setup")}
       <div><strong>Prosek:</strong> {averageScore.toFixed(2)}</div> 
 
       <div><strong>SD:</strong> {standardDeviation.toFixed(3)}</div> 
+      <div style={{ marginTop: "6px" }}> 
+
+        <strong>Max 10.3+:</strong> {max103} 
+
+      </div> 
+
+      <div> 
+
+      <strong>Max 10.5+:</strong> {max105} 
+
+      </div> 
 
       <div><strong>Extreme Spread:</strong> {extremeSpreadMm.toFixed(2)} mm</div> 
 
@@ -3423,6 +3484,48 @@ setShotRunning(true);
                 </div> 
 
               </div> 
+
+              {activeSessionState.mode !== "final" && ( 
+
+  <div 
+
+    style={{ 
+
+      marginTop: "12px", 
+
+      fontSize: "12px", 
+
+      textAlign: "center", 
+
+      color: "#bbb", 
+
+      letterSpacing: "0.5px" 
+
+    }} 
+
+  > 
+
+    {!isReadOnly ? ( 
+
+      <> 
+
+        10.3+ {current103} ({max103}) | 10.5+ {current105} ({max105}) 
+
+      </> 
+
+    ) : ( 
+
+      <> 
+
+        Max 10.3+ {max103} | Max 10.5+ {max105} 
+
+      </> 
+
+    )} 
+
+  </div> 
+
+)} 
 
             </div> 
 
