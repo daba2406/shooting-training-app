@@ -2197,13 +2197,13 @@ onBack={() => setView("setup")}
       <div><strong>SD:</strong> {standardDeviation.toFixed(3)}</div> 
       <div style={{ marginTop: "6px" }}> 
 
-        <strong>Max 10.3+:</strong> {max103} 
+        <strong>Najduzi niz 10.3+:</strong> {max103} 
 
       </div> 
 
       <div> 
 
-      <strong>Max 10.5+:</strong> {max105} 
+      <strong>Najduzi niz 10.5+:</strong> {max105} 
 
       </div> 
 
