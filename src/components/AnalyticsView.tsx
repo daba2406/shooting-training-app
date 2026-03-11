@@ -1,5 +1,25 @@
 import type { ShootingSession } from "../types"; 
 
+import { 
+
+  LineChart, 
+
+  Line, 
+
+  XAxis, 
+
+  YAxis, 
+
+  CartesianGrid, 
+
+  Tooltip, 
+
+  ResponsiveContainer, 
+
+  ReferenceLine 
+
+} from "recharts"; 
+
  
 
 interface Props { 
@@ -31,6 +51,25 @@ const matchResults = qualificationMatches.map(
   s => s.totalResult ?? 0 
 
 ); 
+
+
+// ✅ Dynamic Y axis domain 
+
+ 
+
+const minScore = Math.min(...matchResults); 
+
+const maxScore = Math.max(...matchResults); 
+
+ 
+
+const yPadding = 2; // мало простора изнад и испод 
+
+ 
+
+const yMin = Math.floor(minScore - yPadding); 
+
+const yMax = Math.ceil(maxScore + yPadding); 
 
 // ✅ Pressure Index по мечу (30 vs 30) 
 
@@ -232,6 +271,33 @@ if (matchCount > 1) {
 
 } 
 
+// ✅ Податак за графикон 
+
+
+const chartData = qualificationMatches.map((match, index) => { 
+
+  const score = match.totalResult ?? 0; 
+
+ 
+
+  const trendValue = 
+
+    mean + slope * (index - (matchCount - 1) / 2); 
+
+ 
+
+  return { 
+
+    index: index + 1, 
+
+    score, 
+
+    trend: trendValue 
+
+  }; 
+
+}); 
+
 // ✅ Weighted recent (последњих 5 мечева) 
 
  
@@ -368,9 +434,28 @@ if (stdDev > 0) {
 
   return ( 
 
-    <div className="app-container"> 
+    <div className="app-container"
+    style={{ overflowY: "auto"}}> 
 
-      <div style={{ padding: "20px", width: "100%", color: "white" }}> 
+      <div 
+
+  style={{ 
+
+    padding: "26px", 
+
+    width: "100%", 
+
+    color: "white", 
+
+    display: "grid", 
+
+    gridTemplateColumns: "0.9fr 1.1fr", 
+
+    gap: "20px" 
+
+  }} 
+
+> 
 
         <h2 style={{ marginBottom: "20px" }}> 
 
@@ -387,6 +472,29 @@ if (stdDev > 0) {
         </button> 
 
  
+<div 
+
+  style={{ 
+
+    background: "#1f1f1f", 
+
+    padding: "20px", 
+
+    borderRadius: "8px", 
+
+    marginBottom: "14px", 
+
+    color: "white" 
+
+  }} 
+
+> 
+
+  <h3 style={{ marginBottom: "10px" }}> 
+
+    Overview 
+
+  </h3> 
 
 <div style={{ marginBottom: "10px" }}> 
 
@@ -401,12 +509,42 @@ if (stdDev > 0) {
   Prosek: {mean.toFixed(1)} 
 
 </div> 
+<div style={{ marginBottom: "10px" }}> 
 
- <div style={{ marginBottom: "10px" }}> 
-
-  Standardna devijacija: {stdDev.toFixed(2)} 
+  Najbolji rezultat: {best.toFixed(1)} 
 
 </div> 
+<div style={{ marginBottom: "10px" }}> 
+
+  Najslabiji rezultat: {worst.toFixed(1)} 
+
+</div> 
+
+</div>
+
+<div 
+
+  style={{ 
+
+    background: "#1f1f1f", 
+
+    padding: "20px", 
+
+    borderRadius: "8px", 
+
+    marginBottom: "14px", 
+
+    color: "white" 
+
+  }} 
+
+> 
+
+  <h3 style={{ marginBottom: "10px" }}> 
+
+    Trendiranje
+
+  </h3> 
 
 <div style={{ marginBottom: "10px" }}> 
 
@@ -414,11 +552,119 @@ if (stdDev > 0) {
 
 </div> 
 
+ <div style={{ marginBottom: "10px" }}> 
+
+  Standardna devijacija: {stdDev.toFixed(2)} 
+
+</div> 
 <div style={{ marginBottom: "10px" }}> 
 
   Ponderisani prosek (poslednjih 5): {weightedRecent.toFixed(1)} 
 
 </div> 
+
+<div style={{ width: "100%", height: 250, marginTop: "15px" }}> 
+
+  <ResponsiveContainer> 
+
+    <LineChart data={chartData}> 
+
+      <CartesianGrid stroke="#333" strokeDasharray="3 3" /> 
+
+      <XAxis dataKey="index" stroke="#ccc" /> 
+
+      <YAxis 
+        stroke="#ccc"
+        domain={[yMin, yMax]} 
+        /> 
+
+      <Tooltip 
+
+  formatter={(value: any) => 
+
+    typeof value === "number" 
+
+      ? value.toFixed(1) 
+
+      : value 
+
+  } 
+
+/> 
+
+      <ReferenceLine 
+
+        y={mean} 
+
+        stroke="#888" 
+
+        strokeDasharray="5 5" 
+
+      /> 
+
+      <Line 
+
+        type="monotone" 
+
+        dataKey="score" 
+
+        stroke="#4caf50" 
+
+        strokeWidth={2} 
+
+        dot={{ r: 4 }} 
+
+      /> 
+
+      <Line 
+
+  type="monotone" 
+
+  dataKey="trend" 
+
+  stroke="#ff9800" 
+
+  strokeWidth={2} 
+
+  strokeDasharray="5 5" 
+
+  dot={false} 
+
+/> 
+
+    </LineChart> 
+
+  </ResponsiveContainer> 
+
+</div> 
+
+</div>
+
+
+
+<div 
+
+  style={{ 
+
+    background: "#1f1f1f", 
+
+    padding: "20px", 
+
+    borderRadius: "8px", 
+
+    marginBottom: "14px", 
+
+    color: "white" 
+
+  }} 
+
+> 
+
+  <h3 style={{ marginBottom: "10px" }}> 
+
+    Predikcija 
+
+  </h3> 
 
 <div style={{ marginBottom: "10px", fontWeight: 600 }}> 
 
@@ -446,11 +692,31 @@ if (stdDev > 0) {
 
 </div> 
 
-<div style={{ marginTop: "15px", fontWeight: 600 }}> 
+</div>
 
-  Pressure Index 
+<div 
 
-</div> 
+  style={{ 
+
+    background: "#1f1f1f", 
+
+    padding: "20px", 
+
+    borderRadius: "8px", 
+
+    marginBottom: "14px", 
+
+    color: "white" 
+
+  }} 
+
+> 
+
+  <h3 style={{ marginBottom: "10px" }}> 
+
+    Pressure Index 
+
+  </h3> 
 
  
 
@@ -490,17 +756,8 @@ if (stdDev > 0) {
 
 </div> 
 
-<div style={{ marginBottom: "10px" }}> 
+</div>
 
-  Najbolji rezultat: {best.toFixed(1)} 
-
-</div> 
-
-<div style={{ marginBottom: "10px" }}> 
-
-  Najslabiji rezultat: {worst.toFixed(1)} 
-
-</div> 
 
       </div> 
 
