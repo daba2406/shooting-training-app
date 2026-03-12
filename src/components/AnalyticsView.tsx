@@ -1,5 +1,7 @@
 import type { ShootingSession } from "../types"; 
 
+import { useState} from "react";
+
 import { 
 
   LineChart, 
@@ -33,20 +35,41 @@ interface Props {
  
 
 export default function AnalyticsView({ sessions, onBack }: Props) { 
+
+  const [analyticsMode, setAnalyticsMode] = useState< 
+
+  "qualification" | "training" 
+
+>("qualification"); 
+
     // ✅ Филтрирамо само завршене qualification мечеве 
 
-const qualificationMatches = sessions 
+const selectedMatches = sessions 
 
-  .filter(s => s.mode === "qualification" && s.completed) 
+  .filter( 
 
-  .sort((a, b) => 
+    s => 
 
-    new Date(a.date).getTime() - new Date(b.date).getTime() 
+      s.mode === analyticsMode && 
+
+      s.completed 
+
+  ) 
+
+  .sort( 
+
+    (a, b) => 
+
+      new Date(a.date).getTime() - 
+
+      new Date(b.date).getTime() 
 
   ); 
+
+  
   // ✅ Основна статистика 
 
-const matchResults = qualificationMatches.map( 
+const matchResults = selectedMatches.map( 
 
   s => s.totalResult ?? 0 
 
@@ -75,7 +98,7 @@ const yMax = Math.ceil(maxScore + yPadding);
 
  
 
-const pressureValues = qualificationMatches.map(match => { 
+const pressureValues = selectedMatches.map(match => { 
 
   const shots = match.seriesList 
 
@@ -199,7 +222,7 @@ const worst =
 
  
 
-const meanRadiusPerMatch = qualificationMatches.map(match => { 
+const meanRadiusPerMatch = selectedMatches.map(match => { 
 
   const shots = match.seriesList.flatMap(series => series.shots); 
 
@@ -462,7 +485,7 @@ if (matchCount > 1) {
 // ✅ Податак за графикон 
 
 
-const chartData = qualificationMatches.map((match, index) => { 
+const chartData = selectedMatches.map((match, index) => { 
 
   const score = match.totalResult ?? 0; 
 
@@ -652,13 +675,124 @@ if (stdDev > 0) {
 
         </h2> 
 
+<div 
+
+  style={{ 
+
+    marginBottom: "20px", 
+
+    display: "flex", 
+
+    justifyContent: "space-between", 
+
+    alignItems: "center" 
+
+  }} 
+
+> 
+
+  <div style={{ display: "flex", gap: "10px" }}> 
+
+    <button 
+
+      onClick={() => setAnalyticsMode("qualification")} 
+
+      style={{ 
+
+        padding: "6px 12px", 
+
+        background: 
+
+          analyticsMode === "qualification" 
+
+            ? "#4caf50" 
+
+            : "#2a2a2a", 
+
+        color: "white", 
+
+        border: "none", 
+
+        borderRadius: "6px", 
+
+        cursor: "pointer" 
+
+      }} 
+
+    > 
+
+      Qualification 
+
+    </button> 
+
  
 
-        <button onClick={onBack} style={{ marginBottom: "20px" }}> 
+    <button 
 
-          Nazad 
+      onClick={() => setAnalyticsMode("training")} 
 
-        </button> 
+      style={{ 
+
+        padding: "6px 12px", 
+
+        background: 
+
+          analyticsMode === "training" 
+
+            ? "#4caf50" 
+
+            : "#2a2a2a", 
+
+        color: "white", 
+
+        border: "none", 
+
+        borderRadius: "6px", 
+
+        cursor: "pointer" 
+
+      }} 
+
+    > 
+
+      Training 
+
+    </button> 
+
+  </div> 
+
+ 
+
+  <button 
+
+    onClick={onBack} 
+
+    style={{ 
+
+      padding: "6px 12px", 
+
+      background: "#2a2a2a", 
+
+      color: "white", 
+
+      border: "none", 
+
+      borderRadius: "6px", 
+
+      cursor: "pointer" 
+
+    }} 
+
+  > 
+
+    Nazad 
+
+  </button> 
+
+
+</div> 
+
+
 
  
 <div 
@@ -706,6 +840,79 @@ if (stdDev > 0) {
 <div style={{ marginBottom: "10px" }}> 
 
   Najslabiji rezultat: {worst.toFixed(1)} 
+
+</div> 
+
+  <h3 style={{ marginBottom: "10px" }}> 
+
+    Predikcija 
+
+  </h3> 
+
+<div style={{ marginBottom: "10px", fontWeight: 600 }}> 
+
+  Predviđeni sledeći rezultat: {predictedNext.toFixed(1)} 
+
+</div> 
+<div style={{ marginBottom: "10px" }}> 
+
+  Realističan opseg (68%): {lower68.toFixed(1)} – {upper68.toFixed(1)} 
+
+</div> 
+
+<div style={{ marginBottom: "10px" }}> 
+
+  Realističan opseg (95%): {lower95.toFixed(1)} – {upper95.toFixed(1)} 
+
+</div> 
+
+<div style={{ marginBottom: "10px" }}> 
+
+  Verovatnoća rezultata ≥ 630: {(probability630 * 100).toFixed(1)}% 
+
+</div> 
+
+  <h3 style={{ marginBottom: "10px" }}> 
+
+    Pressure Index 
+
+  </h3> 
+
+ 
+
+<div style={{ marginBottom: "10px" }}> 
+
+  Status:{" "} 
+
+  <span style={{ color: pressureColor, fontWeight: 600 }}> 
+
+    {pressureStatus} 
+
+  </span> 
+
+</div> 
+
+ 
+
+<div> 
+
+  Prosečan: {pressureMean.toFixed(2)} 
+
+</div> 
+
+ 
+
+<div> 
+
+  Najbolji završetak: +{pressureBest.toFixed(2)} 
+
+</div> 
+
+ 
+
+<div style={{ marginBottom: "10px" }}> 
+
+  Najveći pad: {pressureWorst.toFixed(2)} 
 
 </div> 
 
@@ -829,124 +1036,6 @@ if (stdDev > 0) {
 
 </div>
 
-
-
-<div 
-
-  style={{ 
-
-    background: "#1f1f1f", 
-
-    padding: "20px", 
-
-    borderRadius: "8px", 
-
-    marginBottom: "14px", 
-
-    color: "white" 
-
-  }} 
-
-> 
-
-  <h3 style={{ marginBottom: "10px" }}> 
-
-    Predikcija 
-
-  </h3> 
-
-<div style={{ marginBottom: "10px", fontWeight: 600 }}> 
-
-  Predviđeni sledeći rezultat: {predictedNext.toFixed(1)} 
-
-</div> 
-
- 
-
-<div style={{ marginBottom: "10px" }}> 
-
-  Realističan opseg (68%): {lower68.toFixed(1)} – {upper68.toFixed(1)} 
-
-</div> 
-
-<div style={{ marginBottom: "10px" }}> 
-
-  Realističan opseg (95%): {lower95.toFixed(1)} – {upper95.toFixed(1)} 
-
-</div> 
-
-<div style={{ marginBottom: "10px" }}> 
-
-  Verovatnoća rezultata ≥ 630: {(probability630 * 100).toFixed(1)}% 
-
-</div> 
-
-</div>
-
-<div 
-
-  style={{ 
-
-    background: "#1f1f1f", 
-
-    padding: "20px", 
-
-    borderRadius: "8px", 
-
-    marginBottom: "14px", 
-
-    color: "white" 
-
-  }} 
-
-> 
-
-  <h3 style={{ marginBottom: "10px" }}> 
-
-    Pressure Index 
-
-  </h3> 
-
- 
-
-<div style={{ marginBottom: "10px" }}> 
-
-  Status:{" "} 
-
-  <span style={{ color: pressureColor, fontWeight: 600 }}> 
-
-    {pressureStatus} 
-
-  </span> 
-
-</div> 
-
- 
-
-<div> 
-
-  Prosečan: {pressureMean.toFixed(2)} 
-
-</div> 
-
- 
-
-<div> 
-
-  Najbolji završetak: +{pressureBest.toFixed(2)} 
-
-</div> 
-
- 
-
-<div style={{ marginBottom: "10px" }}> 
-
-  Najveći pad: {pressureWorst.toFixed(2)} 
-
-</div> 
-
-</div>
-
 <div 
 
   style={{ 
@@ -955,11 +1044,11 @@ if (stdDev > 0) {
 
     background: "#1f1f1f", 
 
-    padding: "16px", 
+    padding: "5px", 
 
     borderRadius: "8px", 
 
-    marginTop: "10px", 
+    marginTop: "5px", 
 
     color: "white" 
 
@@ -967,7 +1056,7 @@ if (stdDev > 0) {
 
 > 
 
-  <h3 style={{ marginBottom: "15px" }}> 
+  <h3 style={{ marginBottom: "10px" }}> 
 
     Tehnička analiza (Mean Radius) 
 

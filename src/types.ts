@@ -47,6 +47,8 @@ export interface ShootingSession {
 
   format: "60" | "40" | "trial" | "custom"; 
 
+  trainingType?: "basic" | "full";
+
   maxShots: number | null; 
   matchStartTimestamp?: number;
 

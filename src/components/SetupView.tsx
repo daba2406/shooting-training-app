@@ -4,21 +4,21 @@ import { useState } from "react";
 
 interface Props { 
 
-  onStart: ( 
+onStart: ( 
 
-    mode: "training" | "qualification" | "final", 
+  mode: "training" | "qualification" | "final", 
 
-    format: "60" | "40" | "trial" | "custom", 
+  format: "60" | "40" | "trial" | "custom", 
 
-    competitionName: string, 
+  competitionName: string, 
 
-    date: string, 
+  date: string, 
 
-    startTime: string, 
+  startTime: string, 
 
-    shooterName: string
+  shooterName: string, 
 
-  ) => void; 
+) => void; 
 
  
 
@@ -34,9 +34,8 @@ export default function SetupView({ onStart, onArchive, onAnalytics }: Props) {
  
 
   const [mainMode, setMainMode] = useState<"training" | "competition">("training"); 
-
- 
-
+  const [trainingType, setTrainingType] = useState<"basic" | "full">("full"); 
+  
   const [competitionName, setCompetitionName] = useState(""); 
   const [shooterName, setShooterName] = useState("")
 
@@ -48,7 +47,12 @@ export default function SetupView({ onStart, onArchive, onAnalytics }: Props) {
 
   return ( 
 
-    <div className="setup-container"> 
+    
+      <div className="setup-container">  
+
+ 
+
+  
 
  
 
@@ -56,263 +60,446 @@ export default function SetupView({ onStart, onArchive, onAnalytics }: Props) {
 
  
 
-        <h2 className="setup-subtitle">Podaci o meču/treningu</h2> 
+  <div 
+
+    style={{ 
+
+      display: "grid", 
+
+      gridTemplateColumns: "1fr 1fr", 
+
+      gap: "30px" 
+
+    }} 
+
+  > 
 
  
 
-        <input 
+    {/* LEVA STRANA – PODACI */} 
 
-          type="text" 
-
-          placeholder="Naziv takmičenja" 
-
-          value={competitionName} 
-
-          onChange={(e) => setCompetitionName(e.target.value)} 
-
-        /> 
-
-        <input 
-
-      type="text" 
-
-  placeholder="Ime i prezime strelca" 
-
-  value={shooterName} 
-
-  onChange={(e) => setShooterName(e.target.value)} 
-
-/> 
-
-        <input 
-
-          type="date" 
-
-          value={date} 
-
-          onChange={(e) => setDate(e.target.value)} 
-
-        /> 
+    <div> 
 
  
 
-        <input 
+      <h2 className="setup-subtitle"> 
 
-  type="text" 
+        Podaci o meču / treningu 
 
-  placeholder="HH:MM" 
-
-  value={startTime} 
-
-  onChange={(e) => setStartTime(e.target.value)} 
-
-  pattern="^([01]\d|2[0-3]):([0-5]\d)$" 
-
-  inputMode="numeric" 
-
-  maxLength={5} 
-
-  style={{ 
-
-    width: "90px", 
-
-    textAlign: "center", 
-
-    letterSpacing: "1px" 
-
-  }} 
-
-/> 
+      </h2> 
 
  
 
-        <h2 className="setup-subtitle">Tip sesije</h2> 
+      <input 
+
+        type="text" 
+
+        placeholder="Naziv takmičenja" 
+
+        value={competitionName} 
+
+        onChange={(e) => setCompetitionName(e.target.value)} 
+
+      /> 
 
  
 
-        <div className="setup-buttons"> 
+      <input 
+
+        type="text" 
+
+        placeholder="Ime i prezime strelca" 
+
+        value={shooterName} 
+
+        onChange={(e) => setShooterName(e.target.value)} 
+
+      /> 
 
  
 
-          <button 
+      <input 
 
-            className={mainMode === "training" ? "active-btn" : ""} 
+        type="date" 
 
-            onClick={() => setMainMode("training")} 
+        value={date} 
 
-          > 
+        onChange={(e) => setDate(e.target.value)} 
 
-            Trening 
-
-          </button> 
+      /> 
 
  
 
-          <button 
+      <input 
 
-            className={mainMode === "competition" ? "active-btn" : ""} 
+        type="text" 
 
-            onClick={() => setMainMode("competition")} 
+        placeholder="HH:MM" 
 
-          > 
+        value={startTime} 
 
-            Takmičenje 
+        onChange={(e) => setStartTime(e.target.value)} 
 
-          </button> 
+        pattern="^([01]\d|2[0-3]):([0-5]\d)$" 
 
- 
+        inputMode="numeric" 
 
-        </div> 
+        maxLength={5} 
 
- 
+        style={{ 
 
-        <div className="setup-divider" /> 
+          width: "90px", 
 
- 
+          textAlign: "center", 
 
-        {mainMode === "training" && ( 
+          letterSpacing: "1px" 
 
-          <> 
+        }} 
 
-            <h2 className="setup-subtitle">Format treninga</h2> 
+      /> 
 
- 
-
-            <div className="setup-buttons"> 
+ <div className="setup-buttons"> 
 
  
-
-              <button onClick={() => 
-
-                onStart("training", "60", competitionName, date, startTime, shooterName) 
-
-              }> 
-
-                60 dijabola 
-
-              </button> 
-
- 
-
-              <button onClick={() => 
-
-                onStart("training", "40", competitionName, date, startTime, shooterName) 
-
-              }> 
-
-                40 dijabola 
-
-              </button> 
-
- 
-
-              <button onClick={() => 
-
-                onStart("training", "trial", competitionName, date, startTime, shooterName) 
-
-              }> 
-
-                Proba 
-
-              </button> 
-
- 
-
-              <button onClick={() => 
-
-                onStart("training", "custom", competitionName, date, startTime, shooterName) 
-
-              }> 
-
-                Custom 
-
-              </button> 
-
- 
-
-            </div> 
-
-          </> 
-
-        )} 
-
- 
-
-        {mainMode === "competition" && ( 
-
-          <> 
-
-            <h2 className="setup-subtitle">Takmičenje</h2> 
-
- 
-
-            <div className="setup-buttons"> 
-
- 
-
-              <button onClick={() => 
-
-                onStart("qualification", "60", competitionName, date, startTime, shooterName) 
-
-              }> 
-
-                Kvalifikacije 
-
-              </button> 
-
- 
-
-              <button onClick={() => 
-
-                onStart("final", "60", competitionName, date, startTime, shooterName) 
-
-              }> 
-
-                Finale 
-
-              </button> 
-
- 
-
-            </div> 
-
-          </> 
-
-        )} 
-
- 
-
-        <div className="setup-divider" /> 
-
- 
-
-        <button className="archive-btn" onClick={onArchive}> 
-
-          Arhiva 
-
-        </button> 
 
         <button 
 
-  className="archive-btn" 
+          className={mainMode === "training" ? "active-btn" : ""} 
 
-  onClick={onAnalytics} 
+          onClick={() => setMainMode("training")} 
 
-  style={{ marginTop: "5px" }} 
+        > 
 
-> 
+          Trening 
 
-  Analytics 
+        </button> 
 
-</button> 
+ 
+
+        <button 
+
+          className={mainMode === "competition" ? "active-btn" : ""} 
+
+          onClick={() => setMainMode("competition")} 
+
+        > 
+
+          Takmičenje 
+
+        </button> 
 
  
 
       </div> 
 
+
+    </div> 
+
+ 
+
+    {/* DESNA STRANA – TIP SESIJE */} 
+
+    
+    <div 
+
+  style={{ 
+
+    minHeight: "400px"   // ✅ прилагоди ако треба 
+
+  }} 
+
+> 
+
+ 
+
+      <h2 className="setup-subtitle"> 
+
+        Tip sesije 
+
+      </h2> 
+
+ <div style={{ marginTop: "25px" }}> 
+
+ 
+
+  {mainMode === "training" && ( 
+
+    <> 
+
+<h3 style={{ color: "white", marginTop: "15px", marginBottom: "10px" }}> 
+
+  Format treninga 
+
+</h3> 
+
+ 
+
+      <div className="setup-buttons"> 
+
+ <div style={{ marginTop: "15px"}}>
+
+<div className="setup-buttons"> 
+
+  <button 
+
+    className={trainingType === "full" ? "active-btn" : ""} 
+
+    onClick={() => setTrainingType("full")} 
+
+  > 
+
+    Full trening (sa svim pogocima) 
+
+  </button> 
+
+ 
+
+  <button 
+
+    className={trainingType === "basic" ? "active-btn" : ""} 
+
+    onClick={() => setTrainingType("basic")} 
+
+  > 
+
+    Basic trening (samo serije) 
+
+  </button> 
+
+</div> 
+</div>
+
+        <button 
+
+          onClick={() => 
+
+            onStart( 
+
+              "training", 
+
+              "60", 
+
+              competitionName, 
+
+              date, 
+
+              startTime, 
+
+              shooterName,
+
+            ) 
+
+          } 
+
+        > 
+
+          60 dijabola 
+
+        </button> 
+
+ 
+
+        <button 
+
+          onClick={() => 
+
+            onStart( 
+
+              "training", 
+
+              "40", 
+
+              competitionName, 
+
+              date, 
+
+              startTime, 
+
+              shooterName,
+              
+
+            ) 
+
+          } 
+
+        > 
+
+          40 dijabola 
+
+        </button> 
+
+ 
+
+        <button 
+
+          onClick={() => 
+
+            onStart( 
+
+              "training", 
+
+              "trial", 
+
+              competitionName, 
+
+              date, 
+
+              startTime, 
+
+              shooterName 
+
+            ) 
+
+          } 
+
+        > 
+
+          Proba 
+
+        </button> 
+
+      </div> 
+
+    </> 
+
+  )} 
+
+ 
+
+  {mainMode === "competition" && ( 
+
+    <> 
+
+      <h3 style={{ color: "white", marginTop: "15px", marginBottom: "10px" }}> 
+
+        Takmičenje 
+
+      </h3> 
+
+ 
+
+      <div className="setup-buttons"> 
+
+        <button 
+
+          onClick={() => 
+
+            onStart( 
+
+              "qualification", 
+
+              "60", 
+
+              competitionName, 
+
+              date, 
+
+              startTime, 
+
+              shooterName 
+
+            ) 
+
+          } 
+
+        > 
+
+          Kvalifikacije 
+
+        </button> 
+
+ 
+
+        <button 
+
+          onClick={() => 
+
+            onStart( 
+
+              "final", 
+
+              "60", 
+
+              competitionName, 
+
+              date, 
+
+              startTime, 
+
+              shooterName 
+
+            ) 
+
+          } 
+
+        > 
+
+          Finale 
+
+        </button> 
+
+      </div> 
+
+    </> 
+
+  )} 
+
+ 
+
+</div> 
+
+      
+
  
 
     </div> 
+
+ 
+
+  </div> 
+
+ 
+
+  {/* DONJI RED – ARHIVA I ANALYTICS */} 
+
+  <div 
+
+    style={{ 
+
+      marginTop: "30px", 
+
+      display: "flex", 
+
+      gap: "15px", 
+
+      justifyContent: "center" 
+
+    }} 
+
+  > 
+
+    <button className="archive-btn" onClick={onArchive}> 
+
+      Arhiva 
+
+    </button> 
+
+ 
+
+    <button className="archive-btn" onClick={onAnalytics}> 
+
+      Analytics 
+
+    </button> 
+
+  </div> 
+
+ 
+
+</div> 
+</div>
+
+ 
 
   ); 
 

@@ -1798,6 +1798,12 @@ const startNewSessionWithFormat = (
 
   newSession.mode = mode;
 
+if (mode === "training") { 
+
+  newSession.trainingType = "full"; 
+
+} 
+
   setActiveSessionId(newSession.id); 
 
  setActiveSessionState(newSession);
