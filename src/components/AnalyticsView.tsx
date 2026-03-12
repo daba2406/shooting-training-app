@@ -195,6 +195,194 @@ const worst =
 
   matchCount > 0 ? Math.min(...matchResults) : 0; 
 
+  // ✅ Mean Radius по мечу 
+
+ 
+
+const meanRadiusPerMatch = qualificationMatches.map(match => { 
+
+  const shots = match.seriesList.flatMap(series => series.shots); 
+
+ 
+
+  if (shots.length < 2) return 0; 
+
+ 
+
+  const avgX = 
+
+    shots.reduce((sum, s) => sum + s.x, 0) / shots.length; 
+
+ 
+
+  const avgY = 
+
+    shots.reduce((sum, s) => sum + s.y, 0) / shots.length; 
+
+ 
+
+const totalDistancePx = shots.reduce((sum, shot) => { 
+
+  const dx = shot.x - avgX; 
+
+  const dy = shot.y - avgY; 
+
+  return sum + Math.sqrt(dx * dx + dy * dy); 
+
+}, 0); 
+
+ 
+
+const meanRadiusPx = totalDistancePx / shots.length; 
+
+ 
+
+// ✅ Конверзија у mm (исто као у App.tsx) 
+
+const visibleMm = 7.75; 
+
+const radius = 450 / 2 - 10; 
+
+const mmToPx = radius / visibleMm; 
+
+const pxToMm = 1 / mmToPx; 
+
+ 
+
+const meanRadiusMm = meanRadiusPx * pxToMm; 
+
+ 
+
+return meanRadiusMm; 
+
+}); 
+
+// ✅ Chart data за Mean Radius 
+
+const meanRadiusChartData = meanRadiusPerMatch.map( 
+
+  (radius, index) => ({ 
+
+    index: index + 1, 
+
+    radius: radius 
+
+  }) 
+
+); 
+
+// ✅ Просек Mean Radius 
+
+ 
+
+let meanRadiusAverage = 0; 
+
+ 
+
+if (meanRadiusPerMatch.length > 0) { 
+
+  meanRadiusAverage = 
+
+    meanRadiusPerMatch.reduce((a, b) => a + b, 0) / 
+
+    meanRadiusPerMatch.length; 
+
+} 
+
+// ✅ Trend Mean Radius 
+
+ 
+
+let meanRadiusSlope = 0; 
+
+ 
+
+if (meanRadiusPerMatch.length > 1) { 
+
+  const xValues = meanRadiusPerMatch.map((_, index) => index); 
+
+  const yValues = meanRadiusPerMatch; 
+
+ 
+
+  const xMean = 
+
+    xValues.reduce((a, b) => a + b, 0) / 
+
+    xValues.length; 
+
+ 
+
+  const yMean = 
+
+    yValues.reduce((a, b) => a + b, 0) / 
+
+    yValues.length; 
+
+ 
+
+  let numerator = 0; 
+
+  let denominator = 0; 
+
+ 
+
+  for (let i = 0; i < yValues.length; i++) { 
+
+    numerator += 
+
+      (xValues[i] - xMean) * 
+
+      (yValues[i] - yMean); 
+
+ 
+
+    denominator += 
+
+      (xValues[i] - xMean) * 
+
+      (xValues[i] - xMean); 
+
+  } 
+
+ 
+
+  meanRadiusSlope = 
+
+    denominator !== 0 ? numerator / denominator : 0; 
+
+} 
+
+// ✅ Technical Status (Mean Radius trend) 
+
+ 
+
+let technicalStatus = "Stabilno"; 
+
+let technicalColor = "#4caf50"; // зелено као позитивно/стабилно 
+
+ 
+
+if (meanRadiusSlope < -0.01) { 
+
+  technicalStatus = "Poboljšanje grupe"; 
+
+  technicalColor = "#4caf50"; // зелено 
+
+} else if (meanRadiusSlope > 0.01) { 
+
+  technicalStatus = "Pogoršanje grupe"; 
+
+  technicalColor = "#e53935"; // црвено 
+
+} else { 
+
+  technicalStatus = "Stabilno"; 
+
+  technicalColor = "#4caf50"; // стабилно је позитивно 
+
+} 
+
   // ✅ Стандардна девијација 
 
 const stdDev = 
@@ -449,7 +637,8 @@ if (stdDev > 0) {
 
     display: "grid", 
 
-    gridTemplateColumns: "0.9fr 1.1fr", 
+    gridTemplateColumns: "1fr 1fr", 
+    gridAutoRows: "min-content",
 
     gap: "20px" 
 
@@ -757,6 +946,158 @@ if (stdDev > 0) {
 </div> 
 
 </div>
+
+<div 
+
+  style={{ 
+
+    gridColumn: "1 / span 2", 
+
+    background: "#1f1f1f", 
+
+    padding: "16px", 
+
+    borderRadius: "8px", 
+
+    marginTop: "10px", 
+
+    color: "white" 
+
+  }} 
+
+> 
+
+  <h3 style={{ marginBottom: "15px" }}> 
+
+    Tehnička analiza (Mean Radius) 
+
+  </h3> 
+
+ 
+
+  <div 
+
+    style={{ 
+
+      display: "grid", 
+
+      gridTemplateColumns: "0.8fr 1.2fr", 
+
+      gap: "20px", 
+
+      alignItems: "center" 
+
+    }} 
+
+  > 
+
+    {/* LEVA KOLONA – tekst */} 
+
+    <div> 
+
+      <div style={{ marginBottom: "8px" }}> 
+
+        Status:{" "} 
+
+        <span style={{ color: technicalColor, fontWeight: 600 }}> 
+
+          {technicalStatus} 
+
+        </span> 
+
+      </div> 
+
+ 
+
+      <div style={{ marginBottom: "6px" }}> 
+
+        Prosečan Mean Radius:{" "} 
+
+        {meanRadiusAverage.toFixed(2)} mm 
+
+      </div> 
+
+ 
+
+      <div> 
+
+        Trend Mean Radius:{" "} 
+
+        {meanRadiusSlope.toFixed(4)} 
+
+      </div> 
+
+    </div> 
+
+ 
+
+    {/* DESNA KOLONA – grafikon */} 
+
+    <div style={{ width: "100%", height: 220 }}> 
+
+      <ResponsiveContainer> 
+
+        <LineChart data={meanRadiusChartData}> 
+
+          <CartesianGrid 
+
+            stroke="#333" 
+
+            strokeDasharray="3 3" 
+
+          /> 
+
+          <XAxis 
+
+            dataKey="index" 
+
+            stroke="#ccc" 
+
+          /> 
+
+          <YAxis 
+
+            stroke="#ccc" 
+
+          /> 
+
+          <Tooltip 
+
+            formatter={(value) => 
+
+              typeof value === "number" 
+
+                ? value.toFixed(2) + " mm" 
+
+                : value 
+
+            } 
+
+          /> 
+
+          <Line 
+
+            type="monotone" 
+
+            dataKey="radius" 
+
+            stroke="#00bcd4" 
+
+            strokeWidth={2} 
+
+            dot={{ r: 4 }} 
+
+          /> 
+
+        </LineChart> 
+
+      </ResponsiveContainer> 
+
+    </div> 
+
+  </div> 
+
+</div> 
 
 
       </div> 
