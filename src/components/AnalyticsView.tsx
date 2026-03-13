@@ -870,6 +870,7 @@ if (stdDev > 0) {
 
   Verovatnoća rezultata ≥ 630: {(probability630 * 100).toFixed(1)}% 
 
+
 </div> 
 
   <h3 style={{ marginBottom: "10px" }}> 
