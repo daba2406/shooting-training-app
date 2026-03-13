@@ -1243,3 +1243,26 @@ html, body, #root {
   margin-top: 20px;  /* dodatni razmak */ 
 
 } 
+/* Uklanjanje strelica iz number input-a */ 
+
+input[type="number"]::-webkit-outer-spin-button, 
+
+input[type="number"]::-webkit-inner-spin-button { 
+
+  -webkit-appearance: none; 
+
+  appearance: none;          /* ✅ додај ово */ 
+
+  margin: 0; 
+
+} 
+
+ 
+
+input[type="number"] { 
+
+  -moz-appearance: textfield; 
+
+  appearance: textfield;     /* ✅ додај ово */ 
+
+} 

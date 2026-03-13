@@ -24,17 +24,23 @@ onStart: (
 
   onArchive: () => void; 
   onAnalytics: () => void;
+  onStartTrainingMode?: (mode: "shots" | "series") => void; 
 
 } 
 
  
 
-export default function SetupView({ onStart, onArchive, onAnalytics }: Props) { 
+export default function SetupView({ onStart, onArchive, onAnalytics, onStartTrainingMode }: Props) { 
 
  
 
   const [mainMode, setMainMode] = useState<"training" | "competition">("training"); 
-  const [trainingType, setTrainingType] = useState<"basic" | "full">("full"); 
+  const [trainingInputMode, setTrainingInputMode] = useState< 
+
+  "shots" | "series" 
+
+>("shots"); 
+
   
   const [competitionName, setCompetitionName] = useState(""); 
   const [shooterName, setShooterName] = useState("")
@@ -226,6 +232,44 @@ export default function SetupView({ onStart, onArchive, onAnalytics }: Props) {
 
     <> 
 
+<h3 style={{ marginTop: "15px", marginBottom: "10px", color: "white" }}> 
+
+  Način unosa 
+
+</h3> 
+
+ 
+
+<div className="setup-buttons"> 
+
+  <button 
+
+    className={trainingInputMode === "shots" ? "active-btn" : ""} 
+
+    onClick={() => setTrainingInputMode("shots")} 
+
+  > 
+
+    Unos po pogocima 
+
+  </button> 
+
+ 
+
+  <button 
+
+    className={trainingInputMode === "series" ? "active-btn" : ""} 
+
+    onClick={() => setTrainingInputMode("series")} 
+
+  > 
+
+    Ručni unos serija 
+
+  </button> 
+
+</div> 
+
 <h3 style={{ color: "white", marginTop: "15px", marginBottom: "10px" }}> 
 
   Format treninga 
@@ -240,38 +284,18 @@ export default function SetupView({ onStart, onArchive, onAnalytics }: Props) {
 
 <div className="setup-buttons"> 
 
-  <button 
-
-    className={trainingType === "full" ? "active-btn" : ""} 
-
-    onClick={() => setTrainingType("full")} 
-
-  > 
-
-    Full trening (sa svim pogocima) 
-
-  </button> 
-
- 
-
-  <button 
-
-    className={trainingType === "basic" ? "active-btn" : ""} 
-
-    onClick={() => setTrainingType("basic")} 
-
-  > 
-
-    Basic trening (samo serije) 
-
-  </button> 
-
 </div> 
 </div>
 
         <button 
 
-          onClick={() => 
+          onClick={() => { 
+
+  if (onStartTrainingMode) { 
+
+    onStartTrainingMode(trainingInputMode); 
+
+  } 
 
             onStart( 
 
@@ -289,7 +313,7 @@ export default function SetupView({ onStart, onArchive, onAnalytics }: Props) {
 
             ) 
 
-          } 
+          } }
 
         > 
 
@@ -301,7 +325,13 @@ export default function SetupView({ onStart, onArchive, onAnalytics }: Props) {
 
         <button 
 
-          onClick={() => 
+          onClick={() => { 
+
+  if (onStartTrainingMode) { 
+
+    onStartTrainingMode(trainingInputMode); 
+
+  } 
 
             onStart( 
 
@@ -320,7 +350,7 @@ export default function SetupView({ onStart, onArchive, onAnalytics }: Props) {
 
             ) 
 
-          } 
+          } }
 
         > 
 
@@ -332,7 +362,13 @@ export default function SetupView({ onStart, onArchive, onAnalytics }: Props) {
 
         <button 
 
-          onClick={() => 
+          onClick={() => { 
+
+  if (onStartTrainingMode) { 
+
+    onStartTrainingMode(trainingInputMode); 
+
+  } 
 
             onStart( 
 
@@ -350,7 +386,7 @@ export default function SetupView({ onStart, onArchive, onAnalytics }: Props) {
 
             ) 
 
-          } 
+          } }
 
         > 
 

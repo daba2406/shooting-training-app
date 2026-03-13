@@ -21,7 +21,7 @@ import {
 } from "./sessionManager"; 
 import AnalyticsView from "./components/AnalyticsView";
 
- 
+import BasicTrainingView from "./components/BasicTrainingView";
 
  
 
@@ -208,6 +208,7 @@ useEffect(() => {
 
   const [isReadOnly, setIsReadOnly] = useState(false);
   const [selectedSeriesIndex, setSelectedSeriesIndex] = useState<number | null>(null);
+  const pendingTrainingInputMode = useRef<"shots" | "series">("shots"); 
   const [manualTimeMode, setManualTimeMode] = useState(false);
   const [manualShotTime, setManualShotTime] = useState ("");
   
@@ -1798,15 +1799,16 @@ const startNewSessionWithFormat = (
 
   newSession.mode = mode;
 
-if (mode === "training") { 
+  if (mode === "training") { 
 
-  newSession.trainingType = "full"; 
+  newSession.trainingInputMode = pendingTrainingInputMode.current; 
 
 } 
 
   setActiveSessionId(newSession.id); 
 
  setActiveSessionState(newSession);
+ 
 
 
   setIsReadOnly(false); 
@@ -2068,28 +2070,46 @@ const seriesTimeline: TimelineItem[] = [
 
 ].sort((a, b) => a.time - b.time); 
 
+console.log("MODE:", activeSessionState.mode); 
+
+console.log("INPUT MODE:", activeSessionState.trainingInputMode); 
+
 return ( 
 
   <> 
-  {view === "setup" && ( 
+{view === "setup" && ( 
 
   <SetupView 
 
     onStart={(mode, format, competitionName, date, startTime, shooterName) => { 
 
-      startNewSessionWithFormat(
-        mode,
-        format,
-        competitionName,
-        date,
-        startTime,
-        shooterName
+      startNewSessionWithFormat( 
+
+        mode, 
+
+        format, 
+
+        competitionName, 
+
+        date, 
+
+        startTime, 
+
+        shooterName 
+
       ); 
 
     }} 
 
     onArchive={() => setView("archive")} 
-    onAnalytics={() => setView("analytics")}
+
+    onAnalytics={() => setView("analytics")} 
+
+    onStartTrainingMode={(mode) => { 
+
+      pendingTrainingInputMode.current = mode; 
+
+    }} 
 
   /> 
 
@@ -2154,6 +2174,20 @@ onBack={() => setView("setup")}
       
 
       <div className="app-container"> 
+
+      {activeSessionState.mode === "training" && 
+
+ activeSessionState.trainingInputMode === "series" && ( 
+
+  <BasicTrainingView 
+
+    session={activeSessionState} 
+    setSession={setActiveSessionState}
+
+  /> 
+
+)} 
+      
 
       <div className="print-header"> 
 
@@ -3455,6 +3489,7 @@ setShotRunning(true);
 
         </div> 
 
+        
         <div className="meta-panel"> 
 
           <canvas 
