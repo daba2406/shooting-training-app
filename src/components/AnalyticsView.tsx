@@ -75,6 +75,47 @@ const matchResults = selectedMatches.map(
 
 ); 
 
+// ✅ Series consistency (Training only) 
+
+ 
+
+let seriesConsistencyValues: number[] = []; 
+
+ 
+
+if (analyticsMode === "training") { 
+
+  seriesConsistencyValues = selectedMatches.map(match => { 
+
+    const totals = match.seriesList.map(s => s.total); 
+
+ 
+
+    if (totals.length === 0) return 0; 
+
+ 
+
+    return Math.max(...totals) - Math.min(...totals); 
+
+  }); 
+
+} 
+
+ 
+
+let avgSeriesConsistency = 0; 
+
+ 
+
+if (seriesConsistencyValues.length > 0) { 
+
+  avgSeriesConsistency = 
+
+    seriesConsistencyValues.reduce((a, b) => a + b, 0) / 
+
+    seriesConsistencyValues.length; 
+
+} 
 
 // ✅ Dynamic Y axis domain 
 
@@ -549,6 +590,100 @@ if (recentCount > 0) {
 
 } 
 
+// ✅ Competition Gap 
+
+ 
+
+const qualificationMatchesAll = sessions.filter( 
+
+  s => s.mode === "qualification" && s.completed 
+
+); 
+
+ 
+
+const trainingMatchesAll = sessions.filter( 
+
+  s => s.mode === "training" && s.completed 
+
+); 
+
+ 
+
+const qualificationMean = 
+
+  qualificationMatchesAll.length > 0 
+
+    ? qualificationMatchesAll.reduce( 
+
+        (sum, s) => sum + (s.totalResult ?? 0), 
+
+        0 
+
+      ) / qualificationMatchesAll.length 
+
+    : 0; 
+
+ 
+
+const trainingMean = 
+
+  trainingMatchesAll.length > 0 
+
+    ? trainingMatchesAll.reduce( 
+
+        (sum, s) => sum + (s.totalResult ?? 0), 
+
+        0 
+
+      ) / trainingMatchesAll.length 
+
+    : 0; 
+
+ 
+
+let competitionGap = 0; 
+
+let gapStatus = "Odličan transfer"; 
+
+let gapColor = "#4caf50"; 
+
+ 
+
+if (competitionGap < -1.0) { 
+
+  gapStatus = "Značajan pad na takmičenju"; 
+
+  gapColor = "#e53935"; 
+
+} else if (competitionGap < -0.3) { 
+
+  gapStatus = "Blagi pad na takmičenju"; 
+
+  gapColor = "#ff7043"; 
+
+} else if (competitionGap > 1.0) { 
+
+  gapStatus = "Takmičenje bolje od treninga"; 
+
+  gapColor = "#4caf50"; 
+
+} 
+ 
+
+if ( 
+
+  qualificationMatchesAll.length > 0 && 
+
+  trainingMatchesAll.length > 0 
+
+) { 
+
+  competitionGap = qualificationMean - trainingMean; 
+
+} 
+
+
 // ✅ Нормална CDF апроксимација (без Math.erf) 
 
  
@@ -842,6 +977,69 @@ if (stdDev > 0) {
   Najslabiji rezultat: {worst.toFixed(1)} 
 
 </div> 
+{qualificationMatchesAll.length > 0 && 
+
+ trainingMatchesAll.length > 0 && ( 
+
+  <div 
+
+    style={{ 
+
+      marginTop: "15px", 
+
+      paddingTop: "10px", 
+
+      borderTop: "1px solid #333" 
+
+    }} 
+
+  > 
+
+    <div style={{ fontWeight: 600, marginBottom: "5px" }}> 
+
+      Competition Gap 
+
+    </div> 
+
+ 
+
+<div style={{ marginBottom: "5px" }}> 
+
+  Razlika (Qualification − Training):{" "} 
+
+  {competitionGap.toFixed(2)} 
+
+</div> 
+
+ 
+
+<div> 
+
+  Status:{" "} 
+
+  <span style={{ color: gapColor, fontWeight: 600 }}> 
+
+    {gapStatus} 
+
+  </span> 
+
+</div> 
+
+  </div> 
+
+)} 
+
+{analyticsMode === "training" && ( 
+
+  <div style={{ marginTop: "10px" }}> 
+
+    Prosečna razlika između serija:{" "} 
+
+    {avgSeriesConsistency.toFixed(2)} 
+
+  </div> 
+
+)} 
 
   <h3 style={{ marginBottom: "10px" }}> 
 
@@ -872,6 +1070,8 @@ if (stdDev > 0) {
 
 
 </div> 
+{analyticsMode === "qualification" && (
+  <>
 
   <h3 style={{ marginBottom: "10px" }}> 
 
@@ -916,6 +1116,8 @@ if (stdDev > 0) {
   Najveći pad: {pressureWorst.toFixed(2)} 
 
 </div> 
+</>
+)}
 
 </div>
 
@@ -1036,6 +1238,8 @@ if (stdDev > 0) {
 </div> 
 
 </div>
+
+{analyticsMode === "qualification" && (
 
 <div 
 
@@ -1184,16 +1388,17 @@ if (stdDev > 0) {
       </ResponsiveContainer> 
 
     </div> 
+  
 
   </div> 
 
 </div> 
+)}
+</div> 
+      
 
-
-      </div> 
-
-    </div> 
-
+ </div> 
+  
   ); 
 
 } 
