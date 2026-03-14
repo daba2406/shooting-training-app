@@ -103,11 +103,11 @@ const handleSort = (
 
   <button onClick={() => setFilterMode("all")}>Sve</button> 
 
-  <button onClick={() => setFilterMode("training")}>Training</button> 
+  <button onClick={() => setFilterMode("training")}>Trening</button> 
 
-  <button onClick={() => setFilterMode("qualification")}>Qualification</button> 
+  <button onClick={() => setFilterMode("qualification")}>Kvalifikacije</button> 
 
-  <button onClick={() => setFilterMode("final")}>Final</button> 
+  <button onClick={() => setFilterMode("final")}>Finale</button> 
 
 </div> 
 

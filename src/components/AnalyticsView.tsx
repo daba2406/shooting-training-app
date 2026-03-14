@@ -22,6 +22,7 @@ import {
 
 } from "recharts"; 
 
+import StatusWithHelp from "./StatusWithHelp";
  
 
 interface Props { 
@@ -447,6 +448,40 @@ if (meanRadiusSlope < -0.01) {
 
 } 
 
+// ✅ Correlation: Mean Radius vs Qualification Score 
+
+ 
+
+let meanRadiusCorrelation = 0; 
+
+ 
+
+if ( 
+
+  analyticsMode === "qualification" && 
+
+  meanRadiusPerMatch.length > 1 
+
+) { 
+
+  const scores = selectedMatches.map( 
+
+    m => m.totalResult ?? 0 
+
+  ); 
+
+ 
+
+  meanRadiusCorrelation = pearsonCorrelation( 
+
+    meanRadiusPerMatch, 
+
+    scores 
+
+  ); 
+
+} 
+
   // ✅ Стандардна девијација 
 
 const stdDev = 
@@ -766,6 +801,250 @@ const lower95 = predictedNext - 2 * stdDev;
 
 const upper95 = predictedNext + 2 * stdDev; 
 
+// ✅ Performance Transfer Index (PTI) 
+
+ 
+
+let pti = 0; 
+
+let ptiStatus = ""; 
+
+let ptiColor = "#aaa"; 
+
+ 
+
+const hasQualification = qualificationMatchesAll.length > 0; 
+
+const hasTraining = trainingMatchesAll.length > 0; 
+
+ 
+
+if (hasQualification && hasTraining) { 
+
+ 
+
+  // 1️⃣ Gap score (основа) 
+
+  const gapScore = Math.max( 
+
+    0, 
+
+    1 - Math.abs(competitionGap) / 5 
+
+  ); 
+
+ 
+
+  // 2️⃣ Stability score 
+
+  const stabilityScore = Math.max( 
+
+    0, 
+
+    1 - stdDev / 5 
+
+  ); 
+
+ 
+
+  // 3️⃣ Series consistency score (ако постоји) 
+
+  const consistencyScore = 
+
+    analyticsMode === "training" 
+
+      ? Math.max(0, 1 - avgSeriesConsistency / 10) 
+
+      : 1; 
+
+ 
+
+  // 4️⃣ Pressure score (ако постоји) 
+
+  const pressureScore = 
+
+    analyticsMode === "qualification" 
+
+      ? Math.max(0, 1 - Math.abs(pressureMean)) 
+
+      : 1; 
+
+ 
+
+  // Комбиновани индекс 
+
+  pti = 
+
+    0.5 * gapScore + 
+
+    0.3 * stabilityScore + 
+
+    0.1 * consistencyScore + 
+
+    0.1 * pressureScore; 
+
+ 
+
+  pti = Math.min(1, Math.max(0, pti)) * 100; 
+
+ 
+
+  // Статус 
+
+  if (pti >= 80) { 
+
+    ptiStatus = "Odličan transfer"; 
+
+    ptiColor = "#4caf50"; 
+
+  } else if (pti >= 65) { 
+
+    ptiStatus = "Dobar transfer"; 
+
+    ptiColor = "#8bc34a"; 
+
+  } else if (pti >= 50) { 
+
+    ptiStatus = "Umeren transfer"; 
+
+    ptiColor = "#ff9800"; 
+
+  } else { 
+
+    ptiStatus = "Slab transfer"; 
+
+    ptiColor = "#e53935"; 
+
+  } 
+
+} 
+
+// ✅ Pearson correlation 
+
+ 
+
+function pearsonCorrelation( 
+
+  x: number[], 
+
+  y: number[] 
+
+): number { 
+
+  if (x.length !== y.length || x.length === 0) { 
+
+    return 0; 
+
+  } 
+
+ 
+
+  const n = x.length; 
+
+ 
+
+  const meanX = 
+
+    x.reduce((a, b) => a + b, 0) / n; 
+
+ 
+
+  const meanY = 
+
+    y.reduce((a, b) => a + b, 0) / n; 
+
+ 
+
+  let numerator = 0; 
+
+  let denomX = 0; 
+
+  let denomY = 0; 
+
+ 
+
+  for (let i = 0; i < n; i++) { 
+
+    const dx = x[i] - meanX; 
+
+    const dy = y[i] - meanY; 
+
+ 
+
+    numerator += dx * dy; 
+
+    denomX += dx * dx; 
+
+    denomY += dy * dy; 
+
+  } 
+
+ 
+
+  const denominator = 
+
+    Math.sqrt(denomX) * Math.sqrt(denomY); 
+
+ 
+
+  if (denominator === 0) return 0; 
+
+ 
+
+  return numerator / denominator; 
+
+} 
+
+// ✅ Correlation status 
+
+ 
+
+let correlationStatus = ""; 
+
+let correlationColor = "#aaa"; 
+
+ 
+
+if (analyticsMode === "qualification") { 
+
+  const r = meanRadiusCorrelation; 
+
+ 
+
+  if (r <= -0.7) { 
+
+    correlationStatus = "Veoma jaka negativna povezanost"; 
+
+    correlationColor = "#4caf50"; 
+
+  } else if (r <= -0.4) { 
+
+    correlationStatus = "Umerena negativna povezanost"; 
+
+    correlationColor = "#8bc34a"; 
+
+  } else if (r < 0) { 
+
+    correlationStatus = "Slaba negativna povezanost"; 
+
+    correlationColor = "#ff9800"; 
+
+  } else if (r >= 0.4) { 
+
+    correlationStatus = "Neočekivana pozitivna povezanost"; 
+
+    correlationColor = "#e53935"; 
+
+  } else { 
+
+    correlationStatus = "Slaba ili bez značajne povezanosti"; 
+
+    correlationColor = "#aaa"; 
+
+  } 
+
+} 
+
 // ✅ Verovatnoća rezultata ≥ 630 
 
 let probability630 = 0; 
@@ -977,6 +1256,7 @@ if (stdDev > 0) {
   Najslabiji rezultat: {worst.toFixed(1)} 
 
 </div> 
+
 {qualificationMatchesAll.length > 0 && 
 
  trainingMatchesAll.length > 0 && ( 
@@ -1015,15 +1295,71 @@ if (stdDev > 0) {
 
 <div> 
 
-  Status:{" "} 
+<StatusWithHelp 
 
-  <span style={{ color: gapColor, fontWeight: 600 }}> 
+  label="Status" 
 
-    {gapStatus} 
+  status={gapStatus} 
 
-  </span> 
+  color={gapColor} 
+
+  description="Competition Gap pokazuje razliku između proseka takmičenja i treninga. Negativna vrednost znači pad na takmičenju, pozitivna znači bolji rezultat pod pritiskom." 
+
+/>  
 
 </div> 
+
+  </div> 
+
+)} 
+
+{hasQualification && hasTraining && ( 
+
+  <div 
+
+    style={{ 
+
+      marginTop: "20px", 
+
+      paddingTop: "10px", 
+
+      borderTop: "1px solid #333" 
+
+    }} 
+
+  > 
+
+    <div style={{ fontWeight: 600, marginBottom: "5px" }}> 
+
+      Performance Transfer Index 
+
+    </div> 
+
+ 
+
+    <div style={{ marginBottom: "5px" }}> 
+
+      Vrednost: {pti.toFixed(1)} 
+
+    </div> 
+
+ 
+
+    <div> 
+
+<StatusWithHelp 
+
+  label="Status" 
+
+  status={ptiStatus} 
+
+  color={ptiColor} 
+
+  description="Performance Transfer Index pokazuje koliko se forma sa treninga prenosi na takmičenje. Viši indeks znači bolji transfer." 
+
+/>  
+
+    </div> 
 
   </div> 
 
@@ -1083,13 +1419,17 @@ if (stdDev > 0) {
 
 <div style={{ marginBottom: "10px" }}> 
 
-  Status:{" "} 
+<StatusWithHelp 
 
-  <span style={{ color: pressureColor, fontWeight: 600 }}> 
+  label="Status" 
 
-    {pressureStatus} 
+  status={pressureStatus} 
 
-  </span> 
+  color={pressureColor} 
+
+  description="Pressure Index meri razliku između prve i druge polovine meča. Negativna vrednost znači pad pod pritiskom, pozitivna znači jači završetak." 
+
+/> 
 
 </div> 
 
@@ -1291,13 +1631,17 @@ if (stdDev > 0) {
 
       <div style={{ marginBottom: "8px" }}> 
 
-        Status:{" "} 
+<StatusWithHelp 
 
-        <span style={{ color: technicalColor, fontWeight: 600 }}> 
+  label="Status" 
 
-          {technicalStatus} 
+  status={technicalStatus} 
 
-        </span> 
+  color={technicalColor} 
+
+  description="Mean Radius trend pokazuje da li se grupa zatvara ili širi kroz vreme. Negativan trend znači tehničko poboljšanje." 
+
+/> 
 
       </div> 
 
@@ -1320,6 +1664,37 @@ if (stdDev > 0) {
         {meanRadiusSlope.toFixed(4)} 
 
       </div> 
+
+          {analyticsMode === "qualification" && ( 
+
+  <div style={{ 
+    marginTop: "10px", 
+    paddingTop: "8px",
+    borderTop: "1px solid #333"
+  }}> 
+
+    Korelacija (Mean Radius ↔ Rezultat):{" "} 
+
+    {meanRadiusCorrelation.toFixed(2)} 
+
+  </div> 
+
+)} 
+<div style={{ marginTop: "4px" }}> 
+
+    <StatusWithHelp 
+
+  label="Status" 
+
+  status={correlationStatus} 
+
+  color={correlationColor} 
+
+  description="Korelacija pokazuje koliko je tehnička stabilnost (Mean Radius) povezana sa rezultatom. Negativna jaka korelacija znači da zatezanje grupe direktno poboljšava rezultat." 
+
+/> 
+
+  </div> 
 
     </div> 
 
