@@ -77,7 +77,8 @@ export type MatchEventType =
 
   | "pause_on_line" 
 
-  | "dry_fire"; 
+  | "dry_fire"
+  | "lower_rifle"; 
 
  
 

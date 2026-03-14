@@ -366,7 +366,6 @@ const registerDryFire = () => {
 
   if (!shotStartRef.current) return; 
 
- 
 
   const endMatchTime = getCurrentMatchTime(); 
 
@@ -417,6 +416,65 @@ setShotRunning(false);
   setShotElapsed(0); 
 
   shotStartRef.current = null; 
+
+}; 
+ const registerLowerRifle = () => { 
+
+ 
+
+  if (!activeSessionState.matchStartTimestamp) return; 
+
+  if (!shotStartRef.current) return; 
+
+ 
+
+  const endMatchTime = getCurrentMatchTime(); 
+
+  const duration = shotElapsed; 
+
+ 
+
+  const event = { 
+
+    type: "lower_rifle" as const, 
+
+    timestamp: Date.now(), 
+
+    matchTime: endMatchTime, 
+
+    startMatchTime: endMatchTime - duration, 
+
+    endMatchTime, 
+
+    duration, 
+
+    seriesIndex: currentSeries.index 
+
+  }; 
+
+ 
+
+  pushToHistory(activeSessionState); 
+
+ 
+
+  setActiveSessionState(prev => ({ 
+
+    ...prev, 
+
+    matchEvents: [...(prev.matchEvents ?? []), event] 
+
+  })); 
+
+ 
+
+  // ✅ reset štoperice 
+
+  setShotElapsed(0); 
+
+  shotStartRef.current = null; 
+
+  setShotRunning(false); 
 
 }; 
 
@@ -1822,31 +1880,7 @@ const startNewSessionWithFormat = (
   setView("shooting"); 
 
 }; 
-const formatMatchTime = ( 
 
-  seconds: number) => { 
-
-  if (!activeSessionState.matchStartTimestamp) 
-
-    return "00:00:00"; 
-
-   const realTime = new Date( 
-
-    activeSessionState.matchStartTimestamp + seconds * 1000 
-
-  ); 
-
-  const hours = realTime.getHours().toString().padStart(2, "0"); 
-
-  const minutes = realTime.getMinutes().toString().padStart(2, "0"); 
-
-  const secs = realTime.getSeconds().toString().padStart(2, "0"); 
-
- 
-
-  return `${hours}:${minutes}:${secs}`; 
-
-}; 
 
 const formatDurationHMS = (seconds: number) => { 
 
@@ -2773,7 +2807,7 @@ onBack={() => setView("setup")}
 
                 <td>{shot.shotTime.toFixed(2)}</td> 
 
-                <td>{formatMatchTime(shot.matchTime ?? 0)}</td> 
+                <td>{formatDurationHMS(shot.matchTime ?? 0)}</td> 
 
               </tr> 
 
@@ -2800,6 +2834,8 @@ onBack={() => setView("setup")}
                   {event.type === "pause_on_line" && "⏸ PAUZA NA LINIJI"} 
 
                   {event.type === "leave_line" && "↩ IZLAZAK SA LINIJE"} 
+
+                  {event.type === "lower_rifle" && "⬇ SPUŠTANJE PUŠKE"} 
 
                   {" — "} 
 
@@ -3143,113 +3179,165 @@ onBack={() => setView("setup")}
 )} 
  
 
-          <button 
+          <div 
 
-  disabled={isReadOnly || manualTimeMode || activeSessionState.completed} 
+  style={{ 
 
-  onClick={() => { 
+    display: "flex", 
 
-     const now = Date.now(); 
+    gap: "8px", 
 
-    
-    
-    const sessions = loadSessions(); 
-
-    const activeId = getActiveSessionId(); 
-
-    const updated = sessions.map(s => 
-
-      s.id === activeId 
-
-        ? { ...s, matchStartTimestamp: now } 
-
-        : s 
-
-    ); 
-
-     saveSessions(updated); 
-    setActiveSessionState(prev => ({
-      ...prev,
-      matchStartTimestamp: now,
-      matchEndedTimestamp: null,
-      completed: false
-    }));
-
-    setMatchRunning(true); 
+    marginTop: "10px" 
 
   }} 
 
 > 
 
-  START MEČА 
+  <button 
 
-</button> 
+    style={{ flex: 1 }} 
+
+    disabled={isReadOnly || manualTimeMode || activeSessionState.completed} 
+
+    onClick={() => { 
+
+      const now = Date.now(); 
 
  
 
-          <button 
-            disabled={isReadOnly || manualTimeMode || activeSessionState.completed}
-            onClick={() => { 
+      const sessions = loadSessions(); 
 
-  // ✅ ако постоји активан event (pauza / izlazak), затвори га 
+      const activeId = getActiveSessionId(); 
 
-  const openEventIndex = getOpenEventIndex(); 
+      const updated = sessions.map(s => 
 
-  if (openEventIndex !== -1) { 
+        s.id === activeId 
 
-    const endMatchTime = getCurrentMatchTime(); 
+          ? { ...s, matchStartTimestamp: now } 
 
-    setActiveSessionState(prev => { 
+          : s 
 
-      const updatedEvents = [...(prev.matchEvents ?? [])]; 
+      ); 
 
-      const event = updatedEvents[openEventIndex]; 
+ 
 
-      event.endMatchTime = endMatchTime; 
+      saveSessions(updated); 
 
-      event.duration = endMatchTime - event.startMatchTime; 
+ 
 
-      return { 
+      setActiveSessionState(prev => ({ 
 
         ...prev, 
 
-        matchEvents: updatedEvents 
+        matchStartTimestamp: now, 
 
-      }; 
+        matchEndedTimestamp: null, 
 
-    }); 
+        completed: false 
 
-  } 
+      })); 
 
-            if (shotStartRef.current === null) { 
+ 
 
-  // reset старт 
+      setMatchRunning(true); 
 
-  shotStartRef.current = performance.now(); 
+    }} 
 
-} else { 
+  > 
 
-  // resume 
+    START MEČA 
 
-  shotStartRef.current = performance.now() - shotElapsed * 1000; 
+  </button> 
 
-} 
+ 
 
-setShotRunning(true);  
+  <button 
 
-          }}> 
+    style={{ flex: 1 }} 
 
-            START POGODAK 
+    disabled={isReadOnly || manualTimeMode || activeSessionState.completed} 
 
-          </button> 
+    onClick={() => { 
 
-          <button 
-            disabled={isReadOnly || manualTimeMode || activeSessionState.completed}
-            onClick={() => setShotRunning(false)}> 
+ 
 
-            STOP POGODAK 
+      // ✅ ако постоји активан event (pauza / izlazak), затвори га  
 
-          </button> 
+      const openEventIndex = getOpenEventIndex(); 
+
+ 
+
+      if (openEventIndex !== -1) { 
+
+        const endMatchTime = getCurrentMatchTime(); 
+
+        setActiveSessionState(prev => { 
+
+          const updatedEvents = [...(prev.matchEvents ?? [])]; 
+
+          const event = updatedEvents[openEventIndex]; 
+
+          event.endMatchTime = endMatchTime; 
+
+          event.duration = endMatchTime - event.startMatchTime; 
+
+ 
+
+          return { 
+
+            ...prev, 
+
+            matchEvents: updatedEvents 
+
+          }; 
+
+        }); 
+
+      } 
+
+ 
+
+      if (shotStartRef.current === null) { 
+
+        shotStartRef.current = performance.now(); 
+
+      } else { 
+
+        shotStartRef.current = 
+
+          performance.now() - shotElapsed * 1000; 
+
+      } 
+
+ 
+
+      setShotRunning(true); 
+
+    }} 
+
+  > 
+
+    START POGODAK 
+
+  </button> 
+
+ 
+
+  <button 
+
+    style={{ flex: 1 }} 
+
+    disabled={isReadOnly || manualTimeMode || activeSessionState.completed} 
+
+    onClick={() => setShotRunning(false)} 
+
+  > 
+
+    STOP POGODAK 
+
+  </button> 
+
+</div> 
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}> 
 
@@ -3379,7 +3467,20 @@ setShotRunning(true);
 
 </button> 
 
+<button 
+
+  disabled={!shotElapsed || activeSessionState.completed} 
+
+  onClick={registerLowerRifle} 
+
+> 
+
+  SPUŠTANJE PUŠKE 
+
+</button> 
+
   </div> 
+  
 
 </div> 
 
@@ -3673,7 +3774,7 @@ setShotRunning(true);
 
         <td>{shot.shotTime.toFixed(2)}</td> 
 
-        <td>{formatMatchTime(shot.matchTime ?? 0)}</td> 
+        <td>{formatDurationHMS(shot.matchTime ?? 0)}</td> 
 
       </tr> 
 
@@ -3746,6 +3847,8 @@ setShotRunning(true);
 {event.type === "leave_line" && "↩ IZLAZAK SA LINIJE"} 
 
 {event.type === "pause_on_line" && "⏸ PAUZA NA LINIJI"} 
+
+{event.type === "lower_rifle" && "⬇ SPUŠTANJE PUŠKE"} 
 
           {" — "} 
 
