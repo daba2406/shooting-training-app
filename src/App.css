@@ -1266,3 +1266,11 @@ input[type="number"] {
   appearance: textfield;     /* ✅ додај ово */ 
 
 } 
+
+/* Heatmap tooltip */ 
+
+div:hover > .heatmap-tooltip { 
+
+  display: block; 
+
+} 

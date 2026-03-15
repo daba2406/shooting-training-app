@@ -68,6 +68,67 @@ const selectedMatches = sessions
   ); 
 
   
+
+  // ✅ Heatmap матрица (Qualification only) 
+
+ 
+
+let heatmapMatrix: number[][] = []; 
+
+ 
+
+  heatmapMatrix = selectedMatches.map(match => 
+
+    match.seriesList.map(series => series.total) 
+
+  ); 
+
+ 
+
+const seriesCount = 
+
+  heatmapMatrix.length > 0 
+
+    ? heatmapMatrix[0].length 
+
+    : 0; 
+
+// ✅ Просек по мечу (за tooltip) 
+
+ 
+
+const matchMeans = selectedMatches.map(match => { 
+
+  const totals = match.seriesList.map(s => s.total); 
+
+  if (totals.length === 0) return 0; 
+
+ 
+
+  return ( 
+
+    totals.reduce((a, b) => a + b, 0) / 
+
+    totals.length 
+
+  ); 
+
+}); 
+
+// ✅ Боја за серију (фиксни праг) 
+
+ 
+
+function getHeatmapColor(value: number) { 
+
+  if (value >= 104.5) return "#4caf50"; // зелено 
+
+  if (value >= 104.0) return "#fbc02d"; // жуто 
+
+  return "#e53935"; // црвено 
+
+} 
+
   // ✅ Основна статистика 
 
 const matchResults = selectedMatches.map( 
@@ -1769,6 +1830,359 @@ if (stdDev > 0) {
 
 </div> 
 )}
+
+{heatmapMatrix.length > 0 && ( 
+
+  <div 
+
+    style={{ 
+
+      marginTop: "20px", 
+
+      background: "#1f1f1f", 
+
+      padding: "16px", 
+
+      borderRadius: "8px", 
+
+      color: "white" 
+
+    }} 
+
+  > 
+
+    <h3 style={{ marginBottom: "15px" }}> 
+
+      Stability Heatmap (serije po meču) 
+
+    </h3> 
+
+ 
+
+    <div 
+
+      style={{ 
+
+        display: "grid", 
+
+        gridTemplateColumns: `repeat(${seriesCount + 2}, 1fr)`, 
+
+        gap: "6px" 
+
+      }} 
+
+    > 
+   {/* Заглавље */} 
+
+ 
+
+<div 
+
+  style={{ 
+
+    textAlign: "center", 
+
+    fontWeight: 600, 
+
+    fontSize: "12px" 
+
+  }} 
+
+> 
+
+  Datum 
+
+</div> 
+
+ 
+
+{Array.from({ length: seriesCount }).map((_, i) => ( 
+
+  <div 
+
+    key={`header-${i}`} 
+
+    style={{ 
+
+      textAlign: "center", 
+
+      fontWeight: 600, 
+
+      fontSize: "12px" 
+
+    }} 
+
+  > 
+
+    S{i + 1} 
+
+  </div> 
+
+))} 
+
+ 
+
+<div 
+
+  style={{ 
+
+    textAlign: "center", 
+
+    fontWeight: 600, 
+
+    fontSize: "12px" 
+
+  }} 
+
+> 
+
+  Ukupno 
+
+</div> 
+
+{heatmapMatrix.map((match, matchIndex) => ( 
+
+  <> 
+
+    {/* Datum */} 
+
+    <div 
+
+      style={{ 
+
+        backgroundColor: "#2a2a2a", 
+
+        padding: "8px", 
+
+        textAlign: "center", 
+
+        borderRadius: "4px", 
+
+        fontSize: "12px",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis"
+
+      }} 
+
+    > 
+
+      {new Date(selectedMatches[matchIndex].date) 
+
+        .toLocaleDateString("sr-RS", { 
+
+  day: "2-digit", 
+
+  month: "2-digit", 
+
+  year: "2-digit" 
+
+}) }
+
+    </div> 
+
+ 
+
+    {/* Serije */} 
+
+{match.map((seriesValue, seriesIndex) => { 
+
+  const mean = matchMeans[matchIndex]; 
+
+  const diff = seriesValue - mean; 
+
+ 
+
+  const competitionName = 
+
+    selectedMatches[matchIndex].competitionName; 
+
+ 
+
+  return ( 
+
+    <div 
+
+      key={`${matchIndex}-${seriesIndex}`} 
+
+      style={{ 
+
+        backgroundColor: getHeatmapColor(seriesValue), 
+
+        padding: "6px", 
+
+        textAlign: "center", 
+
+        borderRadius: "4px", 
+
+        fontSize: "12px", 
+
+        position: "relative", 
+
+        cursor: "help" 
+
+      }} 
+
+      onMouseEnter={(e) => { 
+
+        const tooltip = e.currentTarget.querySelector( 
+
+          ".heatmap-tooltip" 
+
+        ); 
+
+        if (tooltip) { 
+
+          (tooltip as HTMLElement).style.display = "block"; 
+
+        } 
+
+      }} 
+
+      onMouseLeave={(e) => { 
+
+        const tooltip = e.currentTarget.querySelector( 
+
+          ".heatmap-tooltip" 
+
+        ); 
+
+        if (tooltip) { 
+
+          (tooltip as HTMLElement).style.display = "none"; 
+
+        } 
+
+      }} 
+
+    > 
+
+      {seriesValue.toFixed(1)} 
+
+ 
+
+      <div 
+
+        className="heatmap-tooltip" 
+
+        style={{ 
+
+          display: "none", 
+
+          position: "absolute", 
+
+          bottom: "110%", 
+
+          left: "0", 
+
+          background: "#2a2a2a", 
+
+          color: "white", 
+
+          padding: "6px 8px", 
+
+          borderRadius: "6px", 
+
+          fontSize: "12px", 
+
+          lineHeight: "1.3", 
+
+          width: "220px", 
+
+          boxShadow: "0 0 10px rgba(0,0,0,0.4)", 
+
+          zIndex: 1000 
+
+        }} 
+
+      > 
+
+        {competitionName && ( 
+
+          <div style={{ fontWeight: 600, marginBottom: "4px" }}> 
+
+            {competitionName} 
+
+          </div> 
+
+        )} 
+
+        <div> 
+
+          Datum:{" "} 
+
+          {new Date(selectedMatches[matchIndex].date) 
+
+            .toLocaleDateString("sr-RS", { 
+
+              day: "2-digit", 
+
+              month: "2-digit", 
+
+              year: "2-digit" 
+
+            })} 
+
+        </div> 
+
+        <div>Serija: {seriesIndex + 1}</div> 
+
+        <div>Rezultat: {seriesValue.toFixed(1)}</div> 
+
+        <div> 
+
+          Razlika u odnosu na prosek meca: {diff >= 0 ? "+" : ""} 
+
+          {diff.toFixed(2)} 
+
+        </div> 
+
+      </div> 
+
+    </div> 
+
+  ); 
+
+})} 
+
+ 
+
+    {/* Ukupno */} 
+
+    <div 
+
+      style={{ 
+
+        backgroundColor: "#2a2a2a", 
+
+        padding: "6px", 
+
+        textAlign: "center", 
+
+        borderRadius: "4px", 
+
+        fontSize: "12px", 
+
+        fontWeight: 600 
+
+      }} 
+
+    > 
+
+      {selectedMatches[matchIndex].totalResult.toFixed(1)} 
+
+    </div> 
+
+  </> 
+
+))} 
+
+    </div> 
+
+  </div> 
+
+)} 
+
 </div> 
       
 
