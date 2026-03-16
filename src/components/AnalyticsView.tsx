@@ -33,7 +33,119 @@ interface Props {
 
 } 
 
+ function HeatmapCell({ 
+
+  value, 
+
+  tooltipText, 
+
+  color 
+
+}: { 
+
+  value: number; 
+
+  tooltipText: string; 
+
+  color: string; 
+
+}) { 
+
+  const [hover, setHover] = useState(false); 
+
  
+
+  return ( 
+
+    <div 
+
+      style={{ 
+
+        backgroundColor: color, 
+
+        padding: "6px", 
+
+        textAlign: "center", 
+
+        borderRadius: "4px", 
+
+        fontSize: "12px", 
+
+        position: "relative", 
+
+        cursor: "help" 
+
+      }} 
+
+      onMouseEnter={() => setHover(true)} 
+
+      onMouseLeave={() => setHover(false)} 
+
+    > 
+
+      {value.toFixed(1)} 
+
+ 
+
+{hover && ( 
+
+  <div 
+
+    style={{ 
+
+      position: "absolute", 
+
+      bottom: "110%", 
+
+      left: "0", 
+
+      background: "#2a2a2a", 
+
+      color: "white", 
+
+      padding: "6px 8px", 
+
+      borderRadius: "6px", 
+
+      fontSize: "12px", 
+
+      lineHeight: "1.3", 
+
+      width: "130px", 
+
+      boxShadow: "0 0 10px rgba(0,0,0,0.4)", 
+
+      zIndex: 1000 
+
+    }} 
+
+  > 
+
+    {tooltipText 
+
+      .trim() 
+
+      .split("\n") 
+
+      .map((line, i) => ( 
+
+        <div key={i} style={{ marginBottom: "2px" }}> 
+
+          {line} 
+
+        </div> 
+
+      ))} 
+
+  </div> 
+
+)} 
+
+    </div> 
+
+  ); 
+
+} 
 
 export default function AnalyticsView({ sessions, onBack }: Props) { 
 
@@ -129,6 +241,20 @@ function getHeatmapColor(value: number) {
 
 } 
 
+// ✅ Боја за појединачни погодак (shot-level) 
+
+ 
+
+function getShotHeatmapColor(value: number) { 
+
+  if (value >= 10.5) return "#4caf50"; // зелено 
+
+  if (value > 10.3) return "#fbc02d"; // жуто 
+
+  return "#e53935"; // црвено 
+
+} 
+
   // ✅ Основна статистика 
 
 const matchResults = selectedMatches.map( 
@@ -176,6 +302,161 @@ if (seriesConsistencyValues.length > 0) {
     seriesConsistencyValues.reduce((a, b) => a + b, 0) / 
 
     seriesConsistencyValues.length; 
+
+} 
+
+// ✅ Shot-level agregatna matrica (6×10) 
+
+ 
+
+type ShotCell = { 
+
+  sum: number; 
+
+  count: number; 
+
+  min: number; 
+
+  max: number; 
+
+}; 
+
+ 
+
+let shotMatrix: ShotCell[][] = []; 
+
+ 
+
+if (analyticsMode === "qualification") { 
+
+ 
+
+  // иницијализација 6×10 
+
+  shotMatrix = Array.from({ length: 6 }, () => 
+
+    Array.from({ length: 10 }, () => ({ 
+
+      sum: 0, 
+
+      count: 0, 
+
+      min: Infinity, 
+
+      max: -Infinity 
+
+    })) 
+
+  ); 
+
+ 
+
+  selectedMatches.forEach(match => { 
+
+    match.seriesList.forEach((series, sIndex) => { 
+
+      series.shots.forEach((shot, hIndex) => { 
+
+ 
+
+        if (sIndex < 6 && hIndex < 10) { 
+
+          const cell = shotMatrix[sIndex][hIndex]; 
+
+ 
+
+          cell.sum += shot.value; 
+
+          cell.count += 1; 
+
+          cell.min = Math.min(cell.min, shot.value); 
+
+          cell.max = Math.max(cell.max, shot.value); 
+
+        } 
+
+ 
+
+      }); 
+
+    }); 
+
+  }); 
+
+} 
+ 
+
+// ✅ Матрица са агрегатним подацима 
+
+ 
+
+type ShotAggregateCell = { 
+
+  avg: number; 
+
+  min: number; 
+
+  max: number; 
+
+  count: number; 
+
+}; 
+
+ 
+
+let shotAggregateMatrix: ShotAggregateCell[][] = []; 
+
+ 
+
+if (analyticsMode === "qualification" && shotMatrix.length > 0) { 
+
+  shotAggregateMatrix = shotMatrix.map(row => 
+
+    row.map(cell => ({ 
+
+      avg: cell.count > 0 ? cell.sum / cell.count : 0, 
+
+      min: cell.count > 0 ? cell.min : 0, 
+
+      max: cell.count > 0 ? cell.max : 0, 
+
+      count: cell.count 
+
+    })) 
+
+  ); 
+
+} 
+
+// ✅ Транспонована агрегатна матрица (10×6) 
+
+ 
+
+let shotAggregateMatrixT: ShotAggregateCell[][] = []; 
+
+ 
+
+if (shotAggregateMatrix.length > 0) { 
+
+  shotAggregateMatrixT = Array.from({ length: 10 }, (_, hitIndex) => 
+
+    Array.from({ length: 6 }, (_, seriesIndex) => 
+
+      shotAggregateMatrix[seriesIndex]?.[hitIndex] ?? { 
+
+        avg: 0, 
+
+        min: 0, 
+
+        max: 0, 
+
+        count: 0 
+
+      } 
+
+    ) 
+
+  ); 
 
 } 
 
@@ -565,7 +846,195 @@ const stdDev =
 
     : 0; 
 
-    // ✅ Линеарна регресија (trend) 
+
+
+// ✅ Shot timing data (Qualification only) 
+
+ 
+
+let shotTimes: number[] = []; 
+
+let shotValues: number[] = []; 
+
+ 
+
+if (analyticsMode === "qualification") { 
+
+  selectedMatches.forEach(match => { 
+
+    match.seriesList.forEach(series => { 
+
+      series.shots.forEach(shot => { 
+
+        if (typeof shot.shotTime === "number") { 
+
+          shotTimes.push(shot.shotTime); 
+
+          shotValues.push(shot.value); 
+
+        } 
+
+      }); 
+
+    }); 
+
+  }); 
+
+} 
+
+
+
+// ✅ Просечно време и стандардна девијација времена 
+
+ 
+
+let meanTime = 0; 
+
+let stdDevTime = 0; 
+
+ 
+
+if (shotTimes.length > 1) { 
+
+  meanTime = 
+
+    shotTimes.reduce((a, b) => a + b, 0) / 
+
+    shotTimes.length; 
+
+ 
+
+  const variance = 
+
+    shotTimes.reduce((sum, value) => { 
+
+      const diff = value - meanTime; 
+
+      return sum + diff * diff; 
+
+    }, 0) / 
+
+    (shotTimes.length - 1); 
+
+ 
+
+  stdDevTime = Math.sqrt(variance); 
+
+} 
+
+const earlyThreshold = meanTime - stdDevTime; 
+
+const stableThreshold = meanTime + stdDevTime; 
+
+let pearsonR = 0; 
+
+ 
+
+if (shotTimes.length > 1) { 
+
+  const meanValue = 
+
+    shotValues.reduce((sum: number, v: number) => sum + v, 0) / 
+
+    shotValues.length; 
+
+ 
+
+  let numerator = 0; 
+
+  let sumSqTime = 0; 
+
+  let sumSqValue = 0; 
+
+ 
+
+  for (let i = 0; i < shotTimes.length; i++) { 
+
+    const timeDiff = shotTimes[i] - meanTime; 
+
+    const valueDiff = shotValues[i] - meanValue; 
+
+ 
+
+    numerator += timeDiff * valueDiff; 
+
+    sumSqTime += timeDiff * timeDiff; 
+
+    sumSqValue += valueDiff * valueDiff; 
+
+  } 
+
+ 
+
+  const denominator = Math.sqrt(sumSqTime * sumSqValue); 
+
+ 
+
+  pearsonR = denominator !== 0 ? numerator / denominator : 0; 
+
+} 
+
+let correlationStrength = ""; 
+
+let correlationDirection = ""; 
+
+let correlationColor = "#aaa"; 
+
+ 
+
+const absR = Math.abs(pearsonR); 
+
+ 
+
+// Jačina povezanosti 
+
+if (absR < 0.2) { 
+
+  correlationStrength = "Bez značajne povezanosti"; 
+
+} else if (absR < 0.4) { 
+
+  correlationStrength = "Slaba povezanost"; 
+
+} else if (absR < 0.6) { 
+
+  correlationStrength = "Umerena povezanost"; 
+
+} else if (absR < 0.8) { 
+
+  correlationStrength = "Jaka povezanost"; 
+
+} else { 
+
+  correlationStrength = "Veoma jaka povezanost"; 
+
+} 
+
+ 
+
+// Smer 
+
+if (pearsonR > 0.2) { 
+
+  correlationDirection = "Duže ciljanje je povezano sa boljim rezultatom."; 
+
+  correlationColor = "#4caf50"; 
+
+} else if (pearsonR < -0.2) { 
+
+  correlationDirection = "Duže ciljanje je povezano sa padom rezultata."; 
+
+  correlationColor = "#f44336"; 
+
+} else { 
+
+  correlationDirection = "Vreme opaljenja nema jasan uticaj na rezultat."; 
+
+} 
+
+const rSquared = pearsonR * pearsonR;
+const explainedVariance = (rSquared * 100).toFixed(1);
+// ✅ Линеарна регресија (trend) 
 
  
 
@@ -778,6 +1247,169 @@ if (
   competitionGap = qualificationMean - trainingMean; 
 
 } 
+
+// ✅ Динамички bucket интервали 
+
+ 
+
+let timeBuckets = { 
+
+  fast: { min: 0, max: 0 }, 
+
+  optimal: { min: 0, max: 0 }, 
+
+  stable: { min: 0, max: 0 }, 
+
+  slow: { min: 0, max: Infinity } 
+
+}; 
+
+ 
+
+if (shotTimes.length > 1) { 
+
+  const lower = meanTime - stdDevTime; 
+
+  const upper = meanTime + stdDevTime; 
+
+ 
+
+  timeBuckets = { 
+
+    fast: { min: 0, max: lower }, 
+
+    optimal: { min: lower, max: meanTime }, 
+
+    stable: { min: meanTime, max: upper }, 
+
+    slow: { min: upper, max: Infinity } 
+
+  }; 
+
+} 
+
+// ✅ Bucket анализа 
+
+ 
+
+type BucketStats = { 
+
+  count: number; 
+
+  sum: number; 
+
+}; 
+
+ 
+
+let bucketStats: Record<string, BucketStats> = { 
+
+  fast: { count: 0, sum: 0 }, 
+
+  optimal: { count: 0, sum: 0 }, 
+
+  stable: { count: 0, sum: 0 }, 
+
+  slow: { count: 0, sum: 0 } 
+
+}; 
+
+ 
+
+if (analyticsMode === "qualification") { 
+
+  selectedMatches.forEach(match => { 
+
+    match.seriesList.forEach(series => { 
+
+      series.shots.forEach(shot => { 
+
+        const t = shot.shotTime ?? 0; 
+
+        const v = shot.value; 
+
+ 
+
+        if (t < timeBuckets.fast.max) { 
+
+          bucketStats.fast.count++; 
+
+          bucketStats.fast.sum += v; 
+
+        } else if (t < timeBuckets.optimal.max) { 
+
+          bucketStats.optimal.count++; 
+
+          bucketStats.optimal.sum += v; 
+
+        } else if (t < timeBuckets.stable.max) { 
+
+          bucketStats.stable.count++; 
+
+          bucketStats.stable.sum += v; 
+
+        } else { 
+
+          bucketStats.slow.count++; 
+
+          bucketStats.slow.sum += v; 
+
+        } 
+
+      }); 
+
+    }); 
+
+  }); 
+
+} 
+
+const bucketAverages = { 
+
+  fast: 
+
+    bucketStats.fast.count > 0 
+
+      ? bucketStats.fast.sum / bucketStats.fast.count 
+
+      : 0, 
+
+ 
+
+  optimal: 
+
+    bucketStats.optimal.count > 0 
+
+      ? bucketStats.optimal.sum / 
+
+        bucketStats.optimal.count 
+
+      : 0, 
+
+ 
+
+  stable: 
+
+    bucketStats.stable.count > 0 
+
+      ? bucketStats.stable.sum / 
+
+        bucketStats.stable.count 
+
+      : 0, 
+
+ 
+
+  slow: 
+
+    bucketStats.slow.count > 0 
+
+      ? bucketStats.slow.sum / bucketStats.slow.count 
+
+      : 0 
+
+}; 
+
 
 
 // ✅ Нормална CDF апроксимација (без Math.erf) 
@@ -1062,7 +1694,7 @@ function pearsonCorrelation(
 
 let correlationStatus = ""; 
 
-let correlationColor = "#aaa"; 
+correlationColor = "#4caf50"; 
 
  
 
@@ -1831,6 +2463,218 @@ if (stdDev > 0) {
 </div> 
 )}
 
+{analyticsMode === "qualification" && shotTimes.length > 0 && ( 
+
+  <div 
+
+    style={{ 
+
+      gridColumn: "1 / span 2", 
+
+      background: "#1f1f1f", 
+
+      padding: "20px", 
+
+      borderRadius: "8px", 
+
+      marginTop: "10px", 
+
+      color: "white" 
+
+    }} 
+
+  > 
+
+    <h3 style={{ marginBottom: "12px" }}> 
+
+      Analiza vremena opaljenja 
+
+    </h3> 
+
+ 
+
+    {/* Osnovna statistika vremena */} 
+
+    <div style={{ marginBottom: "12px" }}> 
+
+      <div>Prosečno vreme: {meanTime.toFixed(2)} s</div> 
+
+      <div>Standardna devijacija: {stdDevTime.toFixed(2)} s</div> 
+
+    </div> 
+
+ 
+
+    <div 
+
+      style={{ 
+
+        borderTop: "1px solid #333", 
+
+        paddingTop: "12px", 
+
+        marginTop: "10px" 
+
+      }} 
+
+    > 
+
+      <div style={{ fontWeight: 600, marginBottom: "8px" }}> 
+
+        Performanse po vremenskim zonama 
+
+      </div> 
+
+ 
+
+      <div style={{ display: "grid", gap: "6px" }}> 
+
+  <div> 
+
+    Rano opaljenje ({bucketStats.fast.count} hitaca) <br /> 
+
+    <span style={{ color: "#aaa", fontSize: "0.9rem" }}> 
+
+      &lt; {earlyThreshold.toFixed(2)} s 
+
+    </span> 
+
+    {" — "} 
+
+    Prosek: {bucketAverages.fast.toFixed(2)} 
+
+  </div> 
+
+ 
+
+  <div> 
+
+    Optimalno opaljenje ({bucketStats.optimal.count} hitaca) <br /> 
+
+    <span style={{ color: "#aaa", fontSize: "0.9rem" }}> 
+
+      {earlyThreshold.toFixed(2)} – {meanTime.toFixed(2)} s 
+
+    </span> 
+
+    {" — "} 
+
+    Prosek: {bucketAverages.optimal.toFixed(2)} 
+
+  </div> 
+
+ 
+
+  <div> 
+
+    Stabilno opaljenje ({bucketStats.stable.count} hitaca) <br /> 
+
+    <span style={{ color: "#aaa", fontSize: "0.9rem" }}> 
+
+      {meanTime.toFixed(2)} – {stableThreshold.toFixed(2)} s 
+
+    </span> 
+
+    {" — "} 
+
+    Prosek: {bucketAverages.stable.toFixed(2)} 
+
+  </div> 
+
+ 
+
+  <div> 
+
+    Kasno opaljenje ({bucketStats.slow.count} hitaca) <br /> 
+
+    <span style={{ color: "#aaa", fontSize: "0.9rem" }}> 
+
+      &gt; {stableThreshold.toFixed(2)} s 
+
+    </span> 
+
+    {" — "} 
+
+    Prosek: {bucketAverages.slow.toFixed(2)} 
+
+  </div> 
+
+</div> 
+
+<div 
+
+  style={{ 
+
+    marginTop: "20px", 
+
+    paddingTop: "15px", 
+
+    borderTop: "1px solid #333" 
+
+  }} 
+
+> 
+
+  <div style={{ fontWeight: 600, marginBottom: "8px" }}> 
+
+    Analiza povezanosti vremena i rezultata 
+
+  </div> 
+
+ 
+
+  <div 
+
+    style={{ 
+
+      fontSize: "1.2rem", 
+
+      fontWeight: 600, 
+
+      color: correlationColor, 
+
+      marginBottom: "6px" 
+
+    }} 
+
+  > 
+
+    Pearson r = {pearsonR.toFixed(3)} 
+
+  </div> 
+
+ 
+
+  <div style={{ marginBottom: "6px", color: "#ccc" }}> 
+
+    {correlationStrength} 
+
+  </div> 
+
+ 
+
+  <div style={{ marginBottom: "6px", color: "#ccc" }}> 
+
+    {correlationDirection} 
+
+  </div> 
+
+ 
+
+  <div style={{ color: "#aaa", fontSize: "0.9rem" }}> 
+
+    Objašnjena varijansa (R²): {explainedVariance}% 
+
+  </div> 
+
+</div> 
+
+    </div> 
+
+  </div> 
+
+)} 
+
 {heatmapMatrix.length > 0 && ( 
 
   <div 
@@ -2145,7 +2989,7 @@ if (stdDev > 0) {
 
 })} 
 
- 
+
 
     {/* Ukupno */} 
 
@@ -2177,7 +3021,172 @@ if (stdDev > 0) {
 
 ))} 
 
+
     </div> 
+
+
+  </div> 
+
+)} 
+
+{analyticsMode === "qualification" && shotAggregateMatrix.length > 0 && ( 
+
+  <div style={{ marginTop: "30px" }}> 
+
+    <h3 style={{ marginBottom: "15px" }}> 
+
+      Shot Heatmap (6×10) 
+
+    </h3> 
+
+ 
+
+    {/* HEADER ROW */} 
+
+    <div 
+
+      style={{ 
+
+        display: "grid", 
+
+        gridTemplateColumns: "80px repeat(6, 1fr)", 
+
+        gap: "6px" 
+
+      }} 
+
+    > 
+
+      <div></div> 
+
+      {Array.from({ length: 6 }).map((_, i) => ( 
+
+        <div 
+
+          key={`header-${i}`} 
+
+          style={{ 
+
+            textAlign: "center", 
+
+            fontWeight: 600, 
+
+            fontSize: "12px" 
+
+          }} 
+
+        > 
+
+          S{i + 1} 
+
+        </div> 
+
+      ))} 
+
+    </div> 
+
+ 
+
+    {/* DATA ROWS */} 
+
+    {shotAggregateMatrixT.map((row, hitIndex) => { 
+
+  return ( 
+
+    <div 
+
+      key={hitIndex} 
+
+      style={{ 
+
+        display: "grid", 
+
+        gridTemplateColumns: "80px repeat(6, 1fr)", 
+
+        gap: "6px", 
+
+        marginTop: "6px" 
+
+      }} 
+
+    > 
+
+      {/* Row label */} 
+
+      <div 
+
+        style={{ 
+
+          textAlign: "center", 
+
+          fontWeight: 600, 
+
+          fontSize: "12px", 
+
+          background: "#2a2a2a", 
+
+          borderRadius: "4px", 
+
+          padding: "6px" 
+
+        }} 
+
+      > 
+
+        H{hitIndex + 1} 
+
+      </div> 
+
+ 
+
+      {/* Cells */} 
+
+      {row.map((cell, seriesIndex) => { 
+
+        const rounded = parseFloat(cell.avg.toFixed(1)); 
+
+
+        const tooltipText = ` 
+
+Serija: ${seriesIndex + 1} 
+
+Hitac: ${hitIndex + 1} 
+
+Prosek: ${rounded} 
+
+Najveći: ${cell.max.toFixed(1)} 
+
+Najmanji: ${cell.min.toFixed(1)} 
+
+Broj uzoraka: ${cell.count} 
+
+`; 
+
+ 
+
+        return ( 
+
+          <HeatmapCell 
+
+            key={`${hitIndex}-${seriesIndex}`} 
+
+            value={rounded} 
+
+            tooltipText={tooltipText} 
+
+            color={getShotHeatmapColor(rounded)} 
+
+          /> 
+
+        ); 
+
+      })} 
+
+    </div> 
+
+  ); 
+
+})} 
 
   </div> 
 
@@ -2187,6 +3196,8 @@ if (stdDev > 0) {
       
 
  </div> 
+
+ 
   
   ); 
 
