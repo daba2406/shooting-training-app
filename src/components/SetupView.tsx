@@ -1,4 +1,4 @@
-import { useState } from "react"; 
+import { useState, useEffect } from "react"; 
 
  
 
@@ -30,11 +30,10 @@ onStart: (
 
  
 
-export default function SetupView({ onStart, onArchive, onAnalytics, onStartTrainingMode }: Props) { 
+export default function SetupView({ onStart, onArchive, onAnalytics, onStartTrainingMode }: 
+  Props) { 
 
- 
-
-  const [mainMode, setMainMode] = useState<"training" | "competition">("training"); 
+   const [mainMode, setMainMode] = useState<"training" | "competition">("training"); 
   const [trainingInputMode, setTrainingInputMode] = useState< 
 
   "shots" | "series" 
@@ -49,7 +48,109 @@ export default function SetupView({ onStart, onArchive, onAnalytics, onStartTrai
 
   const [startTime, setStartTime] = useState(""); 
 
+ // ✅ Baza strelaca (privremeno lokalna) 
+
+const defaultShooters = [ 
+
+  { id: 1, name: "Natalija Jovanovic" }
+
+]; 
+const loadShooters = () => { 
+
+  const stored = localStorage.getItem("shooters"); 
+
+  if (stored) { 
+
+    return JSON.parse(stored); 
+
+  } 
+
+  return defaultShooters; 
+
+}; 
+
+
+
+const [shooters, setShooters] = useState(loadShooters); 
+
+const [newShooterName, setNewShooterName] = useState(""); 
+
+const [manageShootersOpen, setManageShootersOpen] = useState(false); 
+
+const handleAddShooter = () => { 
+
+  if (!newShooterName.trim()) return; 
+
  
+
+  const newShooter = { 
+
+    id: shooters.length + 1, 
+
+    name: newShooterName.trim() 
+
+  }; 
+
+
+
+  setShooters([...shooters, newShooter]); 
+
+  setShooterName(newShooter.name); // automatski selektuje novog 
+
+  setNewShooterName(""); 
+
+}; 
+ const handleDeleteShooter = (id: number) => { 
+
+  const shooterToDelete = shooters.find( 
+
+  (s: { id: number; name: string }) => s.id === id 
+
+); 
+
+  if (!shooterToDelete) return; 
+
+ 
+
+  const confirmDelete = window.confirm( 
+
+    `Da li ste sigurni da želite da obrišete strelca "${shooterToDelete.name}"?` 
+
+  ); 
+
+ 
+
+  if (!confirmDelete) return; 
+
+ 
+
+ const updatedShooters = shooters.filter( 
+
+  (s: { id: number; name: string }) => s.id !== id 
+
+); 
+
+ 
+
+  setShooters(updatedShooters); 
+
+ 
+
+  // Ako brišemo trenutno izabranog, resetuj selekciju 
+
+  if (shooterName === shooterToDelete.name) { 
+
+    setShooterName(""); 
+
+  } 
+
+}; 
+
+useEffect(() => { 
+
+  localStorage.setItem("shooters", JSON.stringify(shooters)); 
+
+}, [shooters]); 
 
   return ( 
 
@@ -110,19 +211,167 @@ export default function SetupView({ onStart, onArchive, onAnalytics, onStartTrai
 
  
 
-      <input 
+<select 
 
-        type="text" 
+  value={shooterName} 
 
-        placeholder="Ime i prezime strelca" 
+  onChange={(e) => setShooterName(e.target.value)} 
 
-        value={shooterName} 
+> 
 
-        onChange={(e) => setShooterName(e.target.value)} 
+  <option value="">Izaberi strelca</option> 
 
-      /> 
+  {shooters.map((shooter: { id: number; name: string }) => ( 
+
+    <option key={shooter.id} value={shooter.name}> 
+
+      {shooter.name} 
+
+    </option> 
+
+  ))} 
+
+</select> 
+
+<div style={{ marginTop: "10px", display: "flex", gap: "6px" }}> 
+
+  <input 
+
+    type="text" 
+
+    placeholder="Dodaj novog strelca" 
+
+    value={newShooterName} 
+
+    onChange={(e) => setNewShooterName(e.target.value)} 
+
+    style={{ flex: 1 }} 
+
+  /> 
 
  
+
+  <button onClick={handleAddShooter}> 
+
+    Dodaj 
+
+  </button> 
+
+</div> 
+
+{manageShootersOpen && ( 
+
+  <div 
+
+    style={{ 
+
+      marginTop: "12px", 
+
+      maxHeight: "200px", 
+
+      overflowY: "auto", 
+
+      border: "1px solid #333", 
+
+      borderRadius: "8px", 
+
+      padding: "8px" 
+
+    }} 
+
+  > 
+
+    {shooters.map((shooter: { id: number; name: string }) => ( 
+
+      <div 
+
+        key={shooter.id} 
+
+        style={{ 
+
+          display: "flex", 
+
+          justifyContent: "space-between", 
+
+          alignItems: "center", 
+
+          marginBottom: "6px", 
+
+          padding: "6px", 
+
+          background: "#ffffff", 
+
+          borderRadius: "6px" 
+
+        }} 
+
+      > 
+
+        <span>{shooter.name}</span> 
+
+ 
+
+        <button 
+
+          onClick={() => handleDeleteShooter(shooter.id)} 
+
+          style={{ 
+
+            background: "transparent", 
+
+            color: "#ff5555", 
+
+            border: "none", 
+
+            cursor: "pointer", 
+
+            fontWeight: "bold" 
+
+          }} 
+
+        > 
+
+          ✕ 
+
+        </button> 
+
+      </div> 
+
+    ))} 
+
+  </div> 
+
+)} 
+
+<button 
+
+  style={{ 
+
+    marginTop: "8px", 
+
+    background: "transparent", 
+
+    border: "1px solid #444", 
+
+    color: "#00ccff", 
+
+    borderRadius: "6px", 
+
+    padding: "4px 8px", 
+
+    cursor: "pointer", 
+
+    fontSize: "12px" 
+
+  }} 
+
+  onClick={() => setManageShootersOpen(!manageShootersOpen)} 
+
+> 
+
+  {manageShootersOpen ? "Zatvori upravljanje" : "Uredi strelce"} 
+
+</button> 
 
       <input 
 

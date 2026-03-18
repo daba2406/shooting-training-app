@@ -1,5 +1,9 @@
 import type { ShootingSession } from "../types"; 
-
+import { useMatchStatistics } from "../analytics/useMatchStatistics";
+import { usePressureAnalysis } from "../analytics/usePressureAnalysis";
+import { useMeanRadiusAnalysis } from "../analytics/useMeanRadiusAnalysis";
+import { useVolatilityIndex } from "../analytics/useVolatilityIndex";
+import { useTransferMetrics } from "../analytics/useTransferMetrics";
 import { useState} from "react";
 
 import { 
@@ -178,8 +182,277 @@ const selectedMatches = sessions
       new Date(b.date).getTime() 
 
   ); 
+  if (!selectedMatches.length) { 
 
-  
+  return <div>No data available</div>; 
+
+} 
+
+
+const qualificationMatchesAll = sessions.filter( 
+
+  s => s.mode === "qualification" && s.completed 
+
+); 
+
+ 
+
+const trainingMatchesAll = sessions.filter( 
+
+  s => s.mode === "training" && s.completed 
+
+); 
+
+const transferMetrics = useTransferMetrics( 
+
+  sessions, 
+
+  analyticsMode 
+
+); 
+
+ 
+
+const hasQualification = 
+
+  transferMetrics.hasQualification; 
+
+ 
+
+const hasTraining = 
+
+  transferMetrics.hasTraining; 
+
+ 
+
+const competitionGap = 
+
+  transferMetrics.competitionGap; 
+
+ const gapStatus = transferMetrics.gapStatus; 
+
+const gapColor = transferMetrics.gapColor; 
+
+const avgSeriesConsistency = 
+
+  transferMetrics.avgSeriesConsistency; 
+
+
+
+const meanRadiusStats = 
+
+  useMeanRadiusAnalysis(selectedMatches); 
+
+ 
+
+const meanRadiusAverage = 
+
+  meanRadiusStats?.meanRadiusAverage ?? 0; 
+
+ 
+
+const meanRadiusSlope = 
+
+  meanRadiusStats?.meanRadiusSlope ?? 0; 
+
+ 
+
+const meanRadiusCorrelation = 
+
+  meanRadiusStats?.meanRadiusCorrelation ?? 0; 
+
+ 
+
+const technicalStatus = 
+
+  meanRadiusStats?.technicalStatus ?? "Stabilna grupa"; 
+
+ 
+
+const technicalColor = 
+
+  meanRadiusStats?.technicalColor ?? "#4caf50"; 
+
+ 
+
+const meanRadiusChartData = 
+
+  meanRadiusStats?.meanRadiusChartData ?? []; 
+
+const pressureStats = usePressureAnalysis(selectedMatches); 
+
+const pressureMean = pressureStats?.pressureMean ?? 0; 
+
+const pressureBest = pressureStats?.pressureBest ?? 0; 
+
+const pressureWorst = pressureStats?.pressureWorst ?? 0; 
+
+const pressureStatus = pressureStats?.pressureStatus ?? "Stabilan"; 
+
+const pressureColor = pressureStats?.pressureColor ?? "#4caf50"; 
+
+const volatilityIndex = 
+
+  useVolatilityIndex(selectedMatches) ?? 0; 
+
+let volatilityStatus = "Nema podatka"; 
+
+let volatilityColor = "#aaa"; 
+
+ 
+
+if (volatilityIndex < 0.5) { 
+
+  volatilityStatus = "Izuzetno stabilno"; 
+
+  volatilityColor = "#4caf50"; // Green 
+
+} else if (volatilityIndex < 1) { 
+
+  volatilityStatus = "Stable"; 
+
+  volatilityColor = "#ff9800"; // Orange 
+
+} else { 
+
+  volatilityStatus = "Unstable"; 
+
+  volatilityColor = "#e53935"; // Red 
+
+} 
+
+
+  const matchStats = useMatchStatistics(selectedMatches); 
+
+ 
+
+if (!matchStats) { 
+
+  return <div>No qualification data available</div>; 
+
+} 
+
+ 
+
+const { 
+
+  mean, 
+
+  stdDev, 
+
+  weightedRecent, 
+
+  slope, 
+
+  predictedNext, 
+  best,
+  worst,
+  matchCount 
+
+} = matchStats; 
+
+
+
+// ✅ Performance Transfer Index (PTI) 
+
+ 
+
+let pti = 0; 
+
+let ptiStatus = ""; 
+
+let ptiColor = "#aaa"; 
+
+ 
+
+if (hasQualification && hasTraining) { 
+
+ 
+
+  const gapScore = Math.max( 
+
+    0, 
+
+    1 - Math.abs(competitionGap) / 5 
+
+  ); 
+
+ 
+
+  const stabilityScore = Math.max( 
+
+    0, 
+
+    1 - stdDev / 5 
+
+  ); 
+
+ 
+
+  const consistencyScore = 
+
+    analyticsMode === "training" 
+
+      ? Math.max(0, 1 - avgSeriesConsistency / 10) 
+
+      : 1; 
+
+ 
+
+  const pressureScore = 
+
+    analyticsMode === "qualification" 
+
+      ? Math.max(0, 1 - Math.abs(pressureMean)) 
+
+      : 1; 
+
+ 
+
+  pti = 
+
+    0.5 * gapScore + 
+
+    0.3 * stabilityScore + 
+
+    0.1 * consistencyScore + 
+
+    0.1 * pressureScore; 
+
+ 
+
+  pti = Math.min(1, Math.max(0, pti)) * 100; 
+
+ 
+
+  if (pti >= 80) { 
+
+    ptiStatus = "Odličan transfer"; 
+
+    ptiColor = "#4caf50"; 
+
+  } else if (pti >= 65) { 
+
+    ptiStatus = "Dobar transfer"; 
+
+    ptiColor = "#8bc34a"; 
+
+  } else if (pti >= 50) { 
+
+    ptiStatus = "Umeren transfer"; 
+
+    ptiColor = "#ff9800"; 
+
+  } else { 
+
+    ptiStatus = "Slab transfer"; 
+
+    ptiColor = "#e53935"; 
+
+  } 
+
+} 
+
 
   // ✅ Heatmap матрица (Qualification only) 
 
@@ -263,47 +536,7 @@ const matchResults = selectedMatches.map(
 
 ); 
 
-// ✅ Series consistency (Training only) 
 
- 
-
-let seriesConsistencyValues: number[] = []; 
-
- 
-
-if (analyticsMode === "training") { 
-
-  seriesConsistencyValues = selectedMatches.map(match => { 
-
-    const totals = match.seriesList.map(s => s.total); 
-
- 
-
-    if (totals.length === 0) return 0; 
-
- 
-
-    return Math.max(...totals) - Math.min(...totals); 
-
-  }); 
-
-} 
-
- 
-
-let avgSeriesConsistency = 0; 
-
- 
-
-if (seriesConsistencyValues.length > 0) { 
-
-  avgSeriesConsistency = 
-
-    seriesConsistencyValues.reduce((a, b) => a + b, 0) / 
-
-    seriesConsistencyValues.length; 
-
-} 
 
 // ✅ Shot-level agregatna matrica (6×10) 
 
@@ -478,111 +711,12 @@ const yMin = Math.floor(minScore - yPadding);
 
 const yMax = Math.ceil(maxScore + yPadding); 
 
-// ✅ Pressure Index по мечу (30 vs 30) 
+
+// const matchCount = matchResults.length; 
 
  
 
-const pressureValues = selectedMatches.map(match => { 
-
-  const shots = match.seriesList 
-
-    .flatMap(series => series.shots) 
-
-    .sort((a, b) => (a.matchTime ?? 0) - (b.matchTime ?? 0)); 
-
- 
-
-  if (shots.length < 60) return 0; 
-
- 
-
-  const first30 = shots.slice(0, 30); 
-
-  const last30 = shots.slice(30, 60); 
-
- 
-
-  const avgFirst = 
-
-    first30.reduce((sum, s) => sum + s.value, 0) / 30; 
-
- 
-
-  const avgLast = 
-
-    last30.reduce((sum, s) => sum + s.value, 0) / 30; 
-
- 
-
-  return avgLast - avgFirst; 
-
-}); 
-
-let pressureMean = 0; 
-
-let pressureBest = 0; 
-
-let pressureWorst = 0; 
-
- 
-
-if (pressureValues.length > 0) { 
-
-  pressureMean = 
-
-    pressureValues.reduce((a, b) => a + b, 0) / 
-
-    pressureValues.length; 
-
- 
-
-  pressureBest = Math.max(...pressureValues); 
-
-  pressureWorst = Math.min(...pressureValues); 
-
-} 
-
-// ✅ Pressure Status interpretacija 
-
- 
-
-let pressureStatus = "Stabilan"; 
-
-let pressureColor = "#4caf50"; // neutral 
-
- 
-
-if (pressureMean > 0.15) { 
-
-  pressureStatus = "Jak finiš"; 
-
-  pressureColor = "#4caf50"; 
-
-} else if (pressureMean > 0.05) { 
-
-  pressureStatus = "Blago jači završetak"; 
-
-  pressureColor = "#8bc34a"; 
-
-} else if (pressureMean < -0.15) { 
-
-  pressureStatus = "Izražen pad pod pritiskom"; 
-
-  pressureColor = "#e53935"; 
-
-} else if (pressureMean < -0.05) { 
-
-  pressureStatus = "Blagi pad pod pritiskom"; 
-
-  pressureColor = "#ff7043"; 
-
-} 
-
-const matchCount = matchResults.length; 
-
- 
-
-const mean = 
+// const mean = 
 
   matchCount > 0 
 
@@ -592,241 +726,21 @@ const mean =
 
  
 
-const best = 
+// const best = 
 
   matchCount > 0 ? Math.max(...matchResults) : 0; 
 
  
 
-const worst = 
+// const worst = 
 
   matchCount > 0 ? Math.min(...matchResults) : 0; 
 
-  // ✅ Mean Radius по мечу 
 
- 
-
-const meanRadiusPerMatch = selectedMatches.map(match => { 
-
-  const shots = match.seriesList.flatMap(series => series.shots); 
-
- 
-
-  if (shots.length < 2) return 0; 
-
- 
-
-  const avgX = 
-
-    shots.reduce((sum, s) => sum + s.x, 0) / shots.length; 
-
- 
-
-  const avgY = 
-
-    shots.reduce((sum, s) => sum + s.y, 0) / shots.length; 
-
- 
-
-const totalDistancePx = shots.reduce((sum, shot) => { 
-
-  const dx = shot.x - avgX; 
-
-  const dy = shot.y - avgY; 
-
-  return sum + Math.sqrt(dx * dx + dy * dy); 
-
-}, 0); 
-
- 
-
-const meanRadiusPx = totalDistancePx / shots.length; 
-
- 
-
-// ✅ Конверзија у mm (исто као у App.tsx) 
-
-const visibleMm = 7.75; 
-
-const radius = 450 / 2 - 10; 
-
-const mmToPx = radius / visibleMm; 
-
-const pxToMm = 1 / mmToPx; 
-
- 
-
-const meanRadiusMm = meanRadiusPx * pxToMm; 
-
- 
-
-return meanRadiusMm; 
-
-}); 
-
-// ✅ Chart data за Mean Radius 
-
-const meanRadiusChartData = meanRadiusPerMatch.map( 
-
-  (radius, index) => ({ 
-
-    index: index + 1, 
-
-    radius: radius 
-
-  }) 
-
-); 
-
-// ✅ Просек Mean Radius 
-
- 
-
-let meanRadiusAverage = 0; 
-
- 
-
-if (meanRadiusPerMatch.length > 0) { 
-
-  meanRadiusAverage = 
-
-    meanRadiusPerMatch.reduce((a, b) => a + b, 0) / 
-
-    meanRadiusPerMatch.length; 
-
-} 
-
-// ✅ Trend Mean Radius 
-
- 
-
-let meanRadiusSlope = 0; 
-
- 
-
-if (meanRadiusPerMatch.length > 1) { 
-
-  const xValues = meanRadiusPerMatch.map((_, index) => index); 
-
-  const yValues = meanRadiusPerMatch; 
-
- 
-
-  const xMean = 
-
-    xValues.reduce((a, b) => a + b, 0) / 
-
-    xValues.length; 
-
- 
-
-  const yMean = 
-
-    yValues.reduce((a, b) => a + b, 0) / 
-
-    yValues.length; 
-
- 
-
-  let numerator = 0; 
-
-  let denominator = 0; 
-
- 
-
-  for (let i = 0; i < yValues.length; i++) { 
-
-    numerator += 
-
-      (xValues[i] - xMean) * 
-
-      (yValues[i] - yMean); 
-
- 
-
-    denominator += 
-
-      (xValues[i] - xMean) * 
-
-      (xValues[i] - xMean); 
-
-  } 
-
- 
-
-  meanRadiusSlope = 
-
-    denominator !== 0 ? numerator / denominator : 0; 
-
-} 
-
-// ✅ Technical Status (Mean Radius trend) 
-
- 
-
-let technicalStatus = "Stabilno"; 
-
-let technicalColor = "#4caf50"; // зелено као позитивно/стабилно 
-
- 
-
-if (meanRadiusSlope < -0.01) { 
-
-  technicalStatus = "Poboljšanje grupe"; 
-
-  technicalColor = "#4caf50"; // зелено 
-
-} else if (meanRadiusSlope > 0.01) { 
-
-  technicalStatus = "Pogoršanje grupe"; 
-
-  technicalColor = "#e53935"; // црвено 
-
-} else { 
-
-  technicalStatus = "Stabilno"; 
-
-  technicalColor = "#4caf50"; // стабилно је позитивно 
-
-} 
-
-// ✅ Correlation: Mean Radius vs Qualification Score 
-
- 
-
-let meanRadiusCorrelation = 0; 
-
- 
-
-if ( 
-
-  analyticsMode === "qualification" && 
-
-  meanRadiusPerMatch.length > 1 
-
-) { 
-
-  const scores = selectedMatches.map( 
-
-    m => m.totalResult ?? 0 
-
-  ); 
-
- 
-
-  meanRadiusCorrelation = pearsonCorrelation( 
-
-    meanRadiusPerMatch, 
-
-    scores 
-
-  ); 
-
-} 
 
   // ✅ Стандардна девијација 
 
-const stdDev = 
+// const stdDev = 
 
   matchCount > 1 
 
@@ -1038,10 +952,6 @@ const explainedVariance = (rSquared * 100).toFixed(1);
 
  
 
-let slope = 0; 
-
- 
-
 if (matchCount > 1) { 
 
   const xValues = matchResults.map((_, index) => index); 
@@ -1080,11 +990,7 @@ if (matchCount > 1) {
 
   } 
 
- 
 
-  slope = 
-
-    denominator !== 0 ? numerator / denominator : 0; 
 
 } 
 
@@ -1120,11 +1026,6 @@ const chartData = selectedMatches.map((match, index) => {
  
 
 const recentCount = Math.min(5, matchCount); 
-
- 
-
-let weightedRecent = 0; 
-
  
 
 if (recentCount > 0) { 
@@ -1151,102 +1052,9 @@ if (recentCount > 0) {
 
  
 
-  weightedRecent = weightedSum / weightSum; 
-
+ 
 } 
 
-// ✅ Competition Gap 
-
- 
-
-const qualificationMatchesAll = sessions.filter( 
-
-  s => s.mode === "qualification" && s.completed 
-
-); 
-
- 
-
-const trainingMatchesAll = sessions.filter( 
-
-  s => s.mode === "training" && s.completed 
-
-); 
-
- 
-
-const qualificationMean = 
-
-  qualificationMatchesAll.length > 0 
-
-    ? qualificationMatchesAll.reduce( 
-
-        (sum, s) => sum + (s.totalResult ?? 0), 
-
-        0 
-
-      ) / qualificationMatchesAll.length 
-
-    : 0; 
-
- 
-
-const trainingMean = 
-
-  trainingMatchesAll.length > 0 
-
-    ? trainingMatchesAll.reduce( 
-
-        (sum, s) => sum + (s.totalResult ?? 0), 
-
-        0 
-
-      ) / trainingMatchesAll.length 
-
-    : 0; 
-
- 
-
-let competitionGap = 0; 
-
-let gapStatus = "Odličan transfer"; 
-
-let gapColor = "#4caf50"; 
-
- 
-
-if (competitionGap < -1.0) { 
-
-  gapStatus = "Značajan pad na takmičenju"; 
-
-  gapColor = "#e53935"; 
-
-} else if (competitionGap < -0.3) { 
-
-  gapStatus = "Blagi pad na takmičenju"; 
-
-  gapColor = "#ff7043"; 
-
-} else if (competitionGap > 1.0) { 
-
-  gapStatus = "Takmičenje bolje od treninga"; 
-
-  gapColor = "#4caf50"; 
-
-} 
- 
-
-if ( 
-
-  qualificationMatchesAll.length > 0 && 
-
-  trainingMatchesAll.length > 0 
-
-) { 
-
-  competitionGap = qualificationMean - trainingMean; 
-
-} 
 
 // ✅ Динамички bucket интервали 
 
@@ -1466,21 +1274,11 @@ function normalCDF(x: number) {
 
 // ✅ Предикција следећег резултата 
 
- 
 
-let predictedNext = 0; 
-
- 
 
 if (matchCount > 0) { 
 
-  predictedNext = 
-
-    0.6 * weightedRecent + 
-
-    0.4 * mean + 
-
-    slope; 
+ 
 
 } 
 
@@ -1494,199 +1292,8 @@ const lower95 = predictedNext - 2 * stdDev;
 
 const upper95 = predictedNext + 2 * stdDev; 
 
-// ✅ Performance Transfer Index (PTI) 
 
- 
 
-let pti = 0; 
-
-let ptiStatus = ""; 
-
-let ptiColor = "#aaa"; 
-
- 
-
-const hasQualification = qualificationMatchesAll.length > 0; 
-
-const hasTraining = trainingMatchesAll.length > 0; 
-
- 
-
-if (hasQualification && hasTraining) { 
-
- 
-
-  // 1️⃣ Gap score (основа) 
-
-  const gapScore = Math.max( 
-
-    0, 
-
-    1 - Math.abs(competitionGap) / 5 
-
-  ); 
-
- 
-
-  // 2️⃣ Stability score 
-
-  const stabilityScore = Math.max( 
-
-    0, 
-
-    1 - stdDev / 5 
-
-  ); 
-
- 
-
-  // 3️⃣ Series consistency score (ако постоји) 
-
-  const consistencyScore = 
-
-    analyticsMode === "training" 
-
-      ? Math.max(0, 1 - avgSeriesConsistency / 10) 
-
-      : 1; 
-
- 
-
-  // 4️⃣ Pressure score (ако постоји) 
-
-  const pressureScore = 
-
-    analyticsMode === "qualification" 
-
-      ? Math.max(0, 1 - Math.abs(pressureMean)) 
-
-      : 1; 
-
- 
-
-  // Комбиновани индекс 
-
-  pti = 
-
-    0.5 * gapScore + 
-
-    0.3 * stabilityScore + 
-
-    0.1 * consistencyScore + 
-
-    0.1 * pressureScore; 
-
- 
-
-  pti = Math.min(1, Math.max(0, pti)) * 100; 
-
- 
-
-  // Статус 
-
-  if (pti >= 80) { 
-
-    ptiStatus = "Odličan transfer"; 
-
-    ptiColor = "#4caf50"; 
-
-  } else if (pti >= 65) { 
-
-    ptiStatus = "Dobar transfer"; 
-
-    ptiColor = "#8bc34a"; 
-
-  } else if (pti >= 50) { 
-
-    ptiStatus = "Umeren transfer"; 
-
-    ptiColor = "#ff9800"; 
-
-  } else { 
-
-    ptiStatus = "Slab transfer"; 
-
-    ptiColor = "#e53935"; 
-
-  } 
-
-} 
-
-// ✅ Pearson correlation 
-
- 
-
-function pearsonCorrelation( 
-
-  x: number[], 
-
-  y: number[] 
-
-): number { 
-
-  if (x.length !== y.length || x.length === 0) { 
-
-    return 0; 
-
-  } 
-
- 
-
-  const n = x.length; 
-
- 
-
-  const meanX = 
-
-    x.reduce((a, b) => a + b, 0) / n; 
-
- 
-
-  const meanY = 
-
-    y.reduce((a, b) => a + b, 0) / n; 
-
- 
-
-  let numerator = 0; 
-
-  let denomX = 0; 
-
-  let denomY = 0; 
-
- 
-
-  for (let i = 0; i < n; i++) { 
-
-    const dx = x[i] - meanX; 
-
-    const dy = y[i] - meanY; 
-
- 
-
-    numerator += dx * dy; 
-
-    denomX += dx * dx; 
-
-    denomY += dy * dy; 
-
-  } 
-
- 
-
-  const denominator = 
-
-    Math.sqrt(denomX) * Math.sqrt(denomY); 
-
- 
-
-  if (denominator === 0) return 0; 
-
- 
-
-  return numerator / denominator; 
-
-} 
 
 // ✅ Correlation status 
 
@@ -2171,6 +1778,24 @@ if (stdDev > 0) {
   }} 
 
 > 
+
+<div> 
+
+  <StatusWithHelp 
+
+    label="Volatility Index" 
+
+    status={volatilityIndex.toFixed(2)} 
+
+    color={volatilityColor} 
+
+    description="Indikator nestabilnosti unutar meča. Niža vrednost označava veću stabilnost rezultata." 
+
+  /> 
+
+  <p>Status: {volatilityStatus}</p> 
+
+</div> 
 
   <h3 style={{ marginBottom: "10px" }}> 
 
