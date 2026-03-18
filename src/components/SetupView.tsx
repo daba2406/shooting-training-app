@@ -173,9 +173,9 @@ useEffect(() => {
 
       display: "grid", 
 
-      gridTemplateColumns: "1fr 1fr", 
+      gridTemplateColumns: "1.2fr 1fr", 
 
-      gap: "30px" 
+      gap: "40px" 
 
     }} 
 
@@ -183,272 +183,291 @@ useEffect(() => {
 
  
 
-    {/* LEVA STRANA – PODACI */} 
+   {/* LEVA STRANA */} 
 
-    <div> 
+<div 
 
- 
+  style={{ 
 
-      <h2 className="setup-subtitle"> 
+    display: "grid", 
 
-        Podaci o meču / treningu 
+    gridTemplateColumns: "1fr 1fr", 
 
-      </h2> 
+    gap: "20px" 
 
- 
-
-      <input 
-
-        type="text" 
-
-        placeholder="Naziv takmičenja" 
-
-        value={competitionName} 
-
-        onChange={(e) => setCompetitionName(e.target.value)} 
-
-      /> 
-
- 
-
-<select 
-
-  value={shooterName} 
-
-  onChange={(e) => setShooterName(e.target.value)} 
+  }} 
 
 > 
 
-  <option value="">Izaberi strelca</option> 
+ 
 
-  {shooters.map((shooter: { id: number; name: string }) => ( 
+  {/* ✅ BOX 1 – PODACI */} 
 
-    <option key={shooter.id} value={shooter.name}> 
+  <div className="setup-section"> 
 
-      {shooter.name} 
-
-    </option> 
-
-  ))} 
-
-</select> 
-
-<div style={{ marginTop: "10px", display: "flex", gap: "6px" }}> 
-
-  <input 
-
-    type="text" 
-
-    placeholder="Dodaj novog strelca" 
-
-    value={newShooterName} 
-
-    onChange={(e) => setNewShooterName(e.target.value)} 
-
-    style={{ flex: 1 }} 
-
-  /> 
+    <h3 className="section-title">Podaci o sesiji</h3> 
 
  
 
-  <button onClick={handleAddShooter}> 
+    <input 
 
-    Dodaj 
+      type="text" 
 
-  </button> 
+      placeholder="Naziv takmičenja" 
 
-</div> 
+      value={competitionName} 
 
-{manageShootersOpen && ( 
+      onChange={(e) => setCompetitionName(e.target.value)} 
 
-  <div 
+    /> 
 
-    style={{ 
+ 
 
-      marginTop: "12px", 
+    <select 
 
-      maxHeight: "200px", 
+      value={shooterName} 
 
-      overflowY: "auto", 
+      onChange={(e) => setShooterName(e.target.value)} 
 
-      border: "1px solid #333", 
+    > 
 
-      borderRadius: "8px", 
+      <option value="">Izaberi strelca</option> 
 
-      padding: "8px" 
+      {shooters.map((shooter: { id: number; name: string }) => ( 
 
-    }} 
+        <option key={shooter.id} value={shooter.name}> 
 
-  > 
+          {shooter.name} 
 
-    {shooters.map((shooter: { id: number; name: string }) => ( 
+        </option> 
+
+      ))} 
+
+    </select> 
+
+ 
+
+    {/* Upravljanje strelcima */} 
+
+    <button 
+
+      style={{ 
+
+        marginTop: "8px", 
+
+        background: "transparent", 
+
+        border: "1px solid #444", 
+
+        color: "#00ccff", 
+
+        borderRadius: "6px", 
+
+        padding: "4px 8px", 
+
+        cursor: "pointer", 
+
+        fontSize: "12px" 
+
+      }} 
+
+      onClick={() => setManageShootersOpen(!manageShootersOpen)} 
+
+    > 
+
+      {manageShootersOpen ? "Zatvori upravljanje" : "Uredi strelce"} 
+
+    </button> 
+
+ 
+
+    {manageShootersOpen && ( 
 
       <div 
 
-        key={shooter.id} 
-
         style={{ 
 
-          display: "flex", 
+          marginTop: "12px", 
 
-          justifyContent: "space-between", 
+          maxHeight: "180px", 
 
-          alignItems: "center", 
+          overflowY: "auto", 
 
-          marginBottom: "6px", 
+          border: "1px solid #333", 
 
-          padding: "6px", 
+          borderRadius: "8px", 
 
-          background: "#ffffff", 
-
-          borderRadius: "6px" 
+          padding: "8px" 
 
         }} 
 
       > 
 
-        <span>{shooter.name}</span> 
+        {shooters.map((shooter: { id: number; name: string }) => ( 
+
+          <div 
+
+            key={shooter.id} 
+
+            style={{ 
+
+              display: "flex", 
+
+              justifyContent: "space-between", 
+
+              alignItems: "center", 
+
+              marginBottom: "6px", 
+
+              padding: "6px", 
+
+              background: "#ffffff", 
+
+              borderRadius: "6px" 
+
+            }} 
+
+          > 
+
+            <span>{shooter.name}</span> 
 
  
 
-        <button 
+            <button 
 
-          onClick={() => handleDeleteShooter(shooter.id)} 
+              onClick={() => handleDeleteShooter(shooter.id)} 
 
-          style={{ 
+              style={{ 
 
-            background: "transparent", 
+                background: "transparent", 
 
-            color: "#ff5555", 
+                color: "#ff5555", 
 
-            border: "none", 
+                border: "none", 
 
-            cursor: "pointer", 
+                cursor: "pointer", 
 
-            fontWeight: "bold" 
+                fontWeight: "bold" 
 
-          }} 
+              }} 
 
-        > 
+            > 
 
-          ✕ 
+              ✕ 
 
-        </button> 
+            </button> 
+
+          </div> 
+
+        ))} 
+
+ 
+
+        {/* Dodavanje novog strelca */} 
+
+        <div style={{ marginTop: "10px", display: "flex", gap: "6px" }}> 
+
+          <input 
+
+            type="text" 
+
+            placeholder="Dodaj novog strelca" 
+
+            value={newShooterName} 
+
+            onChange={(e) => setNewShooterName(e.target.value)} 
+
+            style={{ flex: 1 }} 
+
+          /> 
+
+ 
+
+          <button onClick={handleAddShooter}> 
+
+            Dodaj 
+
+          </button> 
+
+        </div> 
 
       </div> 
 
-    ))} 
+    )} 
+
+ 
+
+    <input 
+
+      type="date" 
+
+      value={date} 
+
+      onChange={(e) => setDate(e.target.value)} 
+
+    /> 
+
+ 
+
+    <input 
+
+      type="text" 
+
+      placeholder="HH:MM" 
+
+      value={startTime} 
+
+      onChange={(e) => setStartTime(e.target.value)} 
+
+    /> 
 
   </div> 
 
-)} 
+ 
 
-<button 
+  {/* ✅ BOX 2 – TIP SESIJE */} 
 
-  style={{ 
+  <div className="setup-section"> 
 
-    marginTop: "8px", 
-
-    background: "transparent", 
-
-    border: "1px solid #444", 
-
-    color: "#00ccff", 
-
-    borderRadius: "6px", 
-
-    padding: "4px 8px", 
-
-    cursor: "pointer", 
-
-    fontSize: "12px" 
-
-  }} 
-
-  onClick={() => setManageShootersOpen(!manageShootersOpen)} 
-
-> 
-
-  {manageShootersOpen ? "Zatvori upravljanje" : "Uredi strelce"} 
-
-</button> 
-
-      <input 
-
-        type="date" 
-
-        value={date} 
-
-        onChange={(e) => setDate(e.target.value)} 
-
-      /> 
+    <h3 className="section-title">Tip sesije</h3> 
 
  
 
-      <input 
+    <div className="setup-buttons"> 
 
-        type="text" 
+      <button 
 
-        placeholder="HH:MM" 
+        className={mainMode === "training" ? "active-btn" : ""} 
 
-        value={startTime} 
+        onClick={() => setMainMode("training")} 
 
-        onChange={(e) => setStartTime(e.target.value)} 
+      > 
 
-        pattern="^([01]\d|2[0-3]):([0-5]\d)$" 
+        Trening 
 
-        inputMode="numeric" 
-
-        maxLength={5} 
-
-        style={{ 
-
-          width: "90px", 
-
-          textAlign: "center", 
-
-          letterSpacing: "1px" 
-
-        }} 
-
-      /> 
-
- <div className="setup-buttons"> 
+      </button> 
 
  
 
-        <button 
+      <button 
 
-          className={mainMode === "training" ? "active-btn" : ""} 
+        className={mainMode === "competition" ? "active-btn" : ""} 
 
-          onClick={() => setMainMode("training")} 
+        onClick={() => setMainMode("competition")} 
 
-        > 
+      > 
 
-          Trening 
+        Takmičenje 
 
-        </button> 
-
- 
-
-        <button 
-
-          className={mainMode === "competition" ? "active-btn" : ""} 
-
-          onClick={() => setMainMode("competition")} 
-
-        > 
-
-          Takmičenje 
-
-        </button> 
-
- 
-
-      </div> 
-
+      </button> 
 
     </div> 
+
+  </div> 
+
+ 
+
+</div> 
 
  
 
@@ -459,7 +478,7 @@ useEffect(() => {
 
   style={{ 
 
-    minHeight: "400px"   // ✅ прилагоди ако треба 
+    minHeight: "450px"   // ✅ прилагоди ако треба 
 
   }} 
 
