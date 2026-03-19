@@ -4,6 +4,7 @@ import { usePressureAnalysis } from "../analytics/usePressureAnalysis";
 import { useMeanRadiusAnalysis } from "../analytics/useMeanRadiusAnalysis";
 import { useVolatilityIndex } from "../analytics/useVolatilityIndex";
 import { useTransferMetrics } from "../analytics/useTransferMetrics";
+import { useRecoveryScore } from "../analytics/useRecoveryScore";
 import { useState} from "react";
 
 import { 
@@ -332,7 +333,7 @@ if (!matchStats) {
 
 } 
 
- 
+
 
 const { 
 
@@ -351,7 +352,95 @@ const {
 
 } = matchStats; 
 
+const recoveryData = useRecoveryScore(sessions); 
 
+ 
+
+const { 
+
+  recoveryTraining, 
+
+  recoveryQualification, 
+
+  // trainingImmediate, 
+
+  qualificationImmediate, 
+
+  // trainingDepth, 
+
+  qualificationDepth 
+
+} = recoveryData; 
+
+  // ✅ Recovery Status – Training 
+
+let recoveryTrainingStatus = "Nema podataka"; 
+
+let recoveryTrainingColor = "#aaa"; 
+
+ 
+
+if (recoveryTraining >= 90) { 
+
+  recoveryTrainingStatus = "Elite Recovery"; 
+
+  recoveryTrainingColor = "#4caf50"; 
+
+} else if (recoveryTraining >= 75) { 
+
+  recoveryTrainingStatus = "Stabilan reset"; 
+
+  recoveryTrainingColor = "#8bc34a"; 
+
+} else if (recoveryTraining >= 60) { 
+
+  recoveryTrainingStatus = "Produžen pad"; 
+
+  recoveryTrainingColor = "#ff9800"; 
+
+} else if (recoveryTraining > 0) { 
+
+  recoveryTrainingStatus = "Serijski pad"; 
+
+  recoveryTrainingColor = "#e53935"; 
+
+} 
+
+ 
+
+// ✅ Recovery Status – Qualification 
+
+let recoveryQualificationStatus = "Nema podataka"; 
+
+let recoveryQualificationColor = "#aaa"; 
+
+ 
+
+if (recoveryQualification >= 90) { 
+
+  recoveryQualificationStatus = "Elite Recovery"; 
+
+  recoveryQualificationColor = "#4caf50"; 
+
+} else if (recoveryQualification >= 75) { 
+
+  recoveryQualificationStatus = "Stabilan reset"; 
+
+  recoveryQualificationColor = "#8bc34a"; 
+
+} else if (recoveryQualification >= 60) { 
+
+  recoveryQualificationStatus = "Produžen pad"; 
+
+  recoveryQualificationColor = "#ff9800"; 
+
+} else if (recoveryQualification > 0) { 
+
+  recoveryQualificationStatus = "Serijski pad"; 
+
+  recoveryQualificationColor = "#e53935"; 
+
+} 
 
 // ✅ Performance Transfer Index (PTI) 
 
@@ -1794,6 +1883,70 @@ if (stdDev > 0) {
   /> 
 
   <p>Status: {volatilityStatus}</p> 
+
+</div> 
+
+<div style={{ marginTop: "20px" }}> 
+
+  <h3 style={{ marginBottom: "10px" }}> 
+
+    🧠 Mental Performance 
+
+  </h3> 
+
+ 
+
+  <div style={{ marginBottom: "10px" }}> 
+
+    <StatusWithHelp 
+
+      label={`Recovery – Training (${recoveryTraining.toFixed(1)})`} 
+
+      status={recoveryTrainingStatus} 
+
+      color={recoveryTrainingColor} 
+
+      description="Recovery Score meri koliko brzo se strelac oporavlja nakon pada ispod dinamičkog praga. Viša vrednost znači brži i stabilniji mentalni reset." 
+
+    /> 
+
+  </div> 
+
+ 
+
+  <div> 
+
+    <StatusWithHelp 
+
+      label={`Recovery – Qualification (${recoveryQualification.toFixed(1)})`} 
+
+      status={recoveryQualificationStatus} 
+
+      color={recoveryQualificationColor} 
+
+      description="Recovery Score meri sposobnost mentalnog oporavka tokom takmičenja nakon pada performanse." 
+
+    /> 
+
+    <div style={{ marginTop: "8px", fontSize: "13px", color: "#ccc" }}> 
+
+  <div> 
+
+    Immediate Recovery: {qualificationImmediate.toFixed(1)}% 
+
+  </div> 
+
+ 
+
+  <div> 
+
+    Avg Recovery Depth: {qualificationDepth.toFixed(1)} 
+
+  </div> 
+
+</div> 
+
+  </div> 
 
 </div> 
 
