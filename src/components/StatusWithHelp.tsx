@@ -36,17 +36,33 @@ export default function StatusWithHelp({
 
     <div style={{ position: "relative", marginTop: "4px" }}> 
 
-      <span style={{ marginRight: "6px" }}> 
+ 
 
-        {label}: 
+      {/* Label */} 
 
-      </span> 
+      <div style={{ fontSize: "14px" }}> 
+
+        {label} 
+
+      </div> 
 
  
 
-      <span 
+      {/* Status */} 
 
-        style={{ color, fontWeight: 600, cursor: "help" }} 
+      <div 
+
+        style={{ 
+
+          color, 
+
+          fontWeight: 600, 
+
+          cursor: "help", 
+
+          marginTop: "2px" 
+
+        }} 
 
         onMouseEnter={() => setHover(true)} 
 
@@ -56,9 +72,11 @@ export default function StatusWithHelp({
 
         {status} 
 
-      </span> 
+      </div> 
 
  
+
+      {/* Tooltip */} 
 
       {hover && ( 
 
@@ -97,6 +115,8 @@ export default function StatusWithHelp({
         </div> 
 
       )} 
+
+ 
 
     </div> 
 

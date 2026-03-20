@@ -1872,7 +1872,7 @@ if (stdDev > 0) {
 
   <h3 style={{ marginBottom: "10px" }}> 
 
-    Pressure Index 
+    Clossing Performance 
 
   </h3> 
 
@@ -1888,7 +1888,7 @@ if (stdDev > 0) {
 
   color={pressureColor} 
 
-  description="Pressure Index meri razliku između prve i druge polovine meča. Negativna vrednost znači pad pod pritiskom, pozitivna znači jači završetak." 
+  description="Closing Performance meri razliku između prvih 15 i poslednjih 15 hitaca. Pozitivna vrednost znači jači završetak, negativna znači pad u završnom segmentu." 
 
 /> 
 
@@ -1906,7 +1906,7 @@ if (stdDev > 0) {
 
 <div> 
 
-  Najbolji završetak: +{pressureBest.toFixed(2)} 
+  Najveći rast u završnici: +{pressureBest.toFixed(2)} 
 
 </div> 
 
@@ -1914,7 +1914,7 @@ if (stdDev > 0) {
 
 <div style={{ marginBottom: "10px" }}> 
 
-  Najveći pad: {pressureWorst.toFixed(2)} 
+  Najveći pad u završnici: {pressureWorst.toFixed(2)} 
 
 </div> 
 </>
@@ -1966,9 +1966,23 @@ if (stdDev > 0) {
 
   </h3> 
 
- 
+ <div 
 
-  <div style={{ marginBottom: "10px" }}> 
+  style={{ 
+
+    display: "grid", 
+
+    gridTemplateColumns: "1fr 1fr", 
+
+    gap: "20px", 
+
+    marginTop: "15px" 
+
+  }} 
+
+> 
+
+  <div className="mental-card"> 
 
     <StatusWithHelp 
 
@@ -1986,7 +2000,7 @@ if (stdDev > 0) {
 
  
 
-  <div> 
+  <div className="mental-card"> 
 
     <StatusWithHelp 
 
@@ -2000,7 +2014,7 @@ if (stdDev > 0) {
 
     /> 
 
-    <div style={{ marginTop: "8px", fontSize: "13px", color: "#ccc" }}> 
+    <div className="mental-details"> 
 
   <div> 
 
@@ -2016,22 +2030,54 @@ if (stdDev > 0) {
 
   </div> 
 
-  <div> 
+  <StatusWithHelp 
 
-  Cascade Rate: {qualificationCascade.toFixed(1)}% 
+  label={`Cascade (${qualificationCascade.toFixed(1)}%)`} 
 
-</div> 
+  status={cascadeStatus} 
 
- 
+  color={cascadeColor} 
 
-<div style={{ color: cascadeColor }}> 
+  description="Cascade Index pokazuje procenat padova performanse koji su praćeni nizom od dva ili više uzastopnih slabijih hitaca. Viši procenat znači veću verovatnoću emocionalne spirale." 
 
-  Status: {cascadeStatus} 
-
-</div> 
+/> 
 
 </div> 
 
+
+</div>
+
+<div className="mental-card"> 
+
+  <StatusWithHelp 
+
+    label={`Tempo (${qualificationTempoZ.toFixed(2)})`} 
+
+    status={tempoStatus} 
+
+    color={tempoColor} 
+
+    description="Reakcija tempa nakon pada performanse (Z-score)." 
+
+  /> 
+
+</div> 
+
+<div className="mental-card"> 
+
+  <StatusWithHelp 
+
+    label={`Fatigue (${qualificationDrift.toFixed(2)})`} 
+
+    status={fatigueStatus} 
+
+    color={fatigueColor} 
+
+    description="Fatigue Drift pokazuje promenu performanse između prve i druge polovine meča. Negativna vrednost znači pad, pozitivna rast kroz meč." 
+
+  /> 
+
+</div> 
   </div> 
 
 </div> 
@@ -2487,82 +2533,21 @@ if (stdDev > 0) {
 
  <div style={{ marginTop: "15px" }}> 
 
-  <h4 style={{ marginBottom: "6px" }}> 
-
-    Mentalna reakcija tempa nakon pada 
-
-  </h4> 
-
- 
-
-  <div> 
-
-    Avg Tempo Change: {qualificationTempoZ.toFixed(2)} s 
-
-  </div> 
-
- 
-
-  <div style={{ color: tempoColor, marginTop: "6px", marginBottom: "15px" }}> 
-
-    Status: {tempoStatus} 
-
-  </div> 
+  
 
 </div> 
 
-<div style={{ marginTop: "15px", marginBottom: "15px" }}> 
 
-  <StatusWithHelp 
+<StatusWithHelp 
 
-    label={`Fatigue Drift (${(qualificationDrift ?? 0).toFixed(2)})`} 
+  label={`Pearson r = ${pearsonR.toFixed(3)}`} 
 
-    status={fatigueStatus} 
+  status={correlationStrength} 
 
-    color={fatigueColor} 
+  color={correlationColor} 
 
-    description="Fatigue Drift pokazuje promenu performanse između prve i druge polovine meča. Negativna vrednost znači pad, pozitivna rast kroz meč." 
-
-  /> 
-
-</div> 
-
-  <div 
-
-    style={{ 
-
-      fontSize: "1.2rem", 
-
-      fontWeight: 600, 
-
-      color: correlationColor, 
-
-      marginBottom: "6px" 
-
-    }} 
-
-  > 
-
-    Pearson r = {pearsonR.toFixed(3)} 
-
-  </div> 
-
- 
-
-  <div style={{ marginBottom: "6px", color: "#ccc" }}> 
-
-    {correlationStrength} 
-
-  </div> 
-
- 
-
-  <div style={{ marginBottom: "6px", color: "#ccc" }}> 
-
-    {correlationDirection} 
-
-  </div> 
-
+  description={`Pearson korelacija pokazuje povezanost između vremena opaljenja i rezultata. ${correlationDirection}`} 
+/> 
  
 
   <div style={{ color: "#aaa", fontSize: "0.9rem" }}> 

@@ -52,41 +52,35 @@ export const usePressureAnalysis = (
 
       // ✅ Mora imati barem 60 hitaca (standard match) 
 
-      if (allShots.length < 60) { 
+if (allShots.length < 30) { 
 
-        return; 
+  return; 
 
-      } 
-
- 
-
-      const first30 = allShots 
-
-        .slice(0, 30) 
-
-        .reduce((sum: number, shot: any) => { 
-
-          return sum + (shot.value ?? 0); 
-
-        }, 0); 
+} 
 
  
 
-      const last30 = allShots 
+const firstSegment = allShots.slice(0, 15); 
 
-        .slice(30, 60) 
-
-        .reduce((sum: number, shot: any) => { 
-
-          return sum + (shot.value ?? 0); 
-
-        }, 0); 
+const lastSegment = allShots.slice(-15); 
 
  
 
-      // ✅ IDENTIČNO STAROJ LOGICI 
+const mean = (shots: any[]) => 
 
-      const diffPerShot = (last30 - first30) / 30; 
+  shots.reduce((sum: number, s: any) => sum + (s.value ?? 0), 0) / 
+
+  shots.length; 
+
+ 
+
+const firstMean = mean(firstSegment); 
+
+const lastMean = mean(lastSegment); 
+
+ 
+
+const diffPerShot = lastMean - firstMean; 
 
  
 
