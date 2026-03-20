@@ -1395,3 +1395,28 @@ div:hover > .heatmap-tooltip {
  
 
 } 
+.mental-card { 
+
+  background: #202020; 
+
+  padding: 14px; 
+
+  border-radius: 10px; 
+
+  border: 1px solid #2e2e2e; 
+
+} 
+
+ 
+
+.mental-details { 
+
+  margin-top: 8px; 
+
+  font-size: 13px; 
+
+  color: #ccc; 
+
+  line-height: 1.6; 
+
+} 

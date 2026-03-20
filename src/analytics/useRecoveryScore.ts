@@ -14,6 +14,10 @@ interface RecoveryResult {
 
   avgDepth: number; 
 
+  avgTempoZ: number; 
+
+  cascadeRate: number; 
+
 } 
 
  
@@ -86,6 +90,12 @@ export const useRecoveryScore = (
 
       let totalRecoveryDepth = 0; 
 
+      let totalTempoChange = 0; 
+
+      let tempoEventCount = 0; 
+
+      let cascadeCount = 0; 
+
  
 
       for (let i = 0; i < allShots.length - 2; i++) { 
@@ -118,6 +128,30 @@ export const useRecoveryScore = (
 
  
 
+          // ✅ Tempo change 
+
+          if ( 
+
+            typeof currentShot.shotTime === "number" && 
+
+            typeof nextShot.shotTime === "number" 
+
+          ) { 
+
+            const tempoChange = 
+
+              nextShot.shotTime - currentShot.shotTime; 
+
+ 
+
+            totalTempoChange += tempoChange; 
+
+            tempoEventCount++; 
+
+          } 
+
+ 
+
           // ✅ Recovery depth 
 
           let depth = 0; 
@@ -142,6 +176,14 @@ export const useRecoveryScore = (
 
           totalRecoveryDepth += depth; 
 
+ 
+
+          if (depth >= 2) { 
+
+            cascadeCount++; 
+
+          } 
+
         } 
 
       } 
@@ -158,7 +200,11 @@ export const useRecoveryScore = (
 
           immediatePercent: 100, 
 
-          avgDepth: 0 
+          avgDepth: 0, 
+
+          avgTempoZ: 0, 
+
+          cascadeRate: 0 
 
         }; 
 
@@ -175,6 +221,76 @@ export const useRecoveryScore = (
       const avgDepth = 
 
         totalRecoveryDepth / dropCount; 
+
+ 
+
+      const avgTempoChange = 
+
+        tempoEventCount > 0 
+
+          ? totalTempoChange / tempoEventCount 
+
+          : 0; 
+
+ 
+
+      // ✅ Session tempo std dev 
+
+      const tempoValues = allShots 
+
+        .map(shot => shot.shotTime) 
+
+        .filter((v): v is number => typeof v === "number"); 
+
+ 
+
+      let tempoStdDev = 0; 
+
+ 
+
+      if (tempoValues.length > 1) { 
+
+        const tempoMean = 
+
+          tempoValues.reduce((a, b) => a + b, 0) / 
+
+          tempoValues.length; 
+
+ 
+
+        const tempoVariance = 
+
+          tempoValues.reduce( 
+
+            (sum, value) => 
+
+              sum + Math.pow(value - tempoMean, 2), 
+
+            0 
+
+          ) / tempoValues.length; 
+
+ 
+
+        tempoStdDev = Math.sqrt(tempoVariance); 
+
+      } 
+
+ 
+
+      const avgTempoZ = 
+
+        tempoStdDev > 0 
+
+          ? avgTempoChange / tempoStdDev 
+
+          : 0; 
+
+ 
+
+      const cascadeRate = 
+
+        (cascadeCount / dropCount) * 100; 
 
  
 
@@ -196,7 +312,11 @@ export const useRecoveryScore = (
 
         immediatePercent: recoveryPercent, 
 
-        avgDepth 
+        avgDepth, 
+
+        avgTempoZ, 
+
+        cascadeRate 
 
       }; 
 
@@ -256,7 +376,7 @@ export const useRecoveryScore = (
 
               arr.length 
 
-            ).toFixed(1) 
+            ).toFixed(2) 
 
           ) 
 
@@ -312,6 +432,38 @@ export const useRecoveryScore = (
 
  
 
+    const trainingTempoZ = calculateAverage( 
+
+      trainingResults.map(r => r.avgTempoZ) 
+
+    ); 
+
+ 
+
+    const qualificationTempoZ = calculateAverage( 
+
+      qualificationResults.map(r => r.avgTempoZ) 
+
+    ); 
+
+ 
+
+    const trainingCascade = calculateAverage( 
+
+      trainingResults.map(r => r.cascadeRate) 
+
+    ); 
+
+ 
+
+    const qualificationCascade = calculateAverage( 
+
+      qualificationResults.map(r => r.cascadeRate) 
+
+    ); 
+
+ 
+
     return { 
 
       recoveryTraining, 
@@ -324,7 +476,15 @@ export const useRecoveryScore = (
 
       trainingDepth, 
 
-      qualificationDepth 
+      qualificationDepth, 
+
+      trainingTempoZ, 
+
+      qualificationTempoZ, 
+
+      trainingCascade, 
+
+      qualificationCascade 
 
     }; 
 

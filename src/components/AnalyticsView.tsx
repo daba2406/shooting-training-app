@@ -5,6 +5,7 @@ import { useMeanRadiusAnalysis } from "../analytics/useMeanRadiusAnalysis";
 import { useVolatilityIndex } from "../analytics/useVolatilityIndex";
 import { useTransferMetrics } from "../analytics/useTransferMetrics";
 import { useRecoveryScore } from "../analytics/useRecoveryScore";
+import { useFatigueDrift } from "../analytics/useFatigueDrift";
 import { useState} from "react";
 
 import { 
@@ -353,6 +354,7 @@ const {
 } = matchStats; 
 
 const recoveryData = useRecoveryScore(sessions); 
+const { qualificationDrift } = useFatigueDrift(sessions); 
 
  
 
@@ -368,9 +370,33 @@ const {
 
   // trainingDepth, 
 
-  qualificationDepth 
+  qualificationDepth,
+  
+  qualificationTempoZ,
+
+  qualificationCascade
 
 } = recoveryData; 
+
+let tempoStatus = "Stabilan tempo"; 
+
+let tempoColor = "#4caf50"; 
+
+ 
+
+if (qualificationTempoZ > 0.5) { 
+
+  tempoStatus = "Produžavanje nakon greške"; 
+
+  tempoColor = "#ff9800"; 
+
+} else if (qualificationTempoZ < -0.5) { 
+
+  tempoStatus = "Ubrzavanje nakon greške"; 
+
+  tempoColor = "#e53935"; 
+
+} 
 
   // ✅ Recovery Status – Training 
 
@@ -439,6 +465,52 @@ if (recoveryQualification >= 90) {
   recoveryQualificationStatus = "Serijski pad"; 
 
   recoveryQualificationColor = "#e53935"; 
+
+} 
+
+let fatigueStatus = "Stabilan završetak"; 
+
+let fatigueColor = "#4caf50"; 
+
+ 
+
+if ((qualificationDrift ?? 0) < -0.3)  { 
+
+  fatigueStatus = "Pad kroz meč"; 
+
+  fatigueColor = "#e53935"; 
+
+} else if ((qualificationDrift ?? 0) > 0.3)  { 
+
+  fatigueStatus = "Rast kroz meč"; 
+
+  fatigueColor = "#8bc34a"; 
+
+} 
+
+let cascadeStatus = "Bez kaskade"; 
+
+let cascadeColor = "#4caf50"; 
+
+ 
+
+if (qualificationCascade > 40) { 
+
+  cascadeStatus = "Serijski pad"; 
+
+  cascadeColor = "#e53935"; 
+
+} else if (qualificationCascade > 25) { 
+
+  cascadeStatus = "Umerena kaskada"; 
+
+  cascadeColor = "#ff9800"; 
+
+} else if (qualificationCascade > 10) { 
+
+  cascadeStatus = "Blaga kaskada"; 
+
+  cascadeColor = "#fbc02d"; 
 
 } 
 
@@ -1944,6 +2016,20 @@ if (stdDev > 0) {
 
   </div> 
 
+  <div> 
+
+  Cascade Rate: {qualificationCascade.toFixed(1)}% 
+
+</div> 
+
+ 
+
+<div style={{ color: cascadeColor }}> 
+
+  Status: {cascadeStatus} 
+
+</div> 
+
 </div> 
 
   </div> 
@@ -2399,7 +2485,47 @@ if (stdDev > 0) {
 
   </div> 
 
+ <div style={{ marginTop: "15px" }}> 
+
+  <h4 style={{ marginBottom: "6px" }}> 
+
+    Mentalna reakcija tempa nakon pada 
+
+  </h4> 
+
  
+
+  <div> 
+
+    Avg Tempo Change: {qualificationTempoZ.toFixed(2)} s 
+
+  </div> 
+
+ 
+
+  <div style={{ color: tempoColor, marginTop: "6px", marginBottom: "15px" }}> 
+
+    Status: {tempoStatus} 
+
+  </div> 
+
+</div> 
+
+<div style={{ marginTop: "15px", marginBottom: "15px" }}> 
+
+  <StatusWithHelp 
+
+    label={`Fatigue Drift (${(qualificationDrift ?? 0).toFixed(2)})`} 
+
+    status={fatigueStatus} 
+
+    color={fatigueColor} 
+
+    description="Fatigue Drift pokazuje promenu performanse između prve i druge polovine meča. Negativna vrednost znači pad, pozitivna rast kroz meč." 
+
+  /> 
+
+</div> 
 
   <div 
 
