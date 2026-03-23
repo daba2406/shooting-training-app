@@ -6,6 +6,8 @@ import { useVolatilityIndex } from "../analytics/useVolatilityIndex";
 import { useTransferMetrics } from "../analytics/useTransferMetrics";
 import { useRecoveryScore } from "../analytics/useRecoveryScore";
 import { useFatigueDrift } from "../analytics/useFatigueDrift";
+import { useFocusStability } from "../analytics/useFocusStability";
+import { generateCoachingInsight } from "../analytics/useCoachingInsight";
 import { useState} from "react";
 
 import { 
@@ -160,6 +162,28 @@ export default function AnalyticsView({ sessions, onBack }: Props) {
   "qualification" | "training" 
 
 >("qualification"); 
+const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null); 
+const availableSessions = sessions 
+
+  .filter( 
+
+    s => 
+
+      s.mode === analyticsMode && 
+
+      s.completed 
+
+  ) 
+
+  .sort( 
+
+    (a, b) => 
+
+      new Date(b.date).getTime() - 
+
+      new Date(a.date).getTime() 
+
+  ); 
 
     // ✅ Филтрирамо само завршене qualification мечеве 
 
@@ -353,10 +377,20 @@ const {
 
 } = matchStats; 
 
-const recoveryData = useRecoveryScore(sessions); 
-const { qualificationDrift } = useFatigueDrift(sessions); 
+const focusSessions = 
 
- 
+  selectedSessionId === null 
+
+    ? sessions 
+
+    : sessions.filter(s => s.id === selectedSessionId); 
+
+const recoveryData = useRecoveryScore(focusSessions); 
+const { qualificationDrift } = useFatigueDrift(focusSessions); 
+
+const { qualificationFocus, trainingFocus } = 
+
+  useFocusStability(focusSessions); 
 
 const { 
 
@@ -377,6 +411,32 @@ const {
   qualificationCascade
 
 } = recoveryData; 
+
+const mentalProfile = { 
+
+  recovery: recoveryQualification, 
+
+  cascade: qualificationCascade, 
+
+  tempoZ: qualificationTempoZ, 
+
+  fatigue: qualificationDrift, 
+
+  focus: qualificationFocus, 
+
+  closing: pressureMean, 
+
+  trend: slope, 
+
+  meanRadius: meanRadiusAverage, 
+
+  volatility: volatilityIndex 
+
+}; 
+
+
+const coaching = generateCoachingInsight(mentalProfile); 
+
 
 let tempoStatus = "Stabilan tempo"; 
 
@@ -1518,6 +1578,36 @@ if (stdDev > 0) {
 
 } 
 
+const currentFocus = 
+
+  analyticsMode === "qualification" 
+
+    ? qualificationFocus 
+
+    : trainingFocus; 
+
+ 
+
+let focusStatus = "Stabilan fokus"; 
+
+let focusColor = "#4caf50"; 
+
+ 
+
+if (currentFocus > 0.35) { 
+
+  focusStatus = "Mikro nestabilnost"; 
+
+  focusColor = "#ff9800"; 
+
+} else if (currentFocus > 0.5) { 
+
+  focusStatus = "Povećana oscilacija"; 
+
+  focusColor = "#e53935"; 
+
+} 
+
   return ( 
 
     <div className="app-container"
@@ -1636,7 +1726,53 @@ if (stdDev > 0) {
 
   </div> 
 
+ <div style={{ marginLeft: "auto" }}> 
+
+  <label style={{ marginRight: "6px" }}> 
+
+    Analiza: 
+
+  </label> 
+
  
+
+  <select 
+
+    value={selectedSessionId ?? ""} 
+
+    onChange={(e) => 
+
+      setSelectedSessionId( 
+
+        e.target.value === "" ? null : e.target.value 
+
+      ) 
+
+    } 
+
+  > 
+
+    <option value=""> 
+
+      Svi mečevi 
+
+    </option> 
+
+ 
+
+    {availableSessions.map(session => ( 
+
+      <option key={session.id} value={session.id}> 
+
+        {new Date(session.date).toLocaleDateString()} – {session.competitionName ?? "Trening"} 
+
+      </option> 
+
+    ))} 
+
+  </select> 
+
+</div> 
 
   <button 
 
@@ -1895,7 +2031,6 @@ if (stdDev > 0) {
 </div> 
 
  
-
 <div> 
 
   Prosečan: {pressureMean.toFixed(2)} 
@@ -1917,10 +2052,27 @@ if (stdDev > 0) {
   Najveći pad u završnici: {pressureWorst.toFixed(2)} 
 
 </div> 
+
+<div style={{ marginBottom: "10px" }}> 
+
+  <StatusWithHelp 
+
+    label={`Focus Stability (${currentFocus.toFixed(2)})`} 
+
+    status={focusStatus} 
+
+    color={focusColor} 
+
+    description="Rolling standardna devijacija (5-hitac prozor) koja meri mikro stabilnost fokusa kroz meč." 
+
+  /> 
+
+</div> 
 </>
 )}
 
 </div>
+
 
 <div 
 
@@ -2078,6 +2230,59 @@ if (stdDev > 0) {
   /> 
 
 </div> 
+
+  </div> 
+
+</div> 
+
+<div style={{ marginTop: "25px" }}> 
+
+  <h3 style={{ marginBottom: "10px" }}> 
+
+    🎯 Coaching Insight 
+
+  </h3> 
+
+ 
+
+  <div 
+
+    style={{ 
+
+      background: "#1e1e1e", 
+
+      padding: "14px", 
+
+      borderRadius: "8px", 
+
+      fontSize: "14px", 
+
+      lineHeight: "1.6", 
+
+      color: "#ccc" 
+
+    }} 
+
+  > 
+
+    <strong>Insight:</strong> 
+
+    <div style={{ marginTop: "6px", marginBottom: "12px" }}> 
+
+      {coaching.insight} 
+
+    </div> 
+
+ 
+
+    <strong>Preporuka:</strong> 
+
+    <div style={{ marginTop: "6px" }}> 
+
+      {coaching.recommendation} 
+
+    </div> 
+
   </div> 
 
 </div> 
