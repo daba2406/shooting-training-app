@@ -2281,9 +2281,47 @@ if (currentFocus > 0.35) {
 
       {coaching.recommendation} 
 
+    
+    
     </div> 
 
+
   </div> 
+<div style={{ marginTop: "20px" }}> 
+
+  <h3 style={{ marginBottom: "10px" }}> 
+
+    🧭 Composite Coaching Summary 
+
+  </h3> 
+
+ 
+
+  <div 
+
+    style={{ 
+
+      background: "#202020", 
+
+      padding: "14px", 
+
+      borderRadius: "8px", 
+
+      fontSize: "14px", 
+
+      lineHeight: "1.6", 
+
+      color: "#ddd" 
+
+    }} 
+
+  > 
+
+    {coaching.composite} 
+
+  </div> 
+
+</div> 
 
 </div> 
 

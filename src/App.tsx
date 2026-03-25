@@ -23,7 +23,7 @@ import AnalyticsView from "./components/AnalyticsView";
 
 import BasicTrainingView from "./components/BasicTrainingView";
 
- 
+import { useLiveMentalSignals } from "./analytics/useLiveMentalSignals";
 
 export default function App() { 
  const QUALIFICATION_TIME_LIMIT = 75 * 60; //sekunde
@@ -83,6 +83,9 @@ useEffect(() => {
   } 
 
 }, []); 
+
+const liveSignal = useLiveMentalSignals(activeSessionState);
+
 
 const [historyStack, setHistoryStack] = useState<ShootingSession[]>([]); 
 const [redoStack, setRedoStack] = useState<ShootingSession[]>([]); 
@@ -2932,6 +2935,50 @@ onBack={() => setView("setup")}
 )} 
 
          <div className="top-controls"> 
+
+  {liveSignal.type && ( 
+
+  <div 
+
+    style={{ 
+
+      position: "absolute", 
+
+      top: "10px", 
+
+      right: "20px", 
+
+background: 
+
+  liveSignal.severity === "high" 
+
+    ? "#e53935"      // crvena 
+
+    : liveSignal.severity === "medium" 
+
+    ? "#ff9800"      // narandžasta 
+
+    : "#fbc02d",     // žuta za low 
+
+      padding: "6px 12px", 
+
+      borderRadius: "6px", 
+
+      fontSize: "12px", 
+
+      color: "white", 
+
+      zIndex: 1000 
+
+    }} 
+
+  > 
+
+    {liveSignal.message} 
+
+  </div> 
+
+)} 
 
  
 
