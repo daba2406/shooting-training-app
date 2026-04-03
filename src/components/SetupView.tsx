@@ -189,6 +189,27 @@ export default function SetupView({
   return ( 
 
     <div className="setup-container"> 
+    <div className="axiom-header"> 
+
+  <h1 className="axiom-title"> 
+
+    A<span className="axiom-x">X</span>IOM 
+
+  </h1> 
+
+  <div className="axiom-tagline"> 
+
+    Precision Intelligence. 
+
+  </div> 
+
+  <div className="axiom-subtitle"> 
+
+    Shooting Performance Analytics, Risk & Knowledge 
+
+  </div> 
+
+</div> 
 
       <div className="setup-card redesigned-layout"> 
 

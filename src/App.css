@@ -569,17 +569,19 @@ html, body, #root {
 
 .setup-container { 
 
-  min-height: 100vh; 
+  height: 100vh; 
 
   background: linear-gradient(135deg, #111, #1c1c1c); 
 
   display: flex; 
-  flex-direction: column;
 
-  justify-content: center; 
+  flex-direction: column; 
 
   align-items: center; 
-  padding: 20px 0;
+
+  justify-content: flex-start; 
+
+  overflow: hidden; 
 
 } 
 
@@ -1299,7 +1301,7 @@ html, body, #root {
 
     @bottom-center { 
 
-      content: "Strana " counter(page); 
+      content: "AXIOM | Precision Intelligance - Strana " counter(page); 
 
       font-size: 12px; 
 
@@ -2196,5 +2198,135 @@ div:hover > .heatmap-tooltip {
 
   color: #00ccff;   /* ✅ ista plava kao ostali naslovi */ 
   text-align: left;
+
+} 
+.axiom-header { 
+
+  text-align: center; 
+
+  padding-top: 35px; 
+
+  margin-bottom: 18px; 
+
+}  
+
+ 
+
+.axiom-title { 
+
+  margin-top: 10px;
+  margin: 0; 
+
+  font-size: 36px; 
+
+  font-weight: 800; 
+
+  letter-spacing: 6px; 
+
+  color: #e0e0e0; 
+
+} 
+
+ 
+
+/* Stylized X */ 
+
+.axiom-x { 
+
+  font-size: 48px; 
+
+  background: linear-gradient( 
+
+    145deg, 
+
+    #ffffff 0%, 
+
+    #cfd8dc 25%, 
+
+    #90a4ae 50%, 
+
+    #cfd8dc 75%, 
+
+    #ffffff 100% 
+
+  ); 
+
+  background-clip: text;              /* ✅ dodato */ 
+
+  -webkit-background-clip: text; 
+
+  color: transparent;                 /* ✅ modern standard */ 
+
+  -webkit-text-fill-color: transparent; 
+
+  position: relative; 
+
+} 
+
+ 
+
+
+ 
+
+.axiom-tagline { 
+
+  margin-top: 6px; 
+
+  font-size: 16px; 
+
+  color: #00ccff; 
+
+  letter-spacing: 2px; 
+
+} 
+
+ 
+
+.axiom-subtitle { 
+
+  margin-top: 10px; 
+
+  font-size: 13px; 
+
+  color: #9e9e9e; 
+
+  letter-spacing: 1px; 
+
+} 
+.app-topbar { 
+
+  display: flex; 
+
+  align-items: center; 
+
+  margin-bottom: 5px; 
+
+} 
+
+ 
+
+.app-topbar-brand { 
+
+  font-size: 18px; 
+
+  font-weight: 700; 
+
+  letter-spacing: 2px; 
+
+  color: #434343; 
+
+} 
+
+ 
+
+.app-topbar-tagline { 
+
+  font-weight: 400; 
+
+  font-size: 14px; 
+
+  color: #00ccff; 
+
+  letter-spacing: 1px; 
 
 } 

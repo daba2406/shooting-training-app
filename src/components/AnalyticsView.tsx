@@ -1650,6 +1650,7 @@ if (currentFocus > 0.35) {
 
   return ( 
 
+
     <div className="app-container"
     style={{ overflowY: "auto"}}> 
 
@@ -1673,6 +1674,29 @@ if (currentFocus > 0.35) {
   }} 
 
 > 
+{/* ✅ AXIOM TOP BAR */} 
+
+<div 
+
+  className="app-topbar" 
+
+  style={{ 
+
+    gridColumn: "1 / -1",   // ✅ zauzima obe kolone 
+
+    marginBottom: "10px" 
+
+  }} 
+
+> 
+
+  <div className="app-topbar-brand"> 
+
+    AXIOM <span className="app-topbar-tagline">| Precision Intelligence</span> 
+
+  </div> 
+
+</div> 
 
 <div 
 
@@ -1689,6 +1713,7 @@ if (currentFocus > 0.35) {
   }} 
 
 > 
+
 
   <h2 style={{ margin: 0 }}> 
 

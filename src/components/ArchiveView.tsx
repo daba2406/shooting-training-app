@@ -92,6 +92,16 @@ export default function ArchiveView({
 
     <div style={{ padding: "20px" }}> 
 
+    <div className="app-topbar"> 
+
+  <div className="app-topbar-brand"> 
+
+    AXIOM <span className="app-topbar-tagline">| Precision Intelligence</span> 
+
+  </div> 
+
+</div> 
+
  
 
       {/* HEADER */} 
