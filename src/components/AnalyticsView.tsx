@@ -163,15 +163,39 @@ export default function AnalyticsView({ sessions, onBack }: Props) {
 
 >("qualification"); 
 const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null); 
+const [selectedShooterQualification, setSelectedShooterQualification] = useState<string>("all"); 
+
+const [selectedShooterTraining, setSelectedShooterTraining] = useState<string>("all"); 
+
+const storedShooters = localStorage.getItem("shooters"); 
+
+const shooters = storedShooters ? JSON.parse(storedShooters) : []; 
+
 const availableSessions = sessions 
 
-  .filter( 
+  .filter(s => 
 
-    s => 
+    s.mode === analyticsMode && 
 
-      s.mode === analyticsMode && 
+    s.completed && 
 
-      s.completed 
+    ( 
+
+      analyticsMode === "qualification" 
+
+        ? (selectedShooterQualification === "all" 
+
+            ? true 
+
+            : s.shooterName === selectedShooterQualification) 
+
+        : (selectedShooterTraining === "all" 
+
+            ? true 
+
+            : s.shooterName === selectedShooterTraining) 
+
+    ) 
 
   ) 
 
@@ -189,13 +213,29 @@ const availableSessions = sessions
 
 const selectedMatches = sessions 
 
-  .filter( 
+  .filter(s => 
 
-    s => 
+    s.mode === analyticsMode && 
 
-      s.mode === analyticsMode && 
+    s.completed && 
 
-      s.completed 
+    ( 
+
+      analyticsMode === "qualification" 
+
+        ? (selectedShooterQualification === "all" 
+
+            ? true 
+
+            : s.shooterName === selectedShooterQualification) 
+
+        : (selectedShooterTraining === "all" 
+
+            ? true 
+
+            : s.shooterName === selectedShooterTraining) 
+
+    ) 
 
   ) 
 
@@ -1634,11 +1674,90 @@ if (currentFocus > 0.35) {
 
 > 
 
-        <h2 style={{ marginBottom: "20px" }}> 
+<div 
 
-          Qualification Analytics 
+  style={{ 
 
-        </h2> 
+    display: "flex", 
+
+    justifyContent: "space-between", 
+
+    alignItems: "center", 
+
+    marginBottom: "20px" 
+
+  }} 
+
+> 
+
+  <h2 style={{ margin: 0 }}> 
+
+    {analyticsMode === "qualification" 
+
+      ? "Qualification Analytics" 
+
+      : "Training Analytics"} 
+
+  </h2> 
+
+ 
+
+  <select 
+
+    value={ 
+
+      analyticsMode === "qualification" 
+
+        ? selectedShooterQualification 
+
+        : selectedShooterTraining 
+
+    } 
+
+    onChange={(e) => 
+
+      analyticsMode === "qualification" 
+
+        ? setSelectedShooterQualification(e.target.value) 
+
+        : setSelectedShooterTraining(e.target.value) 
+
+    } 
+
+    style={{ 
+
+      padding: "6px 10px", 
+
+      borderRadius: "6px", 
+
+      background: "#222", 
+
+      color: "white", 
+
+      border: "1px solid #444", 
+
+      minWidth: "160px" 
+
+    }} 
+
+  > 
+
+    <option value="all">Svi strelci</option> 
+
+    {shooters.map((s: any) => ( 
+
+      <option key={s.id} value={s.name}> 
+
+        {s.name} 
+
+      </option> 
+
+    ))} 
+
+  </select> 
+
+</div> 
+        
 
 <div 
 
@@ -1725,6 +1844,8 @@ if (currentFocus > 0.35) {
     </button> 
 
   </div> 
+
+
 
  <div style={{ marginLeft: "auto" }}> 
 

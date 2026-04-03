@@ -3595,45 +3595,7 @@ background:
           </>
 )}
 
-          <div style={{ marginTop: "8px" }}> 
-
-  <h4>Statistika pogodaka</h4> 
-
-  <div className="stats-grid"> 
-
-    {Object.entries(shotDistribution).map(([key, count]) => { 
-
-      const percent = 
-
-        totalShotCount > 0 
-
-          ? ((count / totalShotCount) * 100).toFixed(1) 
-
-          : "0.0"; 
-
-      return ( 
-
-        <div 
-
-          key={key} 
-
-          className="stats-item" 
-
-        > 
-
-          <span>{key}</span> 
-
-          <span>{count} ({percent}%)</span> 
-
-        </div> 
-
-      ); 
-
-    })} 
-
-  </div> 
-
-</div> 
+ 
 
         </div> 
 

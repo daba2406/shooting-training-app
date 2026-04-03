@@ -4,806 +4,519 @@ import { useState, useEffect } from "react";
 
 interface Props { 
 
-onStart: ( 
+  onStart: ( 
 
-  mode: "training" | "qualification" | "final", 
+    mode: "training" | "qualification" | "final", 
 
-  format: "60" | "40" | "trial" | "custom", 
+    format: "60" | "40" | "trial" | "custom", 
 
-  competitionName: string, 
+    competitionName: string, 
 
-  date: string, 
+    date: string, 
 
-  startTime: string, 
+    startTime: string, 
 
-  shooterName: string, 
+    shooterName: string 
 
-) => void; 
+  ) => void; 
 
  
 
   onArchive: () => void; 
-  onAnalytics: () => void;
+
+  onAnalytics: () => void; 
+
   onStartTrainingMode?: (mode: "shots" | "series") => void; 
 
 } 
 
  
 
-export default function SetupView({ onStart, onArchive, onAnalytics, onStartTrainingMode }: 
-  Props) { 
+interface Shooter { 
 
-   const [mainMode, setMainMode] = useState<"training" | "competition">("training"); 
-  const [trainingInputMode, setTrainingInputMode] = useState< 
+  id: number; 
 
-  "shots" | "series" 
+  name: string; 
 
->("shots"); 
+} 
 
-  
+ 
+
+export default function SetupView({ 
+
+  onStart, 
+
+  onArchive, 
+
+  onAnalytics, 
+
+  onStartTrainingMode, 
+
+}: Props) { 
+
+ 
+
+  const [mainMode, setMainMode] = useState<"training" | "competition">("training"); 
+
+  const [trainingInputMode, setTrainingInputMode] = useState<"shots" | "series">("shots"); 
+
+ 
+
   const [competitionName, setCompetitionName] = useState(""); 
-  const [shooterName, setShooterName] = useState("")
+
+  const [shooterName, setShooterName] = useState(""); 
 
   const [date, setDate] = useState(""); 
 
   const [startTime, setStartTime] = useState(""); 
 
- // ✅ Baza strelaca (privremeno lokalna) 
+ 
 
-const defaultShooters = [ 
-
-  { id: 1, name: "Natalija Jovanovic" }
-
-]; 
-const loadShooters = () => { 
-
-  const stored = localStorage.getItem("shooters"); 
-
-  if (stored) { 
-
-    return JSON.parse(stored); 
-
-  } 
-
-  return defaultShooters; 
-
-}; 
-
-
-
-const [shooters, setShooters] = useState(loadShooters); 
-
-const [newShooterName, setNewShooterName] = useState(""); 
-
-const [manageShootersOpen, setManageShootersOpen] = useState(false); 
-
-const handleAddShooter = () => { 
-
-  if (!newShooterName.trim()) return; 
+  const [isShooterModalOpen, setIsShooterModalOpen] = useState(false); 
 
  
 
-  const newShooter = { 
+  const defaultShooters: Shooter[] = [ 
 
-    id: shooters.length + 1, 
+    { id: 1, name: "Natalija Jovanovic" } 
 
-    name: newShooterName.trim() 
+  ]; 
+
+ 
+
+  const loadShooters = (): Shooter[] => { 
+
+    const stored = localStorage.getItem("shooters"); 
+
+    if (stored) return JSON.parse(stored); 
+
+    return defaultShooters; 
 
   }; 
 
+ 
 
+  const [shooters, setShooters] = useState<Shooter[]>(loadShooters); 
 
-  setShooters([...shooters, newShooter]); 
+  const [newShooterName, setNewShooterName] = useState(""); 
 
-  setShooterName(newShooter.name); // automatski selektuje novog 
-
-  setNewShooterName(""); 
-
-}; 
- const handleDeleteShooter = (id: number) => { 
-
-  const shooterToDelete = shooters.find( 
-
-  (s: { id: number; name: string }) => s.id === id 
-
-); 
-
-  if (!shooterToDelete) return; 
+  const [editingShooterId, setEditingShooterId] = useState<number | null>(null); 
 
  
 
-  const confirmDelete = window.confirm( 
+  useEffect(() => { 
 
-    `Da li ste sigurni da želite da obrišete strelca "${shooterToDelete.name}"?` 
+    localStorage.setItem("shooters", JSON.stringify(shooters)); 
 
-  ); 
-
- 
-
-  if (!confirmDelete) return; 
+  }, [shooters]); 
 
  
 
- const updatedShooters = shooters.filter( 
+  const handleAddShooter = () => { 
 
-  (s: { id: number; name: string }) => s.id !== id 
-
-); 
+    if (!newShooterName.trim()) return; 
 
  
 
-  setShooters(updatedShooters); 
+    const newShooter: Shooter = { 
+
+      id: shooters.length ? Math.max(...shooters.map(s => s.id)) + 1 : 1, 
+
+      name: newShooterName.trim() 
+
+    }; 
 
  
 
-  // Ako brišemo trenutno izabranog, resetuj selekciju 
+    setShooters([...shooters, newShooter]); 
 
-  if (shooterName === shooterToDelete.name) { 
+    setNewShooterName(""); 
 
-    setShooterName(""); 
+  }; 
 
-  } 
+ 
 
-}; 
+  const handleDeleteShooter = (id: number) => { 
 
-useEffect(() => { 
+    const shooter = shooters.find(s => s.id === id); 
 
-  localStorage.setItem("shooters", JSON.stringify(shooters)); 
+    if (!shooter) return; 
 
-}, [shooters]); 
+ 
+
+    if (!window.confirm(`Obrisati "${shooter.name}"?`)) return; 
+
+ 
+
+    const updated = shooters.filter(s => s.id !== id); 
+
+    setShooters(updated); 
+
+ 
+
+    if (shooterName === shooter.name) { 
+
+      setShooterName(""); 
+
+    } 
+
+  }; 
+
+ 
+
+  const handleUpdateShooter = (id: number, name: string) => { 
+
+    if (!name.trim()) return; 
+
+ 
+
+    const updated = shooters.map(s => 
+
+      s.id === id ? { ...s, name: name.trim() } : s 
+
+    ); 
+
+ 
+
+    setShooters(updated); 
+
+    setEditingShooterId(null); 
+
+  }; 
+
+ 
 
   return ( 
 
-    
-      <div className="setup-container">  
+    <div className="setup-container"> 
+
+      <div className="setup-card redesigned-layout"> 
 
  
 
-  
+        {/* LEVI BLOK */} 
+
+        <div className="setup-section"> 
+
+          <h3 className="section-title">Podaci o sesiji</h3> 
 
  
-
-      <div className="setup-card"> 
-
- 
-
-  <div 
-
-    style={{ 
-
-      display: "grid", 
-
-      gridTemplateColumns: "1.2fr 1fr", 
-
-      gap: "40px" 
-
-    }} 
-
-  > 
-
- 
-
-   {/* LEVA STRANA */} 
-
-<div 
-
-  style={{ 
-
-    display: "grid", 
-
-    gridTemplateColumns: "1fr 1fr", 
-
-    gap: "20px" 
-
-  }} 
-
-> 
-
- 
-
-  {/* ✅ BOX 1 – PODACI */} 
-
-  <div className="setup-section"> 
-
-    <h3 className="section-title">Podaci o sesiji</h3> 
-
- 
-
-    <input 
-
-      type="text" 
-
-      placeholder="Naziv takmičenja" 
-
-      value={competitionName} 
-
-      onChange={(e) => setCompetitionName(e.target.value)} 
-
-    /> 
-
- 
-
-    <select 
-
-      value={shooterName} 
-
-      onChange={(e) => setShooterName(e.target.value)} 
-
-    > 
-
-      <option value="">Izaberi strelca</option> 
-
-      {shooters.map((shooter: { id: number; name: string }) => ( 
-
-        <option key={shooter.id} value={shooter.name}> 
-
-          {shooter.name} 
-
-        </option> 
-
-      ))} 
-
-    </select> 
-
- 
-
-    {/* Upravljanje strelcima */} 
-
-    <button 
-
-      style={{ 
-
-        marginTop: "8px", 
-
-        background: "transparent", 
-
-        border: "1px solid #444", 
-
-        color: "#00ccff", 
-
-        borderRadius: "6px", 
-
-        padding: "4px 8px", 
-
-        cursor: "pointer", 
-
-        fontSize: "12px" 
-
-      }} 
-
-      onClick={() => setManageShootersOpen(!manageShootersOpen)} 
-
-    > 
-
-      {manageShootersOpen ? "Zatvori upravljanje" : "Uredi strelce"} 
-
-    </button> 
-
- 
-
-    {manageShootersOpen && ( 
-
-      <div 
-
-        style={{ 
-
-          marginTop: "12px", 
-
-          maxHeight: "180px", 
-
-          overflowY: "auto", 
-
-          border: "1px solid #333", 
-
-          borderRadius: "8px", 
-
-          padding: "8px" 
-
-        }} 
-
-      > 
-
-        {shooters.map((shooter: { id: number; name: string }) => ( 
-
-          <div 
-
-            key={shooter.id} 
-
-            style={{ 
-
-              display: "flex", 
-
-              justifyContent: "space-between", 
-
-              alignItems: "center", 
-
-              marginBottom: "6px", 
-
-              padding: "6px", 
-
-              background: "#ffffff", 
-
-              borderRadius: "6px" 
-
-            }} 
-
-          > 
-
-            <span>{shooter.name}</span> 
-
- 
-
-            <button 
-
-              onClick={() => handleDeleteShooter(shooter.id)} 
-
-              style={{ 
-
-                background: "transparent", 
-
-                color: "#ff5555", 
-
-                border: "none", 
-
-                cursor: "pointer", 
-
-                fontWeight: "bold" 
-
-              }} 
-
-            > 
-
-              ✕ 
-
-            </button> 
-
-          </div> 
-
-        ))} 
-
- 
-
-        {/* Dodavanje novog strelca */} 
-
-        <div style={{ marginTop: "10px", display: "flex", gap: "6px" }}> 
 
           <input 
 
             type="text" 
 
-            placeholder="Dodaj novog strelca" 
+            placeholder="Naziv takmičenja" 
 
-            value={newShooterName} 
+            value={competitionName} 
 
-            onChange={(e) => setNewShooterName(e.target.value)} 
-
-            style={{ flex: 1 }} 
+            onChange={(e) => setCompetitionName(e.target.value)} 
 
           /> 
 
  
 
-          <button onClick={handleAddShooter}> 
+          <div className="shooter-select-row"> 
 
-            Dodaj 
+            <select 
 
-          </button> 
+              value={shooterName} 
+
+              onChange={(e) => setShooterName(e.target.value)} 
+
+            > 
+
+              <option value="">Izaberi strelca</option> 
+
+              {shooters.map((s) => ( 
+
+                <option key={s.id} value={s.name}> 
+
+                  {s.name} 
+
+                </option> 
+
+              ))} 
+
+            </select> 
+
+ 
+
+            <button 
+
+              className="secondary-btn" 
+
+              onClick={() => setIsShooterModalOpen(true)} 
+
+            > 
+
+              Uredi 
+
+            </button> 
+
+          </div> 
+
+ 
+
+          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} /> 
+
+          <input type="text" placeholder="HH:MM" value={startTime} onChange={(e) => setStartTime(e.target.value)} /> 
 
         </div> 
 
+ 
+
+        {/* SREDNJI BLOK */} 
+
+        <div className="setup-section"> 
+
+          <h3 className="section-title">Tip sesije</h3> 
+
+ 
+
+          <div className="mode-switch"> 
+
+            <button 
+
+              className={mainMode === "training" ? "active-btn" : ""} 
+
+              onClick={() => setMainMode("training")} 
+
+            > 
+
+              Trening 
+
+            </button> 
+
+            <button 
+
+              className={mainMode === "competition" ? "active-btn" : ""} 
+
+              onClick={() => setMainMode("competition")} 
+
+            > 
+
+              Takmičenje 
+
+            </button> 
+
+          </div> 
+
+ 
+
+          {mainMode === "training" && ( 
+
+            <> 
+
+              <h4 className="sub-title">Način unosa</h4> 
+
+              <div className="mode-switch"> 
+
+                <button 
+
+                  className={trainingInputMode === "shots" ? "active-btn" : ""} 
+
+                  onClick={() => setTrainingInputMode("shots")} 
+
+                > 
+
+                  Po pogocima 
+
+                </button> 
+
+                <button 
+
+                  className={trainingInputMode === "series" ? "active-btn" : ""} 
+
+                  onClick={() => setTrainingInputMode("series")} 
+
+                > 
+
+                  Ručno 
+
+                </button> 
+
+              </div> 
+
+            </> 
+
+          )} 
+
+        </div> 
+
+ 
+
+        {/* DESNI BLOK */} 
+
+        <div className="setup-section"> 
+
+          <h3 className="section-title">Pokretanje</h3> 
+
+ 
+
+          {mainMode === "training" && ( 
+
+            <div className="start-buttons"> 
+
+              {["60", "40", "trial"].map((format) => ( 
+
+                <button 
+
+                  key={format} 
+
+                  onClick={() => { 
+
+                    onStartTrainingMode?.(trainingInputMode); 
+
+                    onStart("training", format as any, competitionName, date, startTime, shooterName); 
+
+                  }} 
+
+                > 
+
+                  {format === "trial" ? "Proba" : `${format} dijabola`} 
+
+                </button> 
+
+              ))} 
+
+            </div> 
+
+          )} 
+
+ 
+
+          {mainMode === "competition" && ( 
+
+            <div className="start-buttons"> 
+
+              <button onClick={() => 
+
+                onStart("qualification", "60", competitionName, date, startTime, shooterName) 
+
+              }> 
+
+                Kvalifikacije 
+
+              </button> 
+
+              <button onClick={() => 
+
+                onStart("final", "60", competitionName, date, startTime, shooterName) 
+
+              }> 
+
+                Finale 
+
+              </button> 
+
+            </div> 
+
+          )} 
+
+        </div> 
+
+ 
+
       </div> 
 
-    )} 
+ 
+
+      {/* FOOTER */} 
+
+      <div className="setup-footer"> 
+
+        <button className="archive-btn" onClick={onArchive}>Arhiva</button> 
+
+        <button className="archive-btn" onClick={onAnalytics}>Analytics</button> 
+
+      </div> 
 
  
 
-    <input 
+      {/* MODAL */} 
 
-      type="date" 
+      {isShooterModalOpen && ( 
 
-      value={date} 
+        <div className="modal-overlay" onClick={() => setIsShooterModalOpen(false)}> 
 
-      onChange={(e) => setDate(e.target.value)} 
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}> 
 
-    /> 
-
- 
-
-    <input 
-
-      type="text" 
-
-      placeholder="HH:MM" 
-
-      value={startTime} 
-
-      onChange={(e) => setStartTime(e.target.value)} 
-
-    /> 
-
-  </div> 
+            <h3>Upravljanje strelcima</h3> 
 
  
 
-  {/* ✅ BOX 2 – TIP SESIJE */} 
+            {shooters.map((s) => ( 
 
-  <div className="setup-section"> 
+              <div key={s.id} className="modal-row"> 
 
-    <h3 className="section-title">Tip sesije</h3> 
+                {editingShooterId === s.id ? ( 
+
+                  <input 
+
+                    defaultValue={s.name} 
+
+                    onBlur={(e) => handleUpdateShooter(s.id, e.target.value)} 
+
+                    autoFocus 
+
+                  /> 
+
+                ) : ( 
+
+                  <span>{s.name}</span> 
+
+                )} 
 
  
 
-    <div className="setup-buttons"> 
+                <div> 
 
-      <button 
+                  <button onClick={() => setEditingShooterId(s.id)}>Izmeni</button> 
 
-        className={mainMode === "training" ? "active-btn" : ""} 
+                  <button onClick={() => handleDeleteShooter(s.id)}>✕</button> 
 
-        onClick={() => setMainMode("training")} 
+                </div> 
 
-      > 
+              </div> 
 
-        Trening 
-
-      </button> 
+            ))} 
 
  
 
-      <button 
+            <div className="modal-add"> 
 
-        className={mainMode === "competition" ? "active-btn" : ""} 
+              <input 
 
-        onClick={() => setMainMode("competition")} 
+                type="text" 
 
-      > 
+                placeholder="Novo ime" 
 
-        Takmičenje 
+                value={newShooterName} 
 
-      </button> 
+                onChange={(e) => setNewShooterName(e.target.value)} 
+
+              /> 
+
+              <button onClick={handleAddShooter}>Dodaj</button> 
+
+            </div> 
+
+ 
+
+            <button className="close-btn" onClick={() => setIsShooterModalOpen(false)}> 
+
+              Zatvori 
+
+            </button> 
+
+          </div> 
+
+        </div> 
+
+      )} 
 
     </div> 
-
-  </div> 
-
- 
-
-</div> 
-
- 
-
-    {/* DESNA STRANA – TIP SESIJE */} 
-
-    
-    <div 
-
-  style={{ 
-
-    minHeight: "450px"   // ✅ прилагоди ако треба 
-
-  }} 
-
-> 
-
- 
-
-      <h2 className="setup-subtitle"> 
-
-        Tip sesije 
-
-      </h2> 
-
- <div style={{ marginTop: "25px" }}> 
-
- 
-
-  {mainMode === "training" && ( 
-
-    <> 
-
-<h3 style={{ marginTop: "15px", marginBottom: "10px", color: "white" }}> 
-
-  Način unosa 
-
-</h3> 
-
- 
-
-<div className="setup-buttons"> 
-
-  <button 
-
-    className={trainingInputMode === "shots" ? "active-btn" : ""} 
-
-    onClick={() => setTrainingInputMode("shots")} 
-
-  > 
-
-    Unos po pogocima 
-
-  </button> 
-
- 
-
-  <button 
-
-    className={trainingInputMode === "series" ? "active-btn" : ""} 
-
-    onClick={() => setTrainingInputMode("series")} 
-
-  > 
-
-    Ručni unos serija 
-
-  </button> 
-
-</div> 
-
-<h3 style={{ color: "white", marginTop: "15px", marginBottom: "10px" }}> 
-
-  Format treninga 
-
-</h3> 
-
- 
-
-      <div className="setup-buttons"> 
-
- <div style={{ marginTop: "15px"}}>
-
-<div className="setup-buttons"> 
-
-</div> 
-</div>
-
-        <button 
-
-          onClick={() => { 
-
-  if (onStartTrainingMode) { 
-
-    onStartTrainingMode(trainingInputMode); 
-
-  } 
-
-            onStart( 
-
-              "training", 
-
-              "60", 
-
-              competitionName, 
-
-              date, 
-
-              startTime, 
-
-              shooterName,
-
-            ) 
-
-          } }
-
-        > 
-
-          60 dijabola 
-
-        </button> 
-
- 
-
-        <button 
-
-          onClick={() => { 
-
-  if (onStartTrainingMode) { 
-
-    onStartTrainingMode(trainingInputMode); 
-
-  } 
-
-            onStart( 
-
-              "training", 
-
-              "40", 
-
-              competitionName, 
-
-              date, 
-
-              startTime, 
-
-              shooterName,
-              
-
-            ) 
-
-          } }
-
-        > 
-
-          40 dijabola 
-
-        </button> 
-
- 
-
-        <button 
-
-          onClick={() => { 
-
-  if (onStartTrainingMode) { 
-
-    onStartTrainingMode(trainingInputMode); 
-
-  } 
-
-            onStart( 
-
-              "training", 
-
-              "trial", 
-
-              competitionName, 
-
-              date, 
-
-              startTime, 
-
-              shooterName 
-
-            ) 
-
-          } }
-
-        > 
-
-          Proba 
-
-        </button> 
-
-      </div> 
-
-    </> 
-
-  )} 
-
- 
-
-  {mainMode === "competition" && ( 
-
-    <> 
-
-      <h3 style={{ color: "white", marginTop: "15px", marginBottom: "10px" }}> 
-
-        Takmičenje 
-
-      </h3> 
-
- 
-
-      <div className="setup-buttons"> 
-
-        <button 
-
-          onClick={() => 
-
-            onStart( 
-
-              "qualification", 
-
-              "60", 
-
-              competitionName, 
-
-              date, 
-
-              startTime, 
-
-              shooterName 
-
-            ) 
-
-          } 
-
-        > 
-
-          Kvalifikacije 
-
-        </button> 
-
- 
-
-        <button 
-
-          onClick={() => 
-
-            onStart( 
-
-              "final", 
-
-              "60", 
-
-              competitionName, 
-
-              date, 
-
-              startTime, 
-
-              shooterName 
-
-            ) 
-
-          } 
-
-        > 
-
-          Finale 
-
-        </button> 
-
-      </div> 
-
-    </> 
-
-  )} 
-
- 
-
-</div> 
-
-      
-
- 
-
-    </div> 
-
- 
-
-  </div> 
-
- 
-
-  {/* DONJI RED – ARHIVA I ANALYTICS */} 
-
-  <div 
-
-    style={{ 
-
-      marginTop: "30px", 
-
-      display: "flex", 
-
-      gap: "15px", 
-
-      justifyContent: "center" 
-
-    }} 
-
-  > 
-
-    <button className="archive-btn" onClick={onArchive}> 
-
-      Arhiva 
-
-    </button> 
-
- 
-
-    <button className="archive-btn" onClick={onAnalytics}> 
-
-      Analytics 
-
-    </button> 
-
-  </div> 
-
- 
-
-</div> 
-</div>
-
- 
 
   ); 
 

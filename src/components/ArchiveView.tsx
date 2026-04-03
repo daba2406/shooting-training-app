@@ -2,7 +2,9 @@ import type { ShootingSession } from "../types";
 
 import { loadSessions, saveSessions } from "../sessionManager"; 
 
-import {useState} from "react";
+import { useState } from "react"; 
+
+ 
 
 interface Props { 
 
@@ -12,7 +14,7 @@ interface Props {
 
   onDeleteSession: (id: string) => void; 
 
-  onBack: () => void;
+  onBack: () => void; 
 
 } 
 
@@ -24,42 +26,67 @@ export default function ArchiveView({
 
   onOpenSession, 
 
-  onDeleteSession,
+  onDeleteSession, 
 
-  onBack
+  onBack, 
 
-}: Props) 
+}: Props) { 
 
-{ 
- const [filterMode, setFilterMode] = useState<
- "all" | "training" | "qualification" | "final"
- >("all");
+ 
 
-const [sortField, setSortField] = useState<
-"date" | "total" | "duration" | "status"
->("date");
+  const [filterMode, setFilterMode] = useState< 
 
-const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+    "all" | "training" | "qualification" | "final" 
 
-const handleSort = ( 
+  >("all"); 
 
-  field: "date" | "total" | "duration" | "status" 
+ 
 
-) => { 
+  const [selectedShooter, setSelectedShooter] = useState<string>("all"); 
 
-  if (sortField === field) { 
+ 
 
-    setSortDirection(prev => (prev === "asc" ? "desc" : "asc")); 
+  const [sortField, setSortField] = useState< 
 
-  } else { 
+    "date" | "total" | "duration" | "status" 
 
-    setSortField(field); 
+  >("date"); 
 
-    setSortDirection("desc"); 
+ 
 
-  } 
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc"); 
 
-}; 
+ 
+
+  const handleSort = ( 
+
+    field: "date" | "total" | "duration" | "status" 
+
+  ) => { 
+
+    if (sortField === field) { 
+
+      setSortDirection(prev => (prev === "asc" ? "desc" : "asc")); 
+
+    } else { 
+
+      setSortField(field); 
+
+      setSortDirection("desc"); 
+
+    } 
+
+  }; 
+
+ 
+
+  // ✅ Učitavanje strelaca iz localStorage 
+
+  const storedShooters = localStorage.getItem("shooters"); 
+
+  const shooters = storedShooters ? JSON.parse(storedShooters) : []; 
+
+ 
 
   return ( 
 
@@ -67,49 +94,103 @@ const handleSort = (
 
  
 
-      <h2>Arhiva sesija</h2> 
+      {/* HEADER */} 
+
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}> 
+
+        <h2>Arhiva sesija</h2> 
+
+ 
+
+        {/* ✅ DROPDOWN ZA STRELCA */} 
+
+        <select 
+
+          value={selectedShooter} 
+
+          onChange={(e) => setSelectedShooter(e.target.value)} 
+
+          style={{ 
+
+            padding: "6px 10px", 
+
+            borderRadius: "6px", 
+
+            background: "#222", 
+
+            color: "white", 
+
+            border: "1px solid #444" 
+
+          }} 
+
+        > 
+
+          <option value="all">Svi strelci</option> 
+
+          {shooters.map((s: any) => ( 
+
+            <option key={s.id} value={s.name}> 
+
+              {s.name} 
+
+            </option> 
+
+          ))} 
+
+        </select> 
+
+      </div> 
+
+ 
+
+      {/* BACK BUTTON */} 
+
+      <div style={{ marginBottom: "15px", marginTop: "10px" }}> 
+
+        <button 
+
+          onClick={onBack} 
+
+          style={{ 
+
+            padding: "6px 12px", 
+
+            backgroundColor: "#222", 
+
+            border: "1px solid #555", 
+
+            color: "#fff", 
+
+            cursor: "pointer", 
+
+            borderRadius: "4px" 
+
+          }} 
+
+        > 
+
+          ← Povratak na glavni ekran 
+
+        </button> 
+
+      </div> 
+
+ 
+
+      {/* MODE FILTER */} 
 
       <div style={{ marginBottom: "15px" }}> 
-  
-  <div style={{ marginBottom: "15px" }}> 
 
-  <button 
+        <button onClick={() => setFilterMode("all")}>Sve</button> 
 
-    onClick={onBack} 
+        <button onClick={() => setFilterMode("training")}>Trening</button> 
 
-    style={{ 
+        <button onClick={() => setFilterMode("qualification")}>Kvalifikacije</button> 
 
-      padding: "6px 12px", 
+        <button onClick={() => setFilterMode("final")}>Finale</button> 
 
-      backgroundColor: "#222", 
-
-      border: "1px solid #555", 
-
-      color: "#fff", 
-
-      cursor: "pointer", 
-
-      borderRadius: "4px" 
-
-    }} 
-
-  > 
-
-    ← Povratak na glavni ekran 
-
-  </button> 
-
-</div> 
-
-  <button onClick={() => setFilterMode("all")}>Sve</button> 
-
-  <button onClick={() => setFilterMode("training")}>Trening</button> 
-
-  <button onClick={() => setFilterMode("qualification")}>Kvalifikacije</button> 
-
-  <button onClick={() => setFilterMode("final")}>Finale</button> 
-
-</div> 
+      </div> 
 
  
 
@@ -123,8 +204,6 @@ const handleSort = (
 
             const sessions = loadSessions(); 
 
- 
-
             const blob = new Blob( 
 
               [JSON.stringify(sessions, null, 2)], 
@@ -132,8 +211,6 @@ const handleSort = (
               { type: "application/json" } 
 
             ); 
-
- 
 
             const url = URL.createObjectURL(blob); 
 
@@ -144,8 +221,6 @@ const handleSort = (
             a.download = "shooting-archive.json"; 
 
             a.click(); 
-
- 
 
             URL.revokeObjectURL(url); 
 
@@ -183,41 +258,79 @@ const handleSort = (
 
  
 
-            reader.onload = (event) => { 
+reader.onload = (event) => { 
 
-              try { 
+  try { 
 
-                const importedSessions = JSON.parse( 
+    const importedSessions = JSON.parse( 
 
-                  event.target?.result as string 
+      event.target?.result as string 
 
-                ); 
-
- 
-
-                if (!Array.isArray(importedSessions)) { 
-
-                  alert("Neispravan format fajla."); 
-
-                  return; 
-
-                } 
+    ); 
 
  
 
-                saveSessions(importedSessions); 
+    if (!Array.isArray(importedSessions)) { 
 
-                alert("Arhiva uspešno učitana."); 
+      alert("Neispravan format fajla."); 
 
-                window.location.reload(); 
+      return; 
 
-              } catch { 
+    } 
 
-                alert("Greška pri učitavanju fajla."); 
+ 
 
-              } 
+    console.log("Parsed OK"); 
 
-            }; 
+ 
+
+    const normalizedSessions = importedSessions.map((s: any) => ({ 
+
+      ...s, 
+
+      shooterName: s.shooterName ?? "Nepoznat strelac" 
+
+    })); 
+
+ 
+
+    console.log("Normalized OK"); 
+
+ 
+
+    try { 
+
+      saveSessions(normalizedSessions); 
+
+      console.log("Saved OK"); 
+
+    } catch (saveErr) { 
+
+      console.error("Save error:", saveErr); 
+
+      alert("Greška pri čuvanju u localStorage."); 
+
+      return; 
+
+    } 
+
+ 
+
+    alert("Arhiva uspešno učitana."); 
+
+    window.location.reload(); 
+
+ 
+
+  } catch (err) { 
+
+    console.error("Parse error:", err); 
+
+    alert("Greška pri parsiranju fajla."); 
+
+  } 
+
+}; 
 
  
 
@@ -243,325 +356,251 @@ const handleSort = (
 
         <table className="archive-table"> 
 
-<thead> 
+          <thead> 
 
-  <tr> 
+            <tr> 
 
-    <th style={{ width: "120px", cursor: "pointer" }}
-    
-    onClick={() => handleSort("date")}
-    >
-      Datum
-      </th> 
+              <th style={{ width: "120px", cursor: "pointer" }} onClick={() => handleSort("date")}>Datum</th> 
 
-    <th style={{ width: "100px" }}>Tip</th> 
+              <th style={{ width: "160px" }}>Strelac</th> {/* ✅ NOVA KOLONA */} 
 
-    <th style={{ width: "180px" }}>Takmičenje</th> 
+              <th style={{ width: "100px" }}>Tip</th> 
 
-    <th style={{ width: "80px" }}>Format</th> 
+              <th style={{ width: "180px" }}>Takmičenje</th> 
 
-    <th style={{ cursor: "pointer", width: "90px", textAlign: "left" }}
-    onClick={() => handleSort("total")}
-    >
-      Ukupno
-      </th>
+              <th style={{ width: "80px" }}>Format</th> 
 
-    <th style={{ cursor: "pointer", width: "80px", textAlign: "center"}}
-    onClick={() => handleSort("duration")}
-    >
-      Trajanje
-      </th>
+              <th style={{ width: "90px", cursor: "pointer" }} onClick={() => handleSort("total")}>Ukupno</th> 
 
-    <th style={{ cursor: "pointer", width: "120px", textAlign: "center" }}
-    onClick={() => handleSort("status")}
-    >
-      Status
-      </th> 
+              <th style={{ width: "80px", cursor: "pointer" }} onClick={() => handleSort("duration")}>Trajanje</th> 
 
-    <th style={{ width: "80px", textAlign: "left" }}>Akcija</th> 
+              <th style={{ width: "120px", cursor: "pointer" }} onClick={() => handleSort("status")}>Status</th> 
 
-  </tr> 
+              <th style={{ width: "80px" }}>Akcija</th> 
 
-</thead> 
+            </tr> 
+
+          </thead> 
 
  
 
           <tbody> 
 
-{[...sessions] 
+            {[...sessions] 
 
-  .filter(session => 
+              .filter(session => 
 
-    filterMode === "all" 
+                (filterMode === "all" ? true : session.mode === filterMode) && 
 
-      ? true 
+                (selectedShooter === "all" 
 
-      : session.mode === filterMode 
+                  ? true 
 
-  ) 
+                  : session.shooterName === selectedShooter) 
 
-  .sort((a, b) => { 
+              ) 
 
-  let comparison = 0; 
+              .sort((a, b) => { 
 
- 
-
-  if (sortField === "date") { 
-
-    comparison = 
-
-      new Date(a.date).getTime() - new Date(b.date).getTime(); 
-
-  } 
+                let comparison = 0; 
 
  
 
-  if (sortField === "total") { 
+                if (sortField === "date") { 
 
-    comparison = (a.totalResult ?? 0) - (b.totalResult ?? 0); 
+                  comparison = 
 
-  } 
+                    new Date(a.date).getTime() - new Date(b.date).getTime(); 
 
- 
-
-  if (sortField === "duration") { 
-
-    const aDuration = 
-
-      a.matchStartTimestamp && a.matchEndedTimestamp 
-
-        ? a.matchEndedTimestamp - a.matchStartTimestamp 
-
-        : 0; 
+                } 
 
  
 
-    const bDuration = 
+                if (sortField === "total") { 
 
-      b.matchStartTimestamp && b.matchEndedTimestamp 
+                  comparison = (a.totalResult ?? 0) - (b.totalResult ?? 0); 
 
-        ? b.matchEndedTimestamp - b.matchStartTimestamp 
-
-        : 0; 
+                } 
 
  
 
-    comparison = aDuration - bDuration; 
+                if (sortField === "duration") { 
 
-  } 
+                  const aDuration = 
 
- 
+                    a.matchStartTimestamp && a.matchEndedTimestamp 
 
-  if (sortField === "status") { 
+                      ? a.matchEndedTimestamp - a.matchStartTimestamp 
 
-  const statusValue = (s: ShootingSession) => { 
-
-    if (!s.completed) return 0; 
-
-    if (s.finishReason === "manual") return 1; 
-
-    if (s.finishReason === "shots_limit") return 2; 
-
-    if (s.finishReason === "time_limit") return 3; 
-
-    return 1; 
-
-  }; 
+                      : 0; 
 
  
 
-  comparison = statusValue(a) - statusValue(b); 
+                  const bDuration = 
 
-} 
+                    b.matchStartTimestamp && b.matchEndedTimestamp 
 
- 
+                      ? b.matchEndedTimestamp - b.matchStartTimestamp 
 
-  return sortDirection === "asc" ? comparison : -comparison; 
-
-}) 
-
-  .map(session => {  
+                      : 0; 
 
  
 
-  let duration = "-"; 
+                  comparison = aDuration - bDuration; 
+
+                } 
 
  
 
-  if (session.matchStartTimestamp && session.matchEndedTimestamp) { 
+                if (sortField === "status") { 
 
-    const diffMs = 
+                  const statusValue = (s: ShootingSession) => { 
 
-      session.matchEndedTimestamp - session.matchStartTimestamp; 
+                    if (!s.completed) return 0; 
 
- 
+                    if (s.finishReason === "manual") return 1; 
 
-    const totalSeconds = Math.floor(diffMs / 1000); 
+                    if (s.finishReason === "shots_limit") return 2; 
 
- 
+                    if (s.finishReason === "time_limit") return 3; 
 
-    const hours = Math.floor(totalSeconds / 3600) 
+                    return 1; 
 
-      .toString() 
-
-      .padStart(2, "0"); 
+                  }; 
 
  
 
-    const minutes = Math.floor((totalSeconds % 3600) / 60) 
+                  comparison = statusValue(a) - statusValue(b); 
 
-      .toString() 
-
-      .padStart(2, "0"); 
+                } 
 
  
 
-    const seconds = (totalSeconds % 60) 
+                return sortDirection === "asc" ? comparison : -comparison; 
 
-      .toString() 
+              }) 
 
-      .padStart(2, "0"); 
-
- 
-
-    duration = `${hours}:${minutes}:${seconds}`; 
-
-  } 
+              .map(session => { 
 
  
 
-  return ( 
-
-                <tr 
-                key={session.id}
-                style={{ cursor: "pointer" }}> 
-
-                  <td onClick={() => onOpenSession(session.id)}> 
-
-                    {new Date(session.date).toLocaleDateString()} 
-
-                  </td> 
-
-                  <td>{session.mode}</td> 
-
-                  <td>{session.competitionName ?? "-"}</td> 
-
-                  <td style={{ textAlign: "right" }}>
-                    {session.format}</td> 
-
-                  <td style={{ width: "90px", textAlign: "left" }}>
-                    {session.totalResult?.toFixed(1) ?? "0.0"}</td> 
-                  <td style={{ textAlign: "center" }}>
-                    {duration}
-                  </td>
-
-
-
+                let duration = "-"; 
 
  
 
- <td style={{ width: "180px", textAlign: "left" }}> 
+                if (session.matchStartTimestamp && session.matchEndedTimestamp) { 
 
-  <span 
+                  const diffMs = 
 
-    style={{ 
-
-      display: "inline-block", 
-
-      minWidth: "140px", 
-
-      padding: "6px 12px", 
-
-      borderRadius: "20px", 
-
-      fontSize: "12px", 
-
-      fontWeight: 600, 
-
-      textAlign: "center", 
-
-      backgroundColor: !session.completed 
-
-        ? "#ffe082" 
-
-        : session.finishReason === "manual" 
-
-        ? "#81c784" 
-
-        : session.finishReason === "shots_limit" 
-
-        ? "#64b5f6" 
-
-        : session.finishReason === "time_limit" 
-
-        ? "#e57373" 
-
-        : "#81c784", 
-
-      color: "#1b1b1b" 
-
-    }} 
-
-  > 
-
-    {!session.completed && "U toku"} 
+                    session.matchEndedTimestamp - session.matchStartTimestamp; 
 
  
 
-    {session.completed && session.finishReason === "manual" && "Ručno završeno"} 
+                  const totalSeconds = Math.floor(diffMs / 1000); 
 
-    {session.completed && session.finishReason === "shots_limit" && "Limit hitaca"} 
+ 
 
-    {session.completed && session.finishReason === "time_limit" && "Isteklo vreme"} 
+                  const hours = Math.floor(totalSeconds / 3600) 
 
-    {session.completed && !session.finishReason && "Završeno"} 
+                    .toString() 
 
-  </span> 
+                    .padStart(2, "0"); 
 
-</td> 
+ 
 
-                  <td> 
+                  const minutes = Math.floor((totalSeconds % 3600) / 60) 
 
-                    <button 
+                    .toString() 
 
-                      className="delete-btn" 
+                    .padStart(2, "0"); 
 
-                      onClick={(e) => { 
+ 
 
-                        e.stopPropagation(); 
+                  const seconds = (totalSeconds % 60) 
 
-                        const confirmDelete = window.confirm( 
+                    .toString() 
 
-                          "Da li ste sigurni da želite da obrišete ovu sesiju?" 
+                    .padStart(2, "0"); 
 
-                        ); 
+ 
 
-                        if (!confirmDelete) return; 
+                  duration = `${hours}:${minutes}:${seconds}`; 
 
-                        onDeleteSession(session.id); 
+                } 
 
-                      }} 
+ 
 
-                    > 
+                return ( 
 
-                      Obriši 
+                  <tr key={session.id} style={{ cursor: "pointer" }}> 
 
-                    </button> 
+                    <td onClick={() => onOpenSession(session.id)}> 
 
-                  </td> 
+                      {new Date(session.date).toLocaleDateString()} 
 
-                </tr> 
-  );
+                    </td> 
 
-}) }
+                    <td>{session.shooterName ?? "-"}</td> {/* ✅ PRIKAZ STRELCA */} 
+
+                    <td>{session.mode}</td> 
+
+                    <td>{session.competitionName ?? "-"}</td> 
+
+                    <td>{session.format}</td> 
+
+                    <td>{session.totalResult?.toFixed(1) ?? "0.0"}</td> 
+
+                    <td>{duration}</td> 
+
+                    <td> 
+
+                      {!session.completed && "U toku"} 
+
+                      {session.completed && session.finishReason === "manual" && "Ručno završeno"} 
+
+                      {session.completed && session.finishReason === "shots_limit" && "Limit hitaca"} 
+
+                      {session.completed && session.finishReason === "time_limit" && "Isteklo vreme"} 
+
+                      {session.completed && !session.finishReason && "Završeno"} 
+
+                    </td> 
+
+                    <td> 
+
+                      <button 
+
+                        className="delete-btn" 
+
+                        onClick={(e) => { 
+
+                          e.stopPropagation(); 
+
+                          if (!window.confirm("Obrisati ovu sesiju?")) return; 
+
+                          onDeleteSession(session.id); 
+
+                        }} 
+
+                      > 
+
+                        Obriši 
+
+                      </button> 
+
+                    </td> 
+
+                  </tr> 
+
+                ); 
+
+              })} 
 
           </tbody> 
 
         </table> 
 
       )} 
-
- 
 
     </div> 
 

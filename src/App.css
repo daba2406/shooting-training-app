@@ -574,6 +574,7 @@ html, body, #root {
   background: linear-gradient(135deg, #111, #1c1c1c); 
 
   display: flex; 
+  flex-direction: column;
 
   justify-content: center; 
 
@@ -648,13 +649,7 @@ html, body, #root {
 
 }  
 
-.setup-card > div > div { 
 
-  display: flex; 
-
-  flex-direction: column; 
-
-} 
 .setup-subtitle { 
 
   margin-bottom: 10px; 
@@ -1418,5 +1413,788 @@ div:hover > .heatmap-tooltip {
   color: #ccc; 
 
   line-height: 1.6; 
+
+} 
+/* Toggle button */ 
+
+.manage-shooters-toggle { 
+
+  margin-top: 10px; 
+
+  background: rgba(0, 204, 255, 0.08); 
+
+  border: 1px solid rgba(0, 204, 255, 0.4); 
+
+  color: #00ccff; 
+
+  border-radius: 8px; 
+
+  padding: 6px 12px; 
+
+  cursor: pointer; 
+
+  font-size: 13px; 
+
+  transition: all 0.2s ease; 
+
+} 
+
+ 
+
+.manage-shooters-toggle:hover { 
+
+  background: rgba(0, 204, 255, 0.15); 
+
+  transform: translateY(-1px); 
+
+} 
+
+ 
+
+
+
+/* Shooter row */ 
+
+.shooter-row { 
+
+  display: flex; 
+
+  justify-content: space-between; 
+
+  align-items: center; 
+
+  margin-bottom: 8px; 
+
+  padding: 8px 10px; 
+
+  background: rgba(255, 255, 255, 0.05); 
+
+  border-radius: 8px; 
+
+  transition: background 0.2s ease; 
+
+} 
+
+ 
+
+.shooter-row:hover { 
+
+  background: rgba(255, 255, 255, 0.08); 
+
+} 
+
+ 
+
+/* Delete button */ 
+
+.delete-shooter-btn { 
+
+  background: transparent; 
+
+  color: #ff5c5c; 
+
+  border: none; 
+
+  cursor: pointer; 
+
+  font-weight: bold; 
+
+  font-size: 14px; 
+
+  transition: transform 0.2s ease, opacity 0.2s ease; 
+
+} 
+
+ 
+
+.delete-shooter-btn:hover { 
+
+  transform: scale(1.2); 
+
+  opacity: 0.8; 
+
+} 
+
+
+/* ===== Shooter Section ===== */ 
+
+ 
+
+.shooter-section { 
+
+  padding: 0; 
+
+  margin-bottom: 12px; 
+
+  border: none; 
+
+  background: transparent; 
+
+} 
+
+
+
+.shooter-section h3 { 
+
+  margin: 0; 
+
+  font-size: 16px; 
+
+  font-weight: 600; 
+
+  color: #ffffff; 
+
+} 
+
+ 
+
+.shooter-count { 
+
+  font-size: 12px; 
+
+  color: #888; 
+
+} 
+
+ 
+
+/* ===== Select ===== */ 
+
+ 
+
+.shooter-select { 
+
+  width: 100%; 
+
+  margin-top: 8px; 
+
+  padding: 8px 10px; 
+
+  border-radius: 8px; 
+
+  background: #1a1a1a; 
+
+  color: #ffffff; 
+
+  border: 1px solid #333; 
+
+  font-size: 14px; 
+
+  transition: border 0.2s ease, box-shadow 0.2s ease; 
+
+} 
+
+ 
+
+.shooter-select:focus { 
+
+  outline: none; 
+
+  border: 1px solid #00ccff; 
+
+  box-shadow: 0 0 0 2px rgba(0, 204, 255, 0.2); 
+
+} 
+
+ 
+
+ 
+
+.add-shooter-input:focus { 
+
+  outline: none; 
+
+  border: 1px solid #00ccff; 
+
+  box-shadow: 0 0 0 2px rgba(0, 204, 255, 0.15); 
+
+} 
+.three-column-layout { 
+
+  display: grid; 
+
+  grid-template-columns: 1fr 0.8fr 1fr; 
+
+  gap: 30px; 
+
+  align-items: start; 
+
+} 
+
+/* Row: select + plus */ 
+
+.shooter-select-row { 
+
+  display: flex; 
+
+  gap: 8px; 
+
+  align-items: center; 
+
+} 
+
+ 
+
+.add-shooter-toggle { 
+
+  width: 40px; 
+
+  height: 40px; 
+
+  border-radius: 8px; 
+
+  background: #222; 
+
+  border: 1px solid #333; 
+
+  color: #00ccff; 
+
+  font-size: 20px; 
+
+  cursor: pointer; 
+
+  transition: all 0.2s ease; 
+
+} 
+
+ 
+
+.add-shooter-toggle:hover { 
+
+  border-color: #00ccff; 
+
+  background: #2a2a2a; 
+
+} 
+
+ 
+
+/* Dropdown panel */ 
+
+.shooter-dropdown { 
+
+  margin-top: 10px; 
+
+  padding: 10px; 
+
+  border-radius: 10px; 
+
+  background: #181818; 
+
+  border: 1px solid #2a2a2a; 
+
+  animation: fadeIn 0.15s ease; 
+
+} 
+
+ 
+
+/* Inline add */ 
+
+.add-shooter-inline { 
+
+  margin-top: 8px; 
+
+  display: flex; 
+
+  gap: 8px; 
+
+} 
+
+ 
+
+.add-shooter-inline input { 
+
+  flex: 1; 
+
+  padding: 8px; 
+
+  border-radius: 8px; 
+
+  border: 1px solid #333; 
+
+  background: #222; 
+
+  color: white; 
+
+} 
+
+ 
+
+.add-shooter-inline button { 
+
+  padding: 8px 12px; 
+
+  border-radius: 8px; 
+
+  background: #00ccff; 
+
+  border: none; 
+
+  color: black; 
+
+  cursor: pointer; 
+
+  font-weight: 600; 
+
+} 
+
+ 
+
+@keyframes fadeIn { 
+
+  from { opacity: 0; transform: translateY(-4px); } 
+
+  to { opacity: 1; transform: translateY(0); } 
+
+} 
+
+/* Vertikalna dugmad */ 
+
+.setup-buttons.vertical { 
+
+  display: flex; 
+
+  flex-direction: column; 
+
+  gap: 12px; 
+
+} 
+
+ 
+
+/* Zaglavlje shootera */ 
+
+.shooter-header { 
+
+  display: flex; 
+
+  justify-content: space-between; 
+
+  align-items: center; 
+
+  font-size: 14px; 
+
+  margin-bottom: 6px; 
+
+  color: #aaa; 
+
+} 
+
+ 
+
+.shooter-count { 
+
+  background: #1f1f1f; 
+
+  padding: 2px 8px; 
+
+  border-radius: 12px; 
+
+  font-size: 12px; 
+
+} 
+.setup-footer { 
+
+  margin-top: 30px; 
+
+  display: flex; 
+
+  justify-content: center; 
+
+  gap: 20px; 
+
+  width: 900px;        /* isto kao setup-card */ 
+
+  max-width: 95vw; 
+
+} 
+/* ================= MODERN SHOOTER SECTION ================= */ 
+
+ 
+
+.shooter-modern { 
+
+  margin-top: 12px; 
+
+} 
+
+ 
+
+.shooter-modern-header { 
+
+  display: flex; 
+
+  justify-content: space-between; 
+
+  align-items: center; 
+
+  font-size: 13px; 
+
+  margin-bottom: 6px; 
+
+  color: #aaa; 
+
+} 
+
+ 
+
+.shooter-modern-count { 
+
+  background: #222; 
+
+  padding: 2px 8px; 
+
+  border-radius: 12px; 
+
+  font-size: 11px; 
+
+} 
+
+ 
+
+.shooter-modern-row { 
+
+  display: flex; 
+
+  gap: 8px; 
+
+} 
+
+ 
+
+.shooter-modern-select { 
+
+  flex: 1; 
+
+  padding: 10px; 
+
+  border-radius: 8px; 
+
+  background: #222; 
+
+  border: 1px solid #333; 
+
+  color: white; 
+
+  font-size: 14px; 
+
+  transition: border 0.2s ease; 
+
+} 
+
+ 
+
+.shooter-modern-select:focus { 
+
+  outline: none; 
+
+  border-color: #00ccff; 
+
+} 
+
+ 
+
+.shooter-modern-toggle { 
+
+  width: 42px; 
+
+  border-radius: 8px; 
+
+  background: #222; 
+
+  border: 1px solid #333; 
+
+  color: #00ccff; 
+
+  font-size: 20px; 
+
+  cursor: pointer; 
+
+  transition: all 0.2s ease; 
+
+} 
+
+ 
+
+.shooter-modern-toggle:hover { 
+
+  background: #2a2a2a; 
+
+  border-color: #00ccff; 
+
+} 
+
+ 
+
+.shooter-modern-dropdown { 
+
+  margin-top: 8px; 
+
+  padding: 10px; 
+
+  border-radius: 10px; 
+
+  background: #181818; 
+
+  border: 1px solid #2a2a2a; 
+
+  animation: shooterFade 0.15s ease; 
+
+} 
+
+ 
+
+.shooter-modern-item { 
+
+  display: flex; 
+
+  justify-content: space-between; 
+
+  align-items: center; 
+
+  padding: 6px 4px; 
+
+  font-size: 13px; 
+
+  border-bottom: 1px solid #222; 
+
+} 
+
+ 
+
+.shooter-modern-item:last-child { 
+
+  border-bottom: none; 
+
+} 
+
+ 
+
+.shooter-modern-delete { 
+
+  background: transparent; 
+
+  border: none; 
+
+  color: #ff5555; 
+
+  cursor: pointer; 
+
+  font-weight: bold; 
+
+} 
+
+ 
+
+.shooter-modern-add { 
+
+  display: flex; 
+
+  gap: 6px; 
+
+  margin-top: 8px; 
+
+} 
+
+ 
+
+.shooter-modern-add input { 
+
+  flex: 1; 
+
+  padding: 8px; 
+
+  border-radius: 8px; 
+
+  border: 1px solid #333; 
+
+  background: #222; 
+
+  color: white; 
+
+} 
+
+ 
+
+.shooter-modern-add button { 
+
+  padding: 8px 12px; 
+
+  border-radius: 8px; 
+
+  border: none; 
+
+  background: #00ccff; 
+
+  color: black; 
+
+  font-weight: 600; 
+
+  cursor: pointer; 
+
+} 
+
+ 
+
+@keyframes shooterFade { 
+
+  from { opacity: 0; transform: translateY(-4px); } 
+
+  to { opacity: 1; transform: translateY(0); } 
+
+} 
+.redesigned-layout { 
+
+  display: grid; 
+
+  grid-template-columns: 1fr 1fr 1fr; 
+
+  gap: 25px; 
+
+} 
+
+ 
+
+.shooter-select-row { 
+
+  display: flex; 
+
+  gap: 8px; 
+
+} 
+
+ 
+
+.secondary-btn { 
+
+  background: #222; 
+
+  border: 1px solid #444; 
+
+  color: #00ccff; 
+
+  padding: 8px 12px; 
+
+  border-radius: 6px; 
+
+  cursor: pointer; 
+
+} 
+
+ 
+
+.mode-switch { 
+
+  display: flex; 
+
+  gap: 8px; 
+
+  margin-top: 10px; 
+
+} 
+
+ 
+
+.start-buttons { 
+
+  display: flex; 
+
+  flex-direction: column; 
+
+  gap: 10px; 
+
+} 
+
+ 
+
+/* ===== MODAL ===== */ 
+
+ 
+
+.modal-overlay { 
+
+  position: fixed; 
+
+  inset: 0; 
+
+  background: rgba(0,0,0,0.6); 
+
+  display: flex; 
+
+  justify-content: center; 
+
+  align-items: center; 
+
+  z-index: 1000; 
+
+} 
+
+ 
+
+.modal-content { 
+
+  background: #1e1e1e; 
+
+  padding: 24px; 
+
+  border-radius: 12px; 
+
+  width: 400px; 
+
+  max-height: 80vh; 
+
+  overflow-y: auto; 
+  color: white;
+
+} 
+
+ 
+
+.modal-row { 
+
+  display: flex; 
+
+  justify-content: space-between; 
+
+  align-items: center; 
+
+  margin-bottom: 8px; 
+
+} 
+
+ 
+
+.modal-add { 
+
+  display: flex; 
+
+  gap: 8px; 
+
+  margin-top: 15px; 
+
+} 
+
+ 
+
+.close-btn { 
+
+  margin-top: 15px; 
+
+  width: 100%; 
+
+} 
+.sub-title { 
+
+  margin-top: 18px; 
+
+  margin-bottom: 8px; 
+
+  font-size: 14px; 
+
+  font-weight: 600; 
+
+  color: #00ccff;   /* ✅ ista plava kao ostali naslovi */ 
+  text-align: left;
 
 } 
