@@ -3,6 +3,7 @@ import type { ShootingSession } from "../types";
 import { loadSessions, saveSessions } from "../sessionManager"; 
 
 import { useState } from "react"; 
+import { useTranslation } from "react-i18next";
 
  
 
@@ -32,7 +33,7 @@ export default function ArchiveView({
 
 }: Props) { 
 
- 
+ const { t } = useTranslation();
 
   const [filterMode, setFilterMode] = useState< 
 
@@ -108,7 +109,7 @@ export default function ArchiveView({
 
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}> 
 
-        <h2>Arhiva sesija</h2> 
+        <h2>{t("archive.title")}</h2> 
 
  
 
@@ -136,7 +137,7 @@ export default function ArchiveView({
 
         > 
 
-          <option value="all">Svi strelci</option> 
+          <option value="all">{t("common.all_shooters")}</option> 
 
           {shooters.map((s: any) => ( 
 
@@ -180,7 +181,7 @@ export default function ArchiveView({
 
         > 
 
-          ← Povratak na glavni ekran 
+          ← {t("common.back")} 
 
         </button> 
 
@@ -192,13 +193,35 @@ export default function ArchiveView({
 
       <div style={{ marginBottom: "15px" }}> 
 
-        <button onClick={() => setFilterMode("all")}>Sve</button> 
+<button onClick={() => setFilterMode("all")}> 
 
-        <button onClick={() => setFilterMode("training")}>Trening</button> 
+  {t("archive.filters.all")} 
 
-        <button onClick={() => setFilterMode("qualification")}>Kvalifikacije</button> 
+</button> 
 
-        <button onClick={() => setFilterMode("final")}>Finale</button> 
+ 
+
+<button onClick={() => setFilterMode("training")}> 
+
+  {t("archive.filters.training")} 
+
+</button> 
+
+ 
+
+<button onClick={() => setFilterMode("qualification")}> 
+
+  {t("archive.filters.qualification")} 
+
+</button> 
+
+ 
+
+<button onClick={() => setFilterMode("final")}> 
+
+  {t("archive.filters.final")} 
+
+</button> 
 
       </div> 
 
@@ -238,7 +261,7 @@ export default function ArchiveView({
 
         > 
 
-          EXPORT ARHIVE 
+          {t("archive.export")}
 
         </button> 
 
@@ -282,7 +305,7 @@ reader.onload = (event) => {
 
     if (!Array.isArray(importedSessions)) { 
 
-      alert("Neispravan format fajla."); 
+      alert(t("archive.import.invalid_format"));  
 
       return; 
 
@@ -326,7 +349,7 @@ reader.onload = (event) => {
 
  
 
-    alert("Arhiva uspešno učitana."); 
+    alert(t("archive.import.success")); 
 
     window.location.reload(); 
 
@@ -336,7 +359,7 @@ reader.onload = (event) => {
 
     console.error("Parse error:", err); 
 
-    alert("Greška pri parsiranju fajla."); 
+    alert(t("archive.import.error"));  
 
   } 
 
@@ -370,23 +393,23 @@ reader.onload = (event) => {
 
             <tr> 
 
-              <th style={{ width: "120px", cursor: "pointer" }} onClick={() => handleSort("date")}>Datum</th> 
+              <th style={{ width: "120px", cursor: "pointer" }} onClick={() => handleSort("date")}>{t("archive.table.date")} </th> 
 
-              <th style={{ width: "160px" }}>Strelac</th> {/* ✅ NOVA KOLONA */} 
+              <th style={{ width: "160px" }}>{t("archive.table.shooter")} </th> {/* ✅ NOVA KOLONA */} 
 
-              <th style={{ width: "100px" }}>Tip</th> 
+              <th style={{ width: "100px" }}>{t("archive.table.type")} </th> 
 
-              <th style={{ width: "180px" }}>Takmičenje</th> 
+              <th style={{ width: "180px" }}>{t("archive.table.competition")} </th> 
 
-              <th style={{ width: "80px" }}>Format</th> 
+              <th style={{ width: "80px" }}>{t("archive.table.format")}</th> 
 
-              <th style={{ width: "90px", cursor: "pointer" }} onClick={() => handleSort("total")}>Ukupno</th> 
+              <th style={{ width: "90px", cursor: "pointer" }} onClick={() => handleSort("total")}>{t("archive.table.total")} </th> 
 
-              <th style={{ width: "80px", cursor: "pointer" }} onClick={() => handleSort("duration")}>Trajanje</th> 
+              <th style={{ width: "80px", cursor: "pointer" }} onClick={() => handleSort("duration")}>{t("archive.table.duration")} </th> 
 
-              <th style={{ width: "120px", cursor: "pointer" }} onClick={() => handleSort("status")}>Status</th> 
+              <th style={{ width: "120px", cursor: "pointer" }} onClick={() => handleSort("status")}>{t("archive.table.status")} </th> 
 
-              <th style={{ width: "80px" }}>Akcija</th> 
+              <th style={{ width: "80px" }}>{t("archive.table.action")} </th> 
 
             </tr> 
 
@@ -564,15 +587,15 @@ reader.onload = (event) => {
 
                     <td> 
 
-                      {!session.completed && "U toku"} 
+{!session.completed && t("archive.status.in_progress")} 
 
-                      {session.completed && session.finishReason === "manual" && "Ručno završeno"} 
+{session.completed && session.finishReason === "manual" && t("archive.status.manual")} 
 
-                      {session.completed && session.finishReason === "shots_limit" && "Limit hitaca"} 
+{session.completed && session.finishReason === "shots_limit" && t("archive.status.shots_limit")} 
 
-                      {session.completed && session.finishReason === "time_limit" && "Isteklo vreme"} 
+{session.completed && session.finishReason === "time_limit" && t("archive.status.time_limit")} 
 
-                      {session.completed && !session.finishReason && "Završeno"} 
+{session.completed && !session.finishReason && t("archive.status.finished")} 
 
                     </td> 
 
@@ -586,7 +609,7 @@ reader.onload = (event) => {
 
                           e.stopPropagation(); 
 
-                          if (!window.confirm("Obrisati ovu sesiju?")) return; 
+                          if (!window.confirm(t("archive.delete_confirm"))) return; 
 
                           onDeleteSession(session.id); 
 
@@ -594,7 +617,7 @@ reader.onload = (event) => {
 
                       > 
 
-                        Obriši 
+                       {t("archive.delete")}
 
                       </button> 
 

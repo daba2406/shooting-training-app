@@ -18,7 +18,7 @@ interface TransferMetrics {
 
   avgSeriesConsistency: number; 
 
-  gapStatus: string; 
+  gapKey: string; 
 
   gapColor: string; 
 
@@ -158,29 +158,29 @@ export const useTransferMetrics = (
 
     // ✅ Gap status (realniji pragovi) 
 
-    let gapStatus = "Stabilan transfer"; 
+let gapKey = "stable"; 
 
-    let gapColor = "#4caf50"; 
+let gapColor = "#4caf50"; 
 
  
 
-    if (competitionGap < -2.0) { 
+if (competitionGap < -2.0) { 
 
-      gapStatus = "Značajan pad na takmičenju"; 
+  gapKey = "major_decline";  
 
       gapColor = "#e53935"; 
 
-    } else if (competitionGap < -1.0) { 
+} else if (competitionGap < -1.0) { 
 
-      gapStatus = "Blagi pad na takmičenju"; 
+  gapKey = "minor_decline";  
 
       gapColor = "#ff7043"; 
 
     } else if (competitionGap > 2.0) { 
 
-      gapStatus = "Takmičenje bolje od treninga"; 
+} else if (competitionGap > 2.0) { 
 
-      gapColor = "#4caf50"; 
+  gapKey = "competition_better";  
 
     } 
 
@@ -200,7 +200,7 @@ export const useTransferMetrics = (
 
       avgSeriesConsistency, 
 
-      gapStatus, 
+      gapKey, 
 
       gapColor 
 

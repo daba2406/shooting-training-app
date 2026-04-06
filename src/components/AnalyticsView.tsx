@@ -9,6 +9,7 @@ import { useFatigueDrift } from "../analytics/useFatigueDrift";
 import { useFocusStability } from "../analytics/useFocusStability";
 import { generateCoachingInsight } from "../analytics/useCoachingInsight";
 import { useState} from "react";
+import { useTranslation } from "react-i18next";
 
 import { 
 
@@ -170,6 +171,7 @@ const [selectedShooterTraining, setSelectedShooterTraining] = useState<string>("
 const storedShooters = localStorage.getItem("shooters"); 
 
 const shooters = storedShooters ? JSON.parse(storedShooters) : []; 
+const { t } = useTranslation ();
 
 const availableSessions = sessions 
 
@@ -250,7 +252,7 @@ const selectedMatches = sessions
   ); 
   if (!selectedMatches.length) { 
 
-  return <div>No data available</div>; 
+  return <div>{t("analytics.no_data")}</div>; 
 
 } 
 
@@ -295,7 +297,7 @@ const competitionGap =
 
   transferMetrics.competitionGap; 
 
- const gapStatus = transferMetrics.gapStatus; 
+ const gapKey = transferMetrics.gapKey; 
 
 const gapColor = transferMetrics.gapColor; 
 
@@ -329,9 +331,9 @@ const meanRadiusCorrelation =
 
  
 
-const technicalStatus = 
+const technicalKey = 
 
-  meanRadiusStats?.technicalStatus ?? "Stabilna grupa"; 
+  meanRadiusStats?.technicalKey ?? "stable_group"; 
 
  
 
@@ -353,7 +355,7 @@ const pressureBest = pressureStats?.pressureBest ?? 0;
 
 const pressureWorst = pressureStats?.pressureWorst ?? 0; 
 
-const pressureStatus = pressureStats?.pressureStatus ?? "Stabilan"; 
+const pressureKey = pressureStats?.pressureKey ?? "stable"; 
 
 const pressureColor = pressureStats?.pressureColor ?? "#4caf50"; 
 
@@ -361,7 +363,7 @@ const volatilityIndex =
 
   useVolatilityIndex(selectedMatches) ?? 0; 
 
-let volatilityStatus = "Nema podatka"; 
+let volatilityKey = "no_data"; 
 
 let volatilityColor = "#aaa"; 
 
@@ -369,21 +371,21 @@ let volatilityColor = "#aaa";
 
 if (volatilityIndex < 0.5) { 
 
-  volatilityStatus = "Izuzetno stabilno"; 
+  volatilityKey = "very_stable"; 
 
-  volatilityColor = "#4caf50"; // Green 
+  volatilityColor = "#4caf50"; 
 
 } else if (volatilityIndex < 1) { 
 
-  volatilityStatus = "Stable"; 
+  volatilityKey = "moderate"; 
 
-  volatilityColor = "#ff9800"; // Orange 
+  volatilityColor = "#ff9800"; 
 
 } else { 
 
-  volatilityStatus = "Unstable"; 
+  volatilityKey = "unstable"; 
 
-  volatilityColor = "#e53935"; // Red 
+  volatilityColor = "#e53935"; 
 
 } 
 
@@ -478,7 +480,7 @@ const mentalProfile = {
 const coaching = generateCoachingInsight(mentalProfile); 
 
 
-let tempoStatus = "Stabilan tempo"; 
+let tempoStatusKey = "stable"; 
 
 let tempoColor = "#4caf50"; 
 
@@ -486,13 +488,13 @@ let tempoColor = "#4caf50";
 
 if (qualificationTempoZ > 0.5) { 
 
-  tempoStatus = "Produžavanje nakon greške"; 
+   tempoStatusKey = "slow_after_error"; 
 
   tempoColor = "#ff9800"; 
 
 } else if (qualificationTempoZ < -0.5) { 
 
-  tempoStatus = "Ubrzavanje nakon greške"; 
+  tempoStatusKey = "fast_after_error"; 
 
   tempoColor = "#e53935"; 
 
@@ -500,43 +502,41 @@ if (qualificationTempoZ > 0.5) {
 
   // ✅ Recovery Status – Training 
 
-let recoveryTrainingStatus = "Nema podataka"; 
+let recoveryTrainingKey = "no_data"; 
 
 let recoveryTrainingColor = "#aaa"; 
 
  
 
-if (recoveryTraining >= 90) { 
+if (recoveryTraining >= 90) {
+  
+  recoveryTrainingKey = "elite"; 
 
-  recoveryTrainingStatus = "Elite Recovery"; 
+  recoveryTrainingColor = "#4caf50";} 
 
-  recoveryTrainingColor = "#4caf50"; 
+else if (recoveryTraining >= 75) {
 
-} else if (recoveryTraining >= 75) { 
+  recoveryTrainingKey = "stable_reset"; 
 
-  recoveryTrainingStatus = "Stabilan reset"; 
+  recoveryTrainingColor = "#8bc34a";} 
 
-  recoveryTrainingColor = "#8bc34a"; 
+else if (recoveryTraining >= 60)  {
 
-} else if (recoveryTraining >= 60) { 
+  recoveryTrainingKey = "extended_drop"; 
 
-  recoveryTrainingStatus = "Produžen pad"; 
+  recoveryTrainingColor = "#ff9800";} 
 
-  recoveryTrainingColor = "#ff9800"; 
+ else if (recoveryTraining > 0)  {
 
-} else if (recoveryTraining > 0) { 
+  recoveryTrainingKey = "cascade_drop"; 
 
-  recoveryTrainingStatus = "Serijski pad"; 
-
-  recoveryTrainingColor = "#e53935"; 
-
-} 
+  recoveryTrainingColor = "#e53935";} 
 
  
 
 // ✅ Recovery Status – Qualification 
 
-let recoveryQualificationStatus = "Nema podataka"; 
+let recoveryQualificationKey = "no_data"; 
 
 let recoveryQualificationColor = "#aaa"; 
 
@@ -544,51 +544,51 @@ let recoveryQualificationColor = "#aaa";
 
 if (recoveryQualification >= 90) { 
 
-  recoveryQualificationStatus = "Elite Recovery"; 
+  recoveryQualificationKey = "elite"; 
 
   recoveryQualificationColor = "#4caf50"; 
 
 } else if (recoveryQualification >= 75) { 
 
-  recoveryQualificationStatus = "Stabilan reset"; 
+  recoveryQualificationKey = "stable_reset"; 
 
   recoveryQualificationColor = "#8bc34a"; 
 
 } else if (recoveryQualification >= 60) { 
 
-  recoveryQualificationStatus = "Produžen pad"; 
+  recoveryQualificationKey = "extended_drop"; 
 
   recoveryQualificationColor = "#ff9800"; 
 
 } else if (recoveryQualification > 0) { 
 
-  recoveryQualificationStatus = "Serijski pad"; 
+  recoveryQualificationKey = "cascade_drop"; 
 
   recoveryQualificationColor = "#e53935"; 
 
 } 
 
-let fatigueStatus = "Stabilan završetak"; 
+let fatigueKey = "stable_finish"; 
 
 let fatigueColor = "#4caf50"; 
 
  
 
-if ((qualificationDrift ?? 0) < -0.3)  { 
+if ((qualificationDrift ?? 0) < -0.3) { 
 
-  fatigueStatus = "Pad kroz meč"; 
+  fatigueKey = "decline"; 
 
   fatigueColor = "#e53935"; 
 
-} else if ((qualificationDrift ?? 0) > 0.3)  { 
+} else if ((qualificationDrift ?? 0) > 0.3) { 
 
-  fatigueStatus = "Rast kroz meč"; 
+  fatigueKey = "growth"; 
 
   fatigueColor = "#8bc34a"; 
 
 } 
 
-let cascadeStatus = "Bez kaskade"; 
+let cascadeKey = "none"; 
 
 let cascadeColor = "#4caf50"; 
 
@@ -596,19 +596,19 @@ let cascadeColor = "#4caf50";
 
 if (qualificationCascade > 40) { 
 
-  cascadeStatus = "Serijski pad"; 
+  cascadeKey = "strong"; 
 
   cascadeColor = "#e53935"; 
 
 } else if (qualificationCascade > 25) { 
 
-  cascadeStatus = "Umerena kaskada"; 
+  cascadeKey = "moderate"; 
 
   cascadeColor = "#ff9800"; 
 
 } else if (qualificationCascade > 10) { 
 
-  cascadeStatus = "Blaga kaskada"; 
+  cascadeKey = "mild"; 
 
   cascadeColor = "#fbc02d"; 
 
@@ -620,7 +620,7 @@ if (qualificationCascade > 40) {
 
 let pti = 0; 
 
-let ptiStatus = ""; 
+let ptiKey = "none"; 
 
 let ptiColor = "#aaa"; 
 
@@ -688,25 +688,25 @@ if (hasQualification && hasTraining) {
 
   if (pti >= 80) { 
 
-    ptiStatus = "Odličan transfer"; 
+    ptiKey = "excellent"; 
 
     ptiColor = "#4caf50"; 
 
   } else if (pti >= 65) { 
 
-    ptiStatus = "Dobar transfer"; 
+    ptiKey = "good"; 
 
     ptiColor = "#8bc34a"; 
 
   } else if (pti >= 50) { 
 
-    ptiStatus = "Umeren transfer"; 
+    ptiKey = "moderate"; 
 
     ptiColor = "#ff9800"; 
 
   } else { 
 
-    ptiStatus = "Slab transfer"; 
+    ptiKey = "weak"; 
 
     ptiColor = "#e53935"; 
 
@@ -1149,9 +1149,9 @@ if (shotTimes.length > 1) {
 
 } 
 
-let correlationStrength = ""; 
+let correlationStrengthKey = "none"; 
 
-let correlationDirection = ""; 
+let correlationDirectionKey = ""; 
 
 let correlationColor = "#aaa"; 
 
@@ -1165,23 +1165,23 @@ const absR = Math.abs(pearsonR);
 
 if (absR < 0.2) { 
 
-  correlationStrength = "Bez značajne povezanosti"; 
+  correlationStrengthKey = "none"; 
 
 } else if (absR < 0.4) { 
 
-  correlationStrength = "Slaba povezanost"; 
+  correlationStrengthKey = "weak"; 
 
 } else if (absR < 0.6) { 
 
-  correlationStrength = "Umerena povezanost"; 
+  correlationStrengthKey = "moderate"; 
 
 } else if (absR < 0.8) { 
 
-  correlationStrength = "Jaka povezanost"; 
+  correlationStrengthKey = "strong"; 
 
 } else { 
 
-  correlationStrength = "Veoma jaka povezanost"; 
+  correlationStrengthKey = "very_strong"; 
 
 } 
 
@@ -1191,19 +1191,19 @@ if (absR < 0.2) {
 
 if (pearsonR > 0.2) { 
 
-  correlationDirection = "Duže ciljanje je povezano sa boljim rezultatom."; 
+  correlationDirectionKey = "positive"; 
 
   correlationColor = "#4caf50"; 
 
 } else if (pearsonR < -0.2) { 
 
-  correlationDirection = "Duže ciljanje je povezano sa padom rezultata."; 
+  correlationDirectionKey = "negative"; 
 
   correlationColor = "#f44336"; 
 
 } else { 
 
-  correlationDirection = "Vreme opaljenja nema jasan uticaj na rezultat."; 
+  correlationDirectionKey = "neutral"; 
 
 } 
 
@@ -1560,9 +1560,9 @@ const upper95 = predictedNext + 2 * stdDev;
 
  
 
-let correlationStatus = ""; 
+let correlationKey = "none"; 
 
-correlationColor = "#4caf50"; 
+correlationColor = "#aaa"; 
 
  
 
@@ -1570,35 +1570,33 @@ if (analyticsMode === "qualification") {
 
   const r = meanRadiusCorrelation; 
 
- 
-
   if (r <= -0.7) { 
 
-    correlationStatus = "Veoma jaka negativna povezanost"; 
+    correlationKey = "very_strong_negative"; 
 
     correlationColor = "#4caf50"; 
 
   } else if (r <= -0.4) { 
 
-    correlationStatus = "Umerena negativna povezanost"; 
+    correlationKey = "moderate_negative"; 
 
     correlationColor = "#8bc34a"; 
 
   } else if (r < 0) { 
 
-    correlationStatus = "Slaba negativna povezanost"; 
+    correlationKey = "weak_negative"; 
 
     correlationColor = "#ff9800"; 
 
   } else if (r >= 0.4) { 
 
-    correlationStatus = "Neočekivana pozitivna povezanost"; 
+    correlationKey = "unexpected_positive"; 
 
     correlationColor = "#e53935"; 
 
   } else { 
 
-    correlationStatus = "Slaba ili bez značajne povezanosti"; 
+    correlationKey = "insignificant"; 
 
     correlationColor = "#aaa"; 
 
@@ -1628,7 +1626,7 @@ const currentFocus =
 
  
 
-let focusStatus = "Stabilan fokus"; 
+let focusKey = "stable"; 
 
 let focusColor = "#4caf50"; 
 
@@ -1636,13 +1634,13 @@ let focusColor = "#4caf50";
 
 if (currentFocus > 0.35) { 
 
-  focusStatus = "Mikro nestabilnost"; 
+  focusKey = "micro_instability"; 
 
   focusColor = "#ff9800"; 
 
 } else if (currentFocus > 0.5) { 
 
-  focusStatus = "Povećana oscilacija"; 
+  focusKey = "oscillation"; 
 
   focusColor = "#e53935"; 
 
@@ -1717,13 +1715,13 @@ if (currentFocus > 0.35) {
 
   <h2 style={{ margin: 0 }}> 
 
-    {analyticsMode === "qualification" 
+  {analyticsMode === "qualification" 
 
-      ? "Qualification Analytics" 
+    ? t("analytics.qualification.title") 
 
-      : "Training Analytics"} 
+    : t("analytics.training.title")} 
 
-  </h2> 
+</h2> 
 
  
 
@@ -1767,7 +1765,7 @@ if (currentFocus > 0.35) {
 
   > 
 
-    <option value="all">Svi strelci</option> 
+    <option value="all">{t("common.all_shooters")}</option> 
 
     {shooters.map((s: any) => ( 
 
@@ -1830,7 +1828,7 @@ if (currentFocus > 0.35) {
 
     > 
 
-      Qualification 
+      {t("analytics.qualification.button")}
 
     </button> 
 
@@ -1864,7 +1862,7 @@ if (currentFocus > 0.35) {
 
     > 
 
-      Training 
+      {t("analytics.training.button")}
 
     </button> 
 
@@ -1876,7 +1874,7 @@ if (currentFocus > 0.35) {
 
   <label style={{ marginRight: "6px" }}> 
 
-    Analiza: 
+    {t("analytics.analysis")}
 
   </label> 
 
@@ -1900,7 +1898,7 @@ if (currentFocus > 0.35) {
 
     <option value=""> 
 
-      Svi mečevi 
+      {t("analytics.all_matches")}
 
     </option> 
 
@@ -1942,7 +1940,7 @@ if (currentFocus > 0.35) {
 
   > 
 
-    Nazad 
+    {t("common.back")}
 
   </button> 
 
@@ -1972,13 +1970,13 @@ if (currentFocus > 0.35) {
 
   <h3 style={{ marginBottom: "10px" }}> 
 
-    Overview 
+    {t("analytics.overview")}
 
   </h3> 
 
 <div style={{ marginBottom: "10px" }}> 
 
-  Broj kvalifikacionih mečeva: {matchCount} 
+  {t("analytics.match_count")} {matchCount} 
 
 </div> 
 
@@ -1986,17 +1984,17 @@ if (currentFocus > 0.35) {
 
 <div style={{ marginBottom: "10px" }}> 
 
-  Prosek: {mean.toFixed(1)} 
+  {t("analytics.average")} {mean.toFixed(1)} 
 
 </div> 
 <div style={{ marginBottom: "10px" }}> 
 
-  Najbolji rezultat: {best.toFixed(1)} 
+  {t("analytics.best")} {best.toFixed(1)} 
 
 </div> 
 <div style={{ marginBottom: "10px" }}> 
 
-  Najslabiji rezultat: {worst.toFixed(1)} 
+  {t("analytics.worst")} {worst.toFixed(1)} 
 
 </div> 
 
@@ -2020,7 +2018,7 @@ if (currentFocus > 0.35) {
 
     <div style={{ fontWeight: 600, marginBottom: "5px" }}> 
 
-      Competition Gap 
+      {t("analytics.competition_gap")}
 
     </div> 
 
@@ -2028,7 +2026,7 @@ if (currentFocus > 0.35) {
 
 <div style={{ marginBottom: "5px" }}> 
 
-  Razlika (Qualification − Training):{" "} 
+  {t("analytics.gap_difference")}:{" "} 
 
   {competitionGap.toFixed(2)} 
 
@@ -2040,13 +2038,13 @@ if (currentFocus > 0.35) {
 
 <StatusWithHelp 
 
-  label="Status" 
+  label={t("analytics.status")} 
 
-  status={gapStatus} 
+  status={t(`analytics.gap.${gapKey}`)} 
 
   color={gapColor} 
 
-  description="Competition Gap pokazuje razliku između proseka takmičenja i treninga. Negativna vrednost znači pad na takmičenju, pozitivna znači bolji rezultat pod pritiskom." 
+  description={t("analytics.gap_description")}
 
 />  
 
@@ -2092,13 +2090,15 @@ if (currentFocus > 0.35) {
 
 <StatusWithHelp 
 
-  label="Status" 
+  label={t("analytics.status")}
 
-  status={ptiStatus} 
+   
+
+status={t(`analytics.pti.${ptiKey}`)}  
 
   color={ptiColor} 
 
-  description="Performance Transfer Index pokazuje koliko se forma sa treninga prenosi na takmičenje. Viši indeks znači bolji transfer." 
+  description={t("analytics.pti_description")} 
 
 />  
 
@@ -2122,30 +2122,30 @@ if (currentFocus > 0.35) {
 
   <h3 style={{ marginBottom: "10px" }}> 
 
-    Predikcija 
+    {t("analytics.prediction")}
 
   </h3> 
 
 <div style={{ marginBottom: "10px", fontWeight: 600 }}> 
 
-  Predviđeni sledeći rezultat: {predictedNext.toFixed(1)} 
+  {t("analytics.predicted_next")} {predictedNext.toFixed(1)} 
 
 </div> 
 <div style={{ marginBottom: "10px" }}> 
 
-  Realističan opseg (68%): {lower68.toFixed(1)} – {upper68.toFixed(1)} 
-
-</div> 
-
-<div style={{ marginBottom: "10px" }}> 
-
-  Realističan opseg (95%): {lower95.toFixed(1)} – {upper95.toFixed(1)} 
+  {t("analytics.range_68")} {lower68.toFixed(1)} – {upper68.toFixed(1)} 
 
 </div> 
 
 <div style={{ marginBottom: "10px" }}> 
 
-  Verovatnoća rezultata ≥ 630: {(probability630 * 100).toFixed(1)}% 
+  {t("analytics.range_95")} {lower95.toFixed(1)} – {upper95.toFixed(1)} 
+
+</div> 
+
+<div style={{ marginBottom: "10px" }}> 
+
+  {t("analytics.probability_630")} {(probability630 * 100).toFixed(1)}% 
 
 
 </div> 
@@ -2154,7 +2154,7 @@ if (currentFocus > 0.35) {
 
   <h3 style={{ marginBottom: "10px" }}> 
 
-    Clossing Performance 
+    {t("analytics.closing.title")} 
 
   </h3> 
 
@@ -2164,13 +2164,13 @@ if (currentFocus > 0.35) {
 
 <StatusWithHelp 
 
-  label="Status" 
+  label={t("analytics.status")}
 
-  status={pressureStatus} 
+  status={t(`analytics.closing_status.${pressureKey}`)} 
 
   color={pressureColor} 
 
-  description="Closing Performance meri razliku između prvih 15 i poslednjih 15 hitaca. Pozitivna vrednost znači jači završetak, negativna znači pad u završnom segmentu." 
+  description={t("analytics.closing.description")} 
 
 /> 
 
@@ -2179,7 +2179,7 @@ if (currentFocus > 0.35) {
  
 <div> 
 
-  Prosečan: {pressureMean.toFixed(2)} 
+  {t("analytics.closing.average")} {pressureMean.toFixed(2)} 
 
 </div> 
 
@@ -2187,7 +2187,7 @@ if (currentFocus > 0.35) {
 
 <div> 
 
-  Najveći rast u završnici: +{pressureBest.toFixed(2)} 
+  {t("analytics.closing.best_growth")} +{pressureBest.toFixed(2)} 
 
 </div> 
 
@@ -2195,7 +2195,7 @@ if (currentFocus > 0.35) {
 
 <div style={{ marginBottom: "10px" }}> 
 
-  Najveći pad u završnici: {pressureWorst.toFixed(2)} 
+  {t("analytics.closing.biggest_drop")} {pressureWorst.toFixed(2)} 
 
 </div> 
 
@@ -2205,11 +2205,11 @@ if (currentFocus > 0.35) {
 
     label={`Focus Stability (${currentFocus.toFixed(2)})`} 
 
-    status={focusStatus} 
+    status={t(`analytics.focus.${focusKey}`)} 
 
     color={focusColor} 
 
-    description="Rolling standardna devijacija (5-hitac prozor) koja meri mikro stabilnost fokusa kroz meč." 
+    description={t("analytics.focus.description")} 
 
   /> 
 
@@ -2248,11 +2248,10 @@ if (currentFocus > 0.35) {
 
     color={volatilityColor} 
 
-    description="Indikator nestabilnosti unutar meča. Niža vrednost označava veću stabilnost rezultata." 
-
+    description={t("analytics.volatility.description")} 
   /> 
 
-  <p>Status: {volatilityStatus}</p> 
+  <p>{t("analytics.status")}: {t(`analytics.volatility.${volatilityKey}`)}</p> 
 
 </div> 
 
@@ -2260,7 +2259,7 @@ if (currentFocus > 0.35) {
 
   <h3 style={{ marginBottom: "10px" }}> 
 
-    🧠 Mental Performance 
+    🧠 {t("analytics.mental.title")} 
 
   </h3> 
 
@@ -2286,11 +2285,11 @@ if (currentFocus > 0.35) {
 
       label={`Recovery – Training (${recoveryTraining.toFixed(1)})`} 
 
-      status={recoveryTrainingStatus} 
+      status={t(`analytics.recovery.${recoveryTrainingKey}`)} 
 
       color={recoveryTrainingColor} 
 
-      description="Recovery Score meri koliko brzo se strelac oporavlja nakon pada ispod dinamičkog praga. Viša vrednost znači brži i stabilniji mentalni reset." 
+      description={t("analytics.mental.recovery_training_desc")}
 
     /> 
 
@@ -2304,11 +2303,11 @@ if (currentFocus > 0.35) {
 
       label={`Recovery – Qualification (${recoveryQualification.toFixed(1)})`} 
 
-      status={recoveryQualificationStatus} 
+      status={t(`analytics.recovery.${recoveryQualificationKey}`)} 
 
       color={recoveryQualificationColor} 
 
-      description="Recovery Score meri sposobnost mentalnog oporavka tokom takmičenja nakon pada performanse." 
+      description={t("analytics.mental.recovery_qualification_desc")}
 
     /> 
 
@@ -2316,7 +2315,7 @@ if (currentFocus > 0.35) {
 
   <div> 
 
-    Immediate Recovery: {qualificationImmediate.toFixed(1)}% 
+    {t("analytics.mental.immediate_recovery")} {qualificationImmediate.toFixed(1)}% 
 
   </div> 
 
@@ -2324,7 +2323,7 @@ if (currentFocus > 0.35) {
 
   <div> 
 
-    Avg Recovery Depth: {qualificationDepth.toFixed(1)} 
+    {t("analytics.mental.recovery_depth")} {qualificationDepth.toFixed(1)} 
 
   </div> 
 
@@ -2332,11 +2331,11 @@ if (currentFocus > 0.35) {
 
   label={`Cascade (${qualificationCascade.toFixed(1)}%)`} 
 
-  status={cascadeStatus} 
+  status={t(`analytics.cascade.${cascadeKey}`)} 
 
   color={cascadeColor} 
 
-  description="Cascade Index pokazuje procenat padova performanse koji su praćeni nizom od dva ili više uzastopnih slabijih hitaca. Viši procenat znači veću verovatnoću emocionalne spirale." 
+  description={t("analytics.mental.cascade_desc")}
 
 /> 
 
@@ -2351,11 +2350,11 @@ if (currentFocus > 0.35) {
 
     label={`Tempo (${qualificationTempoZ.toFixed(2)})`} 
 
-    status={tempoStatus} 
+    status={t(`analytics.tempo.${tempoStatusKey}`)} 
 
     color={tempoColor} 
 
-    description="Reakcija tempa nakon pada performanse (Z-score)." 
+    description={t("analytics.mental.tempo_desc")}
 
   /> 
 
@@ -2367,11 +2366,11 @@ if (currentFocus > 0.35) {
 
     label={`Fatigue (${qualificationDrift.toFixed(2)})`} 
 
-    status={fatigueStatus} 
+    status={t(`analytics.fatigue.${fatigueKey}`)} 
 
     color={fatigueColor} 
 
-    description="Fatigue Drift pokazuje promenu performanse između prve i druge polovine meča. Negativna vrednost znači pad, pozitivna rast kroz meč." 
+    description={t("analytics.mental.fatigue_desc")}
 
   /> 
 
@@ -2385,7 +2384,7 @@ if (currentFocus > 0.35) {
 
   <h3 style={{ marginBottom: "10px" }}> 
 
-    🎯 Coaching Insight 
+    🎯 {t("analytics.coaching.title")}
 
   </h3> 
 
@@ -2411,21 +2410,37 @@ if (currentFocus > 0.35) {
 
   > 
 
-    <strong>Insight:</strong> 
+    <strong>{t("analytics.coaching.insight_label")}</strong> 
 
     <div style={{ marginTop: "6px", marginBottom: "12px" }}> 
 
-      {coaching.insight} 
+      {coaching.insightKeys.map((item, i) => ( 
+
+  <div key={i}> 
+
+    {t(`analytics.coaching.insight.${item.key}`, item.params)} 
+
+  </div> 
+
+))} 
 
     </div> 
 
  
 
-    <strong>Preporuka:</strong> 
+    <strong>{t("analytics.coaching.recommendation_label")}</strong> 
 
     <div style={{ marginTop: "6px" }}> 
 
-      {coaching.recommendation} 
+      {coaching.recommendationKeys.map((item, i) => ( 
+
+  <div key={i}> 
+
+    {t(`analytics.coaching.recommendation.${item.key}`, item.params)} 
+
+  </div> 
+
+))} 
 
     
     
@@ -2437,7 +2452,7 @@ if (currentFocus > 0.35) {
 
   <h3 style={{ marginBottom: "10px" }}> 
 
-    🧭 Composite Coaching Summary 
+    🧭 {t("analytics.coaching.composite_title")}
 
   </h3> 
 
@@ -2463,7 +2478,7 @@ if (currentFocus > 0.35) {
 
   > 
 
-    {coaching.composite} 
+    {t(`analytics.coaching.composite.${coaching.compositeKey}`)}  
 
   </div> 
 
@@ -2473,24 +2488,24 @@ if (currentFocus > 0.35) {
 
   <h3 style={{ marginBottom: "10px" }}> 
 
-    Trendiranje
+    {t("analytics.trend.title")}
 
   </h3> 
 
 <div style={{ marginBottom: "10px" }}> 
 
-  Trend (po meču): {slope.toFixed(3)} 
+  {t("analytics.trend.per_match")} {slope.toFixed(3)} 
 
 </div> 
 
  <div style={{ marginBottom: "10px" }}> 
 
-  Standardna devijacija: {stdDev.toFixed(2)} 
+  {t("analytics.trend.std_dev")} {stdDev.toFixed(2)} 
 
 </div> 
 <div style={{ marginBottom: "10px" }}> 
 
-  Ponderisani prosek (poslednjih 5): {weightedRecent.toFixed(1)} 
+  {t("analytics.trend.weighted_recent")} {weightedRecent.toFixed(1)} 
 
 </div> 
 
@@ -2595,7 +2610,7 @@ if (currentFocus > 0.35) {
 
   <h3 style={{ marginBottom: "10px" }}> 
 
-    Tehnička analiza (Mean Radius) 
+    {t("analytics.technical.title")}
 
   </h3> 
 
@@ -2625,13 +2640,12 @@ if (currentFocus > 0.35) {
 
 <StatusWithHelp 
 
-  label="Status" 
-
-  status={technicalStatus} 
+  label={t("analytics.status")}
+  status={t(`analytics.technical_status.${technicalKey}`)} 
 
   color={technicalColor} 
 
-  description="Mean Radius trend pokazuje da li se grupa zatvara ili širi kroz vreme. Negativan trend znači tehničko poboljšanje." 
+  description={t("analytics.technical.mean_radius_desc")} 
 
 /> 
 
@@ -2641,7 +2655,7 @@ if (currentFocus > 0.35) {
 
       <div style={{ marginBottom: "6px" }}> 
 
-        Prosečan Mean Radius:{" "} 
+        {t("analytics.technical.mean_radius")}{" "} 
 
         {meanRadiusAverage.toFixed(2)} mm 
 
@@ -2651,7 +2665,7 @@ if (currentFocus > 0.35) {
 
       <div> 
 
-        Trend Mean Radius:{" "} 
+        {t("analytics.technical.mean_radius_trend")}{" "} 
 
         {meanRadiusSlope.toFixed(4)} 
 
@@ -2665,7 +2679,7 @@ if (currentFocus > 0.35) {
     borderTop: "1px solid #333"
   }}> 
 
-    Korelacija (Mean Radius ↔ Rezultat):{" "} 
+    {t("analytics.technical.correlation_label")}{" "} 
 
     {meanRadiusCorrelation.toFixed(2)} 
 
@@ -2678,12 +2692,11 @@ if (currentFocus > 0.35) {
 
   label="Status" 
 
-  status={correlationStatus} 
+  status={t(`analytics.correlation_strength.${correlationKey}`)} 
 
   color={correlationColor} 
 
-  description="Korelacija pokazuje koliko je tehnička stabilnost (Mean Radius) povezana sa rezultatom. Negativna jaka korelacija znači da zatezanje grupe direktno poboljšava rezultat." 
-
+  description={t("analytics.technical.correlation_desc")}
 /> 
 
   </div> 
@@ -2786,7 +2799,7 @@ if (currentFocus > 0.35) {
 
     <h3 style={{ marginBottom: "12px" }}> 
 
-      Analiza vremena opaljenja 
+      {t("analytics.timing.title")}
 
     </h3> 
 
@@ -2796,9 +2809,9 @@ if (currentFocus > 0.35) {
 
     <div style={{ marginBottom: "12px" }}> 
 
-      <div>Prosečno vreme: {meanTime.toFixed(2)} s</div> 
+      <div>{t("analytics.timing.mean_time")} {meanTime.toFixed(2)} s</div> 
 
-      <div>Standardna devijacija: {stdDevTime.toFixed(2)} s</div> 
+      <div>{t("analytics.timing.std_dev")} {stdDevTime.toFixed(2)} s</div> 
 
     </div> 
 
@@ -2820,7 +2833,7 @@ if (currentFocus > 0.35) {
 
       <div style={{ fontWeight: 600, marginBottom: "8px" }}> 
 
-        Performanse po vremenskim zonama 
+        {t("analytics.timing.zone_performance")}
 
       </div> 
 
@@ -2830,7 +2843,7 @@ if (currentFocus > 0.35) {
 
   <div> 
 
-    Rano opaljenje ({bucketStats.fast.count} hitaca) <br /> 
+    {t("analytics.timing.fast")} ({bucketStats.fast.count} {t("analytics.timing.shot_count_label")})  <br /> 
 
     <span style={{ color: "#aaa", fontSize: "0.9rem" }}> 
 
@@ -2848,7 +2861,7 @@ if (currentFocus > 0.35) {
 
   <div> 
 
-    Optimalno opaljenje ({bucketStats.optimal.count} hitaca) <br /> 
+    {t("analytics.timing.optimal")} ({bucketStats.optimal.count} {t("analytics.timing.shot_count_label")})  <br /> 
 
     <span style={{ color: "#aaa", fontSize: "0.9rem" }}> 
 
@@ -2866,7 +2879,7 @@ if (currentFocus > 0.35) {
 
   <div> 
 
-    Stabilno opaljenje ({bucketStats.stable.count} hitaca) <br /> 
+    {t("analytics.timing.stable")} ({bucketStats.stable.count} {t("analytics.timing.shot_count_label")})  <br /> 
 
     <span style={{ color: "#aaa", fontSize: "0.9rem" }}> 
 
@@ -2876,7 +2889,7 @@ if (currentFocus > 0.35) {
 
     {" — "} 
 
-    Prosek: {bucketAverages.stable.toFixed(2)} 
+    {t("analytics.timing.average_label")} {bucketAverages.stable.toFixed(2)} 
 
   </div> 
 
@@ -2884,7 +2897,7 @@ if (currentFocus > 0.35) {
 
   <div> 
 
-    Kasno opaljenje ({bucketStats.slow.count} hitaca) <br /> 
+    {t("analytics.timing.slow")} ({bucketStats.slow.count} {t("analytics.timing.shot_count_label")})  <br /> 
 
     <span style={{ color: "#aaa", fontSize: "0.9rem" }}> 
 
@@ -2916,7 +2929,7 @@ if (currentFocus > 0.35) {
 
   <div style={{ fontWeight: 600, marginBottom: "8px" }}> 
 
-    Analiza povezanosti vremena i rezultata 
+    {t("analytics.timing.correlation_title")}
 
   </div> 
 
@@ -2931,17 +2944,25 @@ if (currentFocus > 0.35) {
 
   label={`Pearson r = ${pearsonR.toFixed(3)}`} 
 
-  status={correlationStrength} 
+  status={t(`analytics.correlation_strength.${correlationStrengthKey}`)}  
 
   color={correlationColor} 
 
-  description={`Pearson korelacija pokazuje povezanost između vremena opaljenja i rezultata. ${correlationDirection}`} 
+  description={ 
+
+  t("analytics.timing.pearson_description") + 
+
+  " " + 
+
+  t(`analytics.timing.pearson_direction.${correlationDirectionKey}`) 
+
+} 
 /> 
  
 
   <div style={{ color: "#aaa", fontSize: "0.9rem" }}> 
 
-    Objašnjena varijansa (R²): {explainedVariance}% 
+    {t("analytics.timing.explained_variance")} {explainedVariance}% 
 
   </div> 
 
@@ -2975,7 +2996,7 @@ if (currentFocus > 0.35) {
 
     <h3 style={{ marginBottom: "15px" }}> 
 
-      Stability Heatmap (serije po meču) 
+      {t("analytics.heatmap.title")}
 
     </h3> 
 
@@ -3012,7 +3033,7 @@ if (currentFocus > 0.35) {
 
 > 
 
-  Datum 
+  {t("analytics.heatmap.date")}
 
 </div> 
 
@@ -3058,7 +3079,7 @@ if (currentFocus > 0.35) {
 
 > 
 
-  Ukupno 
+  {t("analytics.heatmap.total")}
 
 </div> 
 
@@ -3229,31 +3250,35 @@ if (currentFocus > 0.35) {
 
         )} 
 
+<div> 
+
+  {t("analytics.heatmap.date")}:{" "} 
+
+  {new Date(selectedMatches[matchIndex].date) 
+
+    .toLocaleDateString()} 
+
+</div> 
+
+ 
+
+<div> 
+
+  {t("analytics.heatmap.series")}: {seriesIndex + 1} 
+
+</div> 
+
+ 
+
+<div> 
+
+  {t("analytics.heatmap.result")}: {seriesValue.toFixed(1)} 
+
+</div> 
+
         <div> 
 
-          Datum:{" "} 
-
-          {new Date(selectedMatches[matchIndex].date) 
-
-            .toLocaleDateString("sr-RS", { 
-
-              day: "2-digit", 
-
-              month: "2-digit", 
-
-              year: "2-digit" 
-
-            })} 
-
-        </div> 
-
-        <div>Serija: {seriesIndex + 1}</div> 
-
-        <div>Rezultat: {seriesValue.toFixed(1)}</div> 
-
-        <div> 
-
-          Razlika u odnosu na prosek meca: {diff >= 0 ? "+" : ""} 
+          {t("analytics.heatmap.diff_from_mean")} {diff >= 0 ? "+" : ""} 
 
           {diff.toFixed(2)} 
 
@@ -3424,19 +3449,19 @@ if (currentFocus > 0.35) {
         const rounded = parseFloat(cell.avg.toFixed(1)); 
 
 
-        const tooltipText = ` 
+const tooltipText = ` 
 
-Serija: ${seriesIndex + 1} 
+${t("analytics.heatmap.series")}: ${seriesIndex + 1} 
 
-Hitac: ${hitIndex + 1} 
+${t("analytics.heatmap.shot")}: ${hitIndex + 1} 
 
-Prosek: ${rounded} 
+${t("analytics.heatmap.average")}: ${rounded} 
 
-Najveći: ${cell.max.toFixed(1)} 
+${t("analytics.heatmap.max")}: ${cell.max.toFixed(1)} 
 
-Najmanji: ${cell.min.toFixed(1)} 
+${t("analytics.heatmap.min")}: ${cell.min.toFixed(1)} 
 
-Broj uzoraka: ${cell.count} 
+${t("analytics.heatmap.sample_count")}: ${cell.count} 
 
 `; 
 

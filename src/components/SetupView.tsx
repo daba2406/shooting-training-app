@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"; 
-
+import { useTranslation } from "react-i18next";
  
 
 interface Props { 
@@ -54,7 +54,7 @@ export default function SetupView({
 
 }: Props) { 
 
- 
+ const { t, i18n } = useTranslation();
 
   const [mainMode, setMainMode] = useState<"training" | "competition">("training"); 
 
@@ -144,7 +144,7 @@ export default function SetupView({
 
  
 
-    if (!window.confirm(`Obrisati "${shooter.name}"?`)) return; 
+    if (!window.confirm(t("setup.delete_confirm", { name: shooter.name }))) return; 
 
  
 
@@ -189,25 +189,85 @@ export default function SetupView({
   return ( 
 
     <div className="setup-container"> 
-    <div className="axiom-header"> 
+<div className="axiom-header" 
 
-  <h1 className="axiom-title"> 
+ style={{ 
 
-    A<span className="axiom-x">X</span>IOM 
+   position: "relative", 
 
-  </h1> 
+   textAlign: "center", 
 
-  <div className="axiom-tagline"> 
+   width: "100%", 
 
-    Precision Intelligence. 
+   maxWidth: "1100px", 
+
+   margin: "0 auto" 
+
+ }} 
+
+> 
+
+  <div> 
+
+    <h1 className="axiom-title"> 
+
+      A<span className="axiom-x">X</span>IOM 
+
+    </h1> 
+
+    <div className="axiom-tagline"> 
+
+      {t("brand.tagline")}. 
+
+    </div> 
+
+    <div className="axiom-subtitle"> 
+
+      Shooting Performance Analytics, Risk & Knowledge 
+
+    </div> 
 
   </div> 
 
-  <div className="axiom-subtitle"> 
+ 
 
-    Shooting Performance Analytics, Risk & Knowledge 
+  {/* ✅ LANGUAGE SWITCHER */} 
 
-  </div> 
+ <select 
+
+ onChange={(e) => i18n.changeLanguage(e.target.value)} 
+
+ value={i18n.language} 
+
+ style={{ 
+
+   position: "absolute", 
+
+   right: "0", 
+
+   top: "10px", 
+
+   padding: "6px 10px", 
+
+   borderRadius: "6px", 
+
+   background: "#222", 
+
+   color: "white", 
+
+   border: "1px solid #444", 
+
+   height: "36px" 
+
+ }} 
+
+> 
+
+ <option value="sr">SR</option> 
+
+ <option value="en">EN</option> 
+
+</select> 
 
 </div> 
 
@@ -219,7 +279,7 @@ export default function SetupView({
 
         <div className="setup-section"> 
 
-          <h3 className="section-title">Podaci o sesiji</h3> 
+          <h3 className="section-title">{t("setup.session_info")}</h3> 
 
  
 
@@ -227,7 +287,7 @@ export default function SetupView({
 
             type="text" 
 
-            placeholder="Naziv takmičenja" 
+            placeholder={t("setup.competition_name")}
 
             value={competitionName} 
 
@@ -247,7 +307,7 @@ export default function SetupView({
 
             > 
 
-              <option value="">Izaberi strelca</option> 
+              <option value="">{t("setup.select_shooter")}</option> 
 
               {shooters.map((s) => ( 
 
@@ -271,7 +331,7 @@ export default function SetupView({
 
             > 
 
-              Uredi 
+             {t("setup.manage_shooters")}
 
             </button> 
 
@@ -291,7 +351,7 @@ export default function SetupView({
 
         <div className="setup-section"> 
 
-          <h3 className="section-title">Tip sesije</h3> 
+          <h3 className="section-title">{t("setup.session_type")}</h3> 
 
  
 
@@ -305,7 +365,7 @@ export default function SetupView({
 
             > 
 
-              Trening 
+              {t("setup.training")}
 
             </button> 
 
@@ -317,7 +377,7 @@ export default function SetupView({
 
             > 
 
-              Takmičenje 
+              {t("setup.competition")} 
 
             </button> 
 
@@ -329,7 +389,7 @@ export default function SetupView({
 
             <> 
 
-              <h4 className="sub-title">Način unosa</h4> 
+              <h4 className="sub-title">{t("setup.input_mode")}</h4> 
 
               <div className="mode-switch"> 
 
@@ -341,7 +401,7 @@ export default function SetupView({
 
                 > 
 
-                  Po pogocima 
+                  {t("setup.shots_input")}
 
                 </button> 
 
@@ -353,7 +413,7 @@ export default function SetupView({
 
                 > 
 
-                  Ručno 
+                  {t("setup.manual_series")}
 
                 </button> 
 
@@ -371,7 +431,7 @@ export default function SetupView({
 
         <div className="setup-section"> 
 
-          <h3 className="section-title">Pokretanje</h3> 
+          <h3 className="section-title">{t("setup.start")}</h3> 
 
  
 
@@ -395,7 +455,11 @@ export default function SetupView({
 
                 > 
 
-                  {format === "trial" ? "Proba" : `${format} dijabola`} 
+                  {format === "trial" 
+
+  ? t("setup.trial") 
+
+  : t("setup.shots_format", { count: format })} 
 
                 </button> 
 
@@ -417,7 +481,7 @@ export default function SetupView({
 
               }> 
 
-                Kvalifikacije 
+                {t("setup.qualification")}
 
               </button> 
 
@@ -427,7 +491,7 @@ export default function SetupView({
 
               }> 
 
-                Finale 
+               {t("setup.final")}
 
               </button> 
 
@@ -447,9 +511,9 @@ export default function SetupView({
 
       <div className="setup-footer"> 
 
-        <button className="archive-btn" onClick={onArchive}>Arhiva</button> 
+        <button className="archive-btn" onClick={onArchive}>{t("setup.archive")}</button> 
 
-        <button className="archive-btn" onClick={onAnalytics}>Analytics</button> 
+        <button className="archive-btn" onClick={onAnalytics}>{t("setup.analytics")}</button> 
 
       </div> 
 
@@ -463,7 +527,7 @@ export default function SetupView({
 
           <div className="modal-content" onClick={(e) => e.stopPropagation()}> 
 
-            <h3>Upravljanje strelcima</h3> 
+            <h3>{t("setup.manage_shooters_title")}</h3> 
 
  
 
@@ -493,7 +557,7 @@ export default function SetupView({
 
                 <div> 
 
-                  <button onClick={() => setEditingShooterId(s.id)}>Izmeni</button> 
+                  <button onClick={() => setEditingShooterId(s.id)}>{t("common.edit")}</button> 
 
                   <button onClick={() => handleDeleteShooter(s.id)}>✕</button> 
 
@@ -519,7 +583,7 @@ export default function SetupView({
 
               /> 
 
-              <button onClick={handleAddShooter}>Dodaj</button> 
+              <button onClick={handleAddShooter}>{t("common.add")}</button> 
 
             </div> 
 
@@ -527,7 +591,7 @@ export default function SetupView({
 
             <button className="close-btn" onClick={() => setIsShooterModalOpen(false)}> 
 
-              Zatvori 
+              {t("common.close")}
 
             </button> 
 

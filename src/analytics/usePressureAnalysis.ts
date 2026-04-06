@@ -114,7 +114,7 @@ const diffPerShot = lastMean - firstMean;
 
     // ✅ ORIGINALNA LOGIKA BOJA 
 
-    let pressureStatus = "Stabilan"; 
+    let pressureKey = "stable"; 
 
     let pressureColor = "#4caf50"; 
 
@@ -122,13 +122,13 @@ const diffPerShot = lastMean - firstMean;
 
     if (pressureMean < -0.15) { 
 
-      pressureStatus = "Veliki pad pod pritiskom"; 
+      pressureKey = "major_decline"; 
 
       pressureColor = "#e53935"; 
 
     } else if (pressureMean < -0.05) { 
 
-      pressureStatus = "Blagi pad pod pritiskom"; 
+      pressureKey = "minor_decline"; 
 
       pressureColor = "#ff7043"; 
 
@@ -144,7 +144,7 @@ const diffPerShot = lastMean - firstMean;
 
       pressureWorst, 
 
-      pressureStatus, 
+      pressureKey, 
 
       pressureColor 
 

@@ -250,19 +250,19 @@ export const useMeanRadiusAnalysis = (
 
  
 
-    let technicalStatus = "Stabilna grupa"; 
+let technicalKey = "stable_group"; 
 
-    let technicalColor = "#4caf50"; 
+let technicalColor = "#4caf50"; 
 
  
 
-    if (meanRadiusCorrelation > 0.3) { 
+if (meanRadiusCorrelation > 0.3) { 
 
-      technicalStatus = "Nestabilna tehnika"; 
+  technicalKey = "unstable_technique"; 
 
-      technicalColor = "#e53935"; 
+  technicalColor = "#e53935"; 
 
-    } 
+} 
 
  
 
@@ -274,7 +274,7 @@ export const useMeanRadiusAnalysis = (
 
       meanRadiusCorrelation, 
 
-      technicalStatus, 
+      technicalKey, 
 
       technicalColor, 
 

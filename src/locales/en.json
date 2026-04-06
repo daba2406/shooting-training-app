@@ -1,0 +1,812 @@
+{ 
+
+  "brand": { 
+
+    "tagline": "Precision Intelligence" 
+
+  }, 
+
+ 
+
+  "common": { 
+
+    "back": "Back", 
+
+    "all_shooters": "All shooters", 
+
+    "edit": "Edit", 
+
+    "add": "Add", 
+
+    "close": "Close" 
+
+  }, 
+
+ 
+
+  "setup": { 
+
+    "archive": "Archive", 
+
+    "analytics": "Analytics", 
+
+    "shots_format": "{{count}} shots", 
+
+    "session_info": "Session Information", 
+
+    "session_type": "Session Type", 
+
+    "start": "Start", 
+
+    "training": "Training", 
+
+    "competition": "Competition", 
+
+    "input_mode": "Input Mode", 
+
+    "shots_input": "Shot Entry", 
+
+    "manual_series": "Manual Series Entry", 
+
+    "format_60": "60 Shots", 
+
+    "format_40": "40 Shots", 
+
+    "trial": "Trial", 
+
+    "select_shooter": "Select Shooter", 
+
+    "manage_shooters": "Manage", 
+
+    "competition_name": "Competition Name", 
+
+    "qualification": "Qualification", 
+
+    "final": "Final", 
+
+    "manage_shooters_title": "Manage Shooters", 
+
+    "delete_confirm": "Are you sure you want to delete shooter \"{{name}}\"?" 
+
+  }, 
+
+ 
+
+  "archive": { 
+
+    "title": "Session Archive", 
+
+    "delete": "Delete", 
+
+    "export": "EXPORT ARCHIVE", 
+
+    "delete_confirm": "Are you sure you want to delete this session?", 
+
+    "filters": { 
+
+      "all": "All", 
+
+      "training": "Training", 
+
+      "qualification": "Qualification", 
+
+      "final": "Final" 
+
+    }, 
+
+    "table": { 
+
+      "date": "Date", 
+
+      "shooter": "Shooter", 
+
+      "type": "Type", 
+
+      "competition": "Competition", 
+
+      "format": "Format", 
+
+      "total": "Total", 
+
+      "duration": "Duration", 
+
+      "status": "Status", 
+
+      "action": "Action" 
+
+    }, 
+
+    "status": { 
+
+      "in_progress": "In Progress", 
+
+      "manual": "Finished Manually", 
+
+      "shots_limit": "Shots Limit", 
+
+      "time_limit": "Time Expired", 
+
+      "finished": "Finished" 
+
+    }, 
+
+    "import": { 
+
+      "invalid_format": "Invalid file format.", 
+
+      "success": "Archive successfully loaded.", 
+
+      "error": "Error loading file." 
+
+    } 
+
+  }, 
+
+ 
+
+  "live": { 
+
+    "alerts": { 
+
+      "time_expired": "Match time has expired.", 
+
+      "start_match_first": "Start the match first.", 
+
+      "enter_shot_time": "Enter shot time." 
+
+    }, 
+
+    "results": { 
+
+      "total": "Total", 
+
+      "expected": "Expected", 
+
+      "hit": "HIT", 
+
+      "mus": "Inner Ten" 
+
+    }, 
+
+    "read_only": "ARCHIVE SESSION – READ ONLY", 
+
+    "match_finished": "MATCH FINISHED", 
+
+    "archive": "ARCHIVE", 
+
+    "new_match": "NEW MATCH", 
+
+    "back": "BACK", 
+
+    "print": "PRINT", 
+
+    "finish": "FINISH", 
+
+    "undo": "UNDO", 
+
+    "redo": "REDO", 
+
+    "start_match": "START MATCH", 
+
+    "start_shot": "START SHOT", 
+
+    "stop_shot": "STOP SHOT", 
+
+    "reset": "RESET", 
+
+    "metrics": { 
+
+      "remaining_time": "Remaining Time:", 
+
+      "pace": "Pace:", 
+
+      "ahead": "AHEAD", 
+
+      "behind": "BEHIND", 
+
+      "displacement_last5": "DISPLACEMENT (last 5)" 
+
+    }, 
+
+    "events": { 
+
+      "title": "Match Events", 
+
+      "line_exit": "LINE EXIT", 
+
+      "pause": "PAUSE ON LINE", 
+
+      "dry_fire": "DRY FIRE", 
+
+      "lower_rifle": "LOWER RIFLE" 
+
+    }, 
+
+    "manual": { 
+
+      "title": "Manual Shot Time Entry", 
+
+      "shot_time_seconds": "Shot Time (s)", 
+
+      "time": "Time:" 
+
+    }, 
+
+    "corrections": { 
+
+      "title": "SIGHT CORRECTION", 
+
+      "click": "click" 
+
+    }, 
+
+    "table": { 
+
+      "series": "Series", 
+
+      "shot": "Shot", 
+
+      "time": "Time", 
+
+      "score": "Score", 
+
+      "value": "Value", 
+
+      "direction": "Direction", 
+
+      "match_time": "Match Time" 
+
+    }, 
+
+    "signal": { 
+
+      "cascade": { 
+
+        "low": "Mild cascading decline tendency", 
+
+        "medium": "Moderate risk of cascading decline", 
+
+        "high": "Strong cascading decline detected" 
+
+      }, 
+
+      "instability": { 
+
+        "low": "Mild instability detected" 
+
+      }, 
+
+      "tempo": { 
+
+        "medium": "Moderate tempo variation risk", 
+
+        "high": "Strong tempo variation detected" 
+
+      } 
+
+    } 
+
+  }, 
+
+ 
+
+  "analytics": { 
+
+  
+  "qualification": { 
+
+      "title": "Qualification Analytics", 
+
+      "button": "Qualification" 
+
+    },
+    "gap": { 
+
+  "stable": "Stable transfer", 
+
+  "major_decline": "Significant decline in competition", 
+
+  "minor_decline": "Minor decline in competition", 
+
+  "competition_better": "Competition outperforms training" 
+
+},
+"pti_description": "Performance Transfer Index shows how well training performance transfers into competition. Higher index indicates better transfer.",
+
+"volatility": { 
+
+  "no_data": "No data", 
+
+  "very_stable": "Highly stable", 
+
+  "moderate": "Moderate instability", 
+
+  "unstable": "High instability", 
+
+  "description": "Volatility Index measures instability within the match. Lower values indicate higher performance stability." 
+
+},
+"closing_status": { 
+
+  "stable": "Stable", 
+
+  "major_decline": "Major decline under pressure", 
+
+  "minor_decline": "Minor decline under pressure" 
+
+},
+    
+    "training": { 
+
+      "title": "Training Analytics", 
+
+      "button": "Training" 
+
+    },
+    "heatmap": { 
+
+  "title": "Stability Heatmap (series per match)", 
+
+  "date": "Date",
+  "result": "Result",
+
+  "total": "Total", 
+
+  "series": "Series", 
+
+  "shot": "Shot", 
+
+  "average": "Average", 
+
+  "max": "Maximum", 
+
+  "min": "Minimum", 
+
+  "sample_count": "Sample Count", 
+
+  "diff_from_mean": "Difference from match mean" 
+
+} , 
+
+    "analysis": "Analysis:", 
+
+    "all_matches": "All Matches", 
+
+    "no_data": "No data available.", 
+
+    "overview": "Overview", 
+
+    "match_count": "Qualification Matches:", 
+
+    "average": "Average:", 
+
+    "best": "Best Result:", 
+
+    "worst": "Worst Result:", 
+
+    "competition_gap": "Competition Gap",
+     "gap_description": "Competition Gap shows the difference between competition and training averages. Negative value indicates performance drop in competition, positive value indicates better performance under pressure.",   
+
+    "gap_difference": "Difference (Qualification − Training):", 
+
+    "prediction": "Prediction", 
+
+    "predicted_next": "Predicted next result:", 
+
+    "range_68": "Realistic range (68%):", 
+
+    "range_95": "Realistic range (95%):", 
+
+    "probability_630": "Probability of score ≥ 630:", 
+
+ 
+
+"coaching": { 
+
+  "title": "Coaching Insight", 
+
+  "insight_label": "Insight", 
+
+  "recommendation_label": "Recommendation", 
+
+  "composite_title": "Composite Coaching Summary", 
+
+ 
+
+  "insight": { 
+
+    "recovery_slow": "Recovery after error is slower than optimal (Recovery {{value}}).", 
+
+    "recovery_stable": "Mental reset after error is stable without performance spreading.", 
+
+    "recovery_partial": "Reset after error is stable (success rate {{value}}%), but occasionally requires more than one shot for full stabilization.", 
+
+ 
+
+    "cascade_strong": "In {{value}}% of drops, performance expands into a prolonged weaker sequence.", 
+
+    "cascade_moderate": "In {{value}}% of cases, performance drop escalates into a mini‑series.", 
+
+    "cascade_mild": "A recurring cascade pattern is present ({{value}}%).", 
+
+ 
+
+    "tempo_fast_strong": "Tempo shows significant acceleration after error (Z = {{value}}).", 
+
+    "tempo_fast_mild": "Tempo slightly accelerates after error (Z = {{value}}).", 
+
+    "tempo_slow_strong": "Tempo shows significant prolongation after error (Z = {{value}}).", 
+
+    "tempo_slow_mild": "Tempo becomes slower after error (Z = {{value}}).", 
+
+ 
+
+    "fatigue_strong_decline": "Strong performance decline in the final phase (drift {{value}}).", 
+
+    "fatigue_mild_decline": "Mild performance decline in the second half of the match (drift {{value}}).", 
+
+    "fatigue_strong_growth": "Performance significantly improves in the closing phase (drift {{value}}).", 
+
+    "fatigue_mild_growth": "A slight performance increase is observed in the second half (drift {{value}}).", 
+
+ 
+
+    "focus_strong_instability": "Pronounced micro‑focus oscillations detected (rolling std {{value}}).", 
+
+    "focus_moderate_instability": "Noticeable micro‑fluctuations within series (rolling std {{value}}).", 
+
+    "focus_mild_instability": "Mild focus oscillations within shorter sequences (rolling std {{value}})." 
+
+  }, 
+
+ 
+
+  "recommendation": { 
+
+    "recovery_protocol": "In {{percent}}% of situations, reset requires more than one shot. Introduce a mandatory 1–2 second mental pause after a sub‑threshold shot before raising the rifle again.", 
+
+    "recovery_maintain": "Maintain the current reset routine and periodically test it under controlled conditions with intentional errors.", 
+
+    "recovery_shorten": "Work on shortening the mental interval between error and next shot to reduce reset to a single attempt.", 
+
+ 
+
+    "cascade_interrupt": "Introduce a mandatory reset protocol immediately after the first weaker shot (break the sequence, lower the rifle, apply a verbal reset cue).", 
+
+    "cascade_simulation": "Simulate intentional errors during training and practice returning to stable mode with the very next shot.", 
+
+    "cascade_reaction_speed": "Focus on reducing reaction time after an error without altering tempo or technique.", 
+
+ 
+
+    "tempo_pause_after_error": "Introduce a mandatory 1–2 second pause after error before raising the rifle again to prevent impulsive reactions.", 
+
+    "tempo_breathing_control": "Stabilize breathing rhythm and maintain standard aiming time without accelerating the next shot.", 
+
+    "tempo_automation": "Reinforce automatism without excessively prolonging aiming after an error.", 
+
+    "tempo_rhythm_consistency": "Maintain the same temporal pattern as in stable series and avoid over‑analysis of the next shot.", 
+
+ 
+
+    "fatigue_finish_training": "Introduce extended series with simulated closing pressure and tempo control during the last 15 shots.", 
+
+    "fatigue_rhythm_stability": "Focus training on maintaining stable rhythm and mental routine in the final phase of the match.", 
+
+    "fatigue_early_structure": "Analyze match opening structure to establish stable rhythm earlier.", 
+
+    "fatigue_adaptive_start": "Consider shorter adaptive routines at the beginning of the match to ensure early stability.", 
+
+ 
+
+    "focus_strict_routine": "Implement strict repetition of identical mental and physical routine before every shot to reduce internal fluctuations.", 
+
+    "focus_stabilization": "Work on stabilizing attention within series without changing technique or tempo.", 
+
+    "focus_continuity": "Maintain current routine with additional emphasis on continuity between consecutive shots.", 
+
+ 
+
+    "maintain_regime": "Maintain the current training regime with periodic review of mental patterns." 
+
+  }, 
+
+ 
+
+  "composite": { 
+
+    "stable_profile": "The overall mental profile indicates stability without dominant weaknesses. Error response, tempo and closing phase are balanced.", 
+
+    "dominant_recovery": "The dominant pattern relates to prolonged mental reset after errors, potentially disrupting shot continuity. Immediate stabilization after a drop should be prioritized.", 
+
+    "dominant_cascade": "The dominant pattern is cascading performance decline following an initial mistake, indicating emotional inertia during the match. Focus should be on breaking the sequence with the very next shot.", 
+
+    "dominant_tempo": "Tempo reaction after errors shows significant deviation from a stable pattern. Controlling rhythm and breathing after a drop can significantly stabilize performance.", 
+
+    "dominant_fatigue": "The final phase of the match shows performance decline potentially linked to mental or physical fatigue. Maintaining stability in the closing segment should be a training priority.", 
+
+    "dominant_focus": "Noticeable micro‑oscillations in focus within shorter sequences may affect shot continuity. Reinforcing stability of the mental routine within series is recommended." 
+
+  } 
+
+},
+
+ 
+
+    "trend": { 
+
+      "title": "Trend", 
+
+      "per_match": "Trend (per match):", 
+
+      "std_dev": "Standard Deviation:", 
+
+      "weighted_recent": "Weighted average (last 5):" 
+
+    }, 
+    "technical": { 
+
+  "title": "Technical Analysis (Mean Radius)", 
+
+  "mean_radius": "Average Mean Radius:", 
+
+  "mean_radius_trend": "Mean Radius Trend:", 
+
+  "correlation_label": "Correlation (Mean Radius ↔ Result):", 
+
+  "correlation_desc": "Correlation shows how technical stability (Mean Radius) relates to performance. Strong negative correlation means tighter grouping directly improves result.",
+  "mean_radius_desc": "Mean Radius trend indicates whether the shot group is tightening or expanding over time. Negative trend suggests technical improvement." 
+
+},
+"timing": { 
+
+ "title": "Shot Timing Analysis", 
+
+ "mean_time": "Average Time:", 
+
+ "std_dev": "Standard Deviation:", 
+
+ "zone_performance": "Performance by Time Zones", 
+
+ "fast": "Early Shot", 
+
+ "optimal": "Optimal Shot", 
+
+ "stable": "Stable Shot", 
+
+ "slow": "Late Shot", 
+
+ "correlation_title": "Time vs Result Correlation Analysis", 
+
+ "explained_variance": "Explained Variance (R²):", 
+
+ "average_label": "Average:", 
+
+ "shot_count_label": "shots",
+ "pearson_description": "Pearson correlation shows the relationship between shot time and result.", 
+
+"pearson_direction": { 
+
+  "positive": "Longer aiming is associated with better results.", 
+
+  "negative": "Longer aiming is associated with performance decline.", 
+
+  "neutral": "Shot time has no clear impact on result." 
+
+}
+
+},
+"technical_status": { 
+
+  "stable_group": "Stable grouping", 
+
+  "unstable_technique": "Technical instability" 
+
+}, 
+
+ 
+
+    "mental": { 
+
+      "title": "Mental Performance", 
+
+      "immediate_recovery": "Immediate Recovery:", 
+
+      "recovery_depth": "Avg Recovery Depth:", 
+
+      "recovery_training_desc": "Recovery Score measures how quickly the shooter recovers after dropping below the dynamic threshold.", 
+
+      "recovery_qualification_desc": "Recovery Score measures mental recovery capability during competition.", 
+
+      "cascade_desc": "Cascade Index shows percentage of performance drops followed by consecutive weaker shots.", 
+
+      "tempo_desc": "Tempo reaction after performance drop (Z-score).", 
+
+      "fatigue_desc": "Fatigue Drift shows performance change between match halves." 
+
+    },
+    "closing": { 
+
+  "title": "Closing Performance", 
+
+  "average": "Average:", 
+
+  "best_growth": "Largest finish improvement:", 
+
+  "biggest_drop": "Largest finish decline:",
+  "description": "Closing Performance measures the difference between the first 15 and last 15 shots. Positive value indicates stronger finish, negative value indicates decline in the closing segment."  
+
+}, 
+
+"status": "Status", 
+
+ 
+
+    "tempo": { 
+
+      "stable": "Stable tempo", 
+
+      "slow_after_error": "Slowing down after error", 
+
+      "fast_after_error": "Speeding up after error" 
+
+    }, 
+
+ 
+
+    "recovery": { 
+
+      "no_data": "No data", 
+
+      "elite": "Elite Recovery", 
+
+      "stable_reset": "Stable reset", 
+
+      "extended_drop": "Extended drop", 
+
+      "cascade_drop": "Cascade drop" 
+
+    }, 
+
+ 
+
+    "fatigue": { 
+
+      "stable_finish": "Stable finish", 
+
+      "decline": "Performance decline", 
+
+      "growth": "Performance growth" 
+
+    }, 
+
+ 
+
+    "cascade": { 
+
+      "none": "No cascade", 
+
+      "mild": "Mild cascade", 
+
+      "moderate": "Moderate cascade", 
+
+      "strong": "Strong cascade" 
+
+    }, 
+
+ 
+
+    "pti": { 
+
+      "excellent": "Excellent transfer", 
+
+      "good": "Good transfer", 
+
+      "moderate": "Moderate transfer", 
+
+      "weak": "Weak transfer"
+      
+
+    }, 
+
+ 
+
+    "correlation_strength": { 
+
+      "none": "No significant correlation", 
+
+      "weak": "Weak correlation", 
+
+      "moderate": "Moderate correlation", 
+
+      "strong": "Strong correlation", 
+
+      "very_strong": "Very strong correlation",
+        "very_strong_negative": "Very strong negative correlation", 
+
+  "moderate_negative": "Moderate negative correlation", 
+
+  "weak_negative": "Weak negative correlation", 
+
+  "unexpected_positive": "Unexpected positive correlation", 
+
+  "insignificant": "Weak or insignificant correlation"  
+
+    }, 
+
+ 
+
+    "focus": { 
+
+      "stable": "Stable focus", 
+
+      "micro_instability": "Micro instability", 
+
+      "oscillation": "Increased oscillation",
+      "description": "Rolling standard deviation (5-shot window) measuring micro focus stability throughout the match."  
+
+    } 
+
+  }, 
+
+ 
+
+  "print": { 
+
+    "match_report": "MATCH REPORT", 
+
+    "competition": "Competition", 
+
+    "shooter": "Shooter", 
+
+    "date": "Date", 
+
+    "start_time": "Start Time", 
+
+    "total": "Total", 
+
+    "shot_count": "Shot Count", 
+
+    "total_match_time": "Total Match Time", 
+
+    "duration": "Duration", 
+
+    "average": "Average", 
+
+    "longest_103": "Longest 10.3+ streak", 
+
+    "longest_105": "Longest 10.5+ streak", 
+
+    "series_analytics": "Series Analytics", 
+
+    "series": "Series", 
+
+    "max": "MAX", 
+
+    "min": "MIN", 
+
+    "avg": "AVG", 
+
+    "series_split": "Series Split (5 + 5)", 
+
+    "first_five": "First 5", 
+
+    "second_five": "Second 5", 
+
+    "shot_time_analysis": "Shot Time Analysis", 
+
+    "time_seconds": "Time (s)", 
+
+    "average_value": "Average Value", 
+
+    "shot_statistics": "Shot Statistics", 
+
+    "value": "Value", 
+
+    "count": "Count", 
+
+    "mean_radius_by_series": "Mean Radius by Series" 
+
+  } 
+
+} 

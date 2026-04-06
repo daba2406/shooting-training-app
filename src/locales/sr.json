@@ -1,0 +1,790 @@
+{ 
+
+  "brand": { 
+
+    "tagline": "Precision Intelligence" 
+
+  }, 
+
+ 
+
+  "common": { 
+
+    "back": "Povratak", 
+
+    "all_shooters": "Svi strelci", 
+
+    "edit": "Izmeni", 
+
+    "add": "Dodaj", 
+
+    "close": "Zatvori" 
+
+  }, 
+
+ 
+
+  "setup": { 
+
+    "archive": "Arhiva", 
+
+    "analytics": "Analitika", 
+
+    "shots_format": "{{count}} dijabola", 
+
+    "session_info": "Podaci o sesiji", 
+
+    "session_type": "Tip sesije", 
+
+    "start": "Pokretanje", 
+
+    "training": "Trening", 
+
+    "competition": "Takmičenje", 
+
+    "input_mode": "Način unosa", 
+
+    "shots_input": "Po pogocima", 
+
+    "manual_series": "Ručni unos serija", 
+
+    "format_60": "60 dijabola", 
+
+    "format_40": "40 dijabola", 
+
+    "trial": "Proba", 
+
+    "select_shooter": "Izaberi strelca", 
+
+    "manage_shooters": "Uredi", 
+
+    "competition_name": "Naziv takmičenja", 
+
+    "qualification": "Kvalifikacije", 
+
+    "final": "Finale", 
+
+    "manage_shooters_title": "Upravljanje strelcima", 
+
+    "delete_confirm": "Da li ste sigurni da želite da obrišete strelca \"{{name}}\"?" 
+
+  }, 
+
+ 
+
+  "archive": { 
+
+    "title": "Arhiva sesija", 
+
+    "delete": "Obriši", 
+
+    "export": "EXPORT ARHIVE", 
+
+    "delete_confirm": "Da li ste sigurni da želite da obrišete ovu sesiju?", 
+
+    "filters": { 
+
+      "all": "Sve", 
+
+      "training": "Trening", 
+
+      "qualification": "Kvalifikacije", 
+
+      "final": "Finale" 
+
+    }, 
+
+    "table": { 
+
+      "date": "Datum", 
+
+      "shooter": "Strelac", 
+
+      "type": "Tip", 
+
+      "competition": "Takmičenje", 
+
+      "format": "Format", 
+
+      "total": "Ukupno", 
+
+      "duration": "Trajanje", 
+
+      "status": "Status", 
+
+      "action": "Akcija" 
+
+    }, 
+
+    "status": { 
+
+      "in_progress": "U toku", 
+
+      "manual": "Ručno završeno", 
+
+      "shots_limit": "Limit hitaca", 
+
+      "time_limit": "Isteklo vreme", 
+
+      "finished": "Završeno" 
+
+    }, 
+
+    "import": { 
+
+      "invalid_format": "Neispravan format fajla.", 
+
+      "success": "Arhiva uspešno učitana.", 
+
+      "error": "Greška pri učitavanju fajla." 
+
+    } 
+
+  }, 
+
+ 
+
+  "live": { 
+
+    "alerts": { 
+
+      "time_expired": "Vreme meča je isteklo.", 
+
+      "start_match_first": "Prvo pokrenite meč.", 
+
+      "enter_shot_time": "Unesite vreme hica." 
+
+    }, 
+
+    "results": { 
+
+      "total": "Ukupno", 
+
+      "expected": "Očekivano", 
+
+      "hit": "HIT", 
+
+      "mus": "Inner Ten" 
+
+    }, 
+
+    "read_only": "ARHIVSKA SESIJA – READ ONLY", 
+
+    "match_finished": "MEČ ZAVRŠEN", 
+
+    "archive": "ARHIVA", 
+
+    "new_match": "NOVI MEČ", 
+
+    "back": "NAZAD", 
+
+    "print": "PRINT", 
+
+    "finish": "ZAVRŠI", 
+
+    "undo": "UNDO", 
+
+    "redo": "REDO", 
+
+    "start_match": "START MEČA", 
+
+    "start_shot": "START POGODAK", 
+
+    "stop_shot": "STOP POGODAK", 
+
+    "reset": "RESET", 
+
+    "metrics": { 
+
+      "remaining_time": "Preostalo vreme:", 
+
+      "pace": "Tempo:", 
+
+      "ahead": "ISPRED", 
+
+      "behind": "IZA", 
+
+      "displacement_last5": "POMERANJE (poslednjih 5)" 
+
+    }, 
+
+    "events": { 
+
+      "title": "Događaji u meču", 
+
+      "line_exit": "IZLAZAK SA LINIJE", 
+
+      "pause": "PAUZA NA LINIJI", 
+
+      "dry_fire": "OKIDANJE NA PRAZNO", 
+
+      "lower_rifle": "SPUŠTANJE PUŠKE" 
+
+    }, 
+
+    "manual": { 
+
+      "title": "Ručni unos vremena hica", 
+
+      "shot_time_seconds": "Vreme hica (s)", 
+
+      "time": "Vreme:" 
+
+    }, 
+
+    "corrections": { 
+
+      "title": "KOREKCIJA NIŠANA", 
+
+      "click": "klik" 
+
+    }, 
+
+    "table": { 
+
+      "series": "Serija", 
+
+      "shot": "Pogodak", 
+
+      "time": "Vreme", 
+
+      "score": "Rezultat", 
+
+      "value": "Vrednost", 
+
+      "direction": "Smer", 
+
+      "match_time": "Vreme u meču" 
+
+    }, 
+
+    "signal": { 
+
+      "cascade": { 
+
+        "low": "Blaga tendencija ka serijskom padu", 
+
+        "medium": "Umeren rizik od serijskog pada", 
+
+        "high": "Izražen serijski pad u toku" 
+
+      }, 
+
+      "instability": { 
+
+        "low": "Blaga nestabilnost u toku" 
+
+      }, 
+
+      "tempo": { 
+
+        "medium": "Umeren rizik od promene tempa", 
+
+        "high": "Izražena promena tempa" 
+
+      } 
+
+    } 
+
+  }, 
+
+ 
+
+  "analytics": { 
+
+    "qualification": { 
+
+      "title": "Analitika kvalifikacija", 
+
+      "button": "Kvalifikacije" 
+
+    }, 
+    
+    "gap": { 
+
+  "stable": "Stabilan transfer", 
+
+  "major_decline": "Značajan pad na takmičenju", 
+
+  "minor_decline": "Blagi pad na takmičenju", 
+
+  "competition_better": "Takmičenje bolje od treninga" 
+
+},
+"pti_description": "Performance Transfer Index pokazuje koliko se forma sa treninga prenosi na takmičenje. Viši indeks znači bolji transfer." ,
+"volatility": { 
+
+  "no_data": "Nema podatka", 
+
+  "very_stable": "Izuzetno stabilno", 
+
+  "moderate": "Umerena nestabilnost", 
+
+  "unstable": "Izražena nestabilnost", 
+
+  "description": "Indikator nestabilnosti unutar meča. Niža vrednost označava veću stabilnost rezultata." 
+
+},
+"closing_status": { 
+
+  "stable": "Stabilan", 
+
+  "major_decline": "Veliki pad pod pritiskom", 
+
+  "minor_decline": "Blagi pad pod pritiskom" 
+
+},
+
+    "training": { 
+
+      "title": "Analitika treninga", 
+
+      "button": "Trening" 
+
+    },
+"heatmap": { 
+
+  "title": "Stability Heatmap (serije po meču)", 
+
+  "date": "Datum",
+  "result": "Rezultat", 
+
+  "total": "Ukupno", 
+
+  "series": "Serija", 
+
+  "shot": "Hitac", 
+
+  "average": "Prosek", 
+
+  "max": "Najveći", 
+
+  "min": "Najmanji", 
+
+  "sample_count": "Broj uzoraka", 
+
+  "diff_from_mean": "Razlika u odnosu na prosek meča" 
+
+}, 
+
+    "analysis": "Analiza:", 
+
+    "all_matches": "Svi mečevi", 
+
+    "no_data": "Nema dostupnih podataka.", 
+
+    "overview": "Pregled", 
+
+    "match_count": "Broj kvalifikacionih mečeva:", 
+
+    "average": "Prosek:", 
+
+    "best": "Najbolji rezultat:", 
+
+    "worst": "Najslabiji rezultat:", 
+
+    "competition_gap": "Competition Gap",
+    "gap_description": "Competition Gap pokazuje razliku između proseka takmičenja i treninga. Negativna vrednost znači pad na takmičenju, pozitivna znači bolji rezultat pod pritiskom.", 
+
+    "gap_difference": "Razlika (Qualification − Training):", 
+
+    "prediction": "Predikcija", 
+
+    "predicted_next": "Predviđeni sledeći rezultat:", 
+
+    "range_68": "Realističan opseg (68%):", 
+
+    "range_95": "Realističan opseg (95%):", 
+
+    "probability_630": "Verovatnoća rezultata ≥ 630:", 
+
+"coaching": { 
+
+  "title": "Coaching Insight", 
+
+  "insight_label": "Insight", 
+
+  "recommendation_label": "Preporuka", 
+
+  "composite_title": "Composite Coaching Summary", 
+
+ 
+
+  "insight": { 
+
+    "recovery_slow": "Oporavak nakon greške je sporiji od optimalnog (Recovery {{value}}).", 
+
+    "recovery_stable": "Mentalni reset nakon greške je stabilan i bez širenja pada.", 
+
+    "recovery_partial": "Reset nakon greške je stabilan (uspešnost {{value}}%), ali povremeno zahteva više od jednog hica za potpunu stabilizaciju.", 
+
+ 
+
+    "cascade_strong": "U {{value}}% padova dolazi do produžene serije slabijih hitaca.", 
+
+    "cascade_moderate": "U {{value}}% situacija pad performanse prerasta u mini-seriju.", 
+
+    "cascade_mild": "Prisutan je povremen obrazac širenja pada ({{value}}%).", 
+
+ 
+
+    "tempo_fast_strong": "Tempo pokazuje izraženo ubrzavanje nakon greške (Z = {{value}}).", 
+
+    "tempo_fast_mild": "Tempo blago ubrzava nakon greške (Z = {{value}}).", 
+
+    "tempo_slow_strong": "Tempo pokazuje izraženo produžavanje nakon greške (Z = {{value}}).", 
+
+    "tempo_slow_mild": "Tempo se produžava nakon greške (Z = {{value}}).", 
+
+ 
+
+    "fatigue_strong_decline": "Izražen pad performanse u završnici (drift {{value}}).", 
+
+    "fatigue_mild_decline": "Blagi pad performanse u drugoj polovini meča (drift {{value}}).", 
+
+    "fatigue_strong_growth": "Performansa značajno raste u završnici (drift {{value}}).", 
+
+    "fatigue_mild_growth": "Uočava se blagi rast performanse u drugoj polovini (drift {{value}}).", 
+
+ 
+
+    "focus_strong_instability": "Izražene mikro-oscilacije fokusa (rolling std {{value}}).", 
+
+    "focus_moderate_instability": "Uočljive mikro-fluktuacije unutar serija (rolling std {{value}}).", 
+
+    "focus_mild_instability": "Blage oscilacije fokusa unutar kraćih sekvenci (rolling std {{value}})." 
+
+  }, 
+
+ 
+
+  "recommendation": { 
+
+    "recovery_protocol": "U {{percent}}% situacija reset traje više od jednog hica. Uvesti obavezni 1–2 sekundi mentalni prekid nakon hica ispod dinamičkog praga pre ponovnog podizanja puške.", 
+
+    "recovery_maintain": "Održavati postojeću rutinu resetovanja i povremeno je testirati u kontrolisanim uslovima sa namernim greškama.", 
+
+    "recovery_shorten": "Raditi na skraćivanju mentalnog intervala između greške i sledećeg hica kako bi se reset sveo na jedan pokušaj.", 
+
+ 
+
+    "cascade_interrupt": "Uvesti obavezni reset protokol odmah nakon prvog slabijeg hica (prekid niza, spuštanje puške, verbalni reset signal) pre nastavka.", 
+
+    "cascade_simulation": "Simulirati namerne greške tokom treninga i vežbati povratak u stabilan režim već sledećim hicem.", 
+
+    "cascade_reaction_speed": "Raditi na skraćivanju reakcije nakon greške bez menjanja tempa i tehnike.", 
+
+ 
+
+    "tempo_pause_after_error": "Uvesti obaveznu pauzu od 1–2 sekunde nakon greške pre sledećeg podizanja puške kako bi se prekinula impulsivna reakcija.", 
+
+    "tempo_breathing_control": "Stabilizovati ritam disanja i zadržati standardno vreme nišanjenja bez ubrzavanja sledećeg hica.", 
+
+    "tempo_automation": "Raditi na vraćanju automatizma bez preteranog produžavanja nišanjenja nakon greške.", 
+
+    "tempo_rhythm_consistency": "Zadržati isti vremenski obrazac kao u stabilnim serijama i izbegavati preanalizu sledećeg hica.", 
+
+ 
+
+    "fatigue_finish_training": "Uvesti produžene serije sa simuliranim završnim pritiskom i kontrolom tempa u poslednjih 15 hitaca.", 
+
+    "fatigue_rhythm_stability": "Fokusirati trening na održavanje stabilnog ritma i mentalne rutine u završnoj fazi meča.", 
+
+    "fatigue_early_structure": "Analizirati strukturu početka meča kako bi se stabilan ritam uspostavio ranije.", 
+
+    "fatigue_adaptive_start": "Razmotriti kraće adaptivne rutine na početku meča kako bi stabilnost bila prisutna od starta.", 
+
+ 
+
+    "focus_strict_routine": "Uvesti striktno ponavljanje iste mentalne i fizičke rutine pre svakog hica kako bi se smanjile unutrašnje fluktuacije.", 
+
+    "focus_stabilization": "Raditi na stabilizaciji pažnje unutar serije bez promene tehnike ili tempa.", 
+
+    "focus_continuity": "Održavati postojeću rutinu uz dodatni naglasak na kontinuitet između uzastopnih hitaca.", 
+
+ 
+
+    "maintain_regime": "Održavati postojeći trenažni režim uz periodičnu proveru mentalnih obrazaca." 
+
+  }, 
+
+ 
+
+  "composite": { 
+
+    "stable_profile": "Ukupan mentalni profil pokazuje stabilnost bez dominantnih slabosti. Reakcija na greške, tempo i završnica su u ravnoteži.", 
+
+    "dominant_recovery": "Najizraženiji obrazac vezan je za produženi mentalni reset nakon greške, što može narušiti kontinuitet serije. Stabilizacija reakcije odmah nakon pada treba biti prioritet.", 
+
+    "dominant_cascade": "Dominantan obrazac je serijsko širenje pada nakon početne greške, što ukazuje na emocionalnu inerciju u toku meča. Fokus treba usmeriti na prekidanje niza već sledećim hicem.", 
+
+    "dominant_tempo": "Tempo reakcija nakon greške pokazuje izraženo odstupanje od stabilnog obrasca. Kontrola ritma i disanja nakon pada može značajno stabilizovati performansu.", 
+
+    "dominant_fatigue": "Završnica meča pokazuje pad performanse koji može biti povezan sa mentalnim ili fizičkim zamorom. Održavanje stabilnosti u poslednjem segmentu treba biti fokus treninga.", 
+
+    "dominant_focus": "Uočljive su mikro-oscilacije fokusa unutar kraćih sekvenci, što može uticati na preciznost u kontinuitetu. Stabilnost mentalne rutine unutar serije treba dodatno učvrstiti." 
+
+  } 
+
+},
+
+    "trend": { 
+
+      "title": "Trendiranje", 
+
+      "per_match": "Trend (po meču):", 
+
+      "std_dev": "Standardna devijacija:", 
+
+      "weighted_recent": "Ponderisani prosek (poslednjih 5):" 
+
+    },
+  "technical": { 
+
+  "title": "Tehnička analiza (Mean Radius)", 
+
+  "mean_radius": "Prosečan Mean Radius:", 
+
+  "mean_radius_trend": "Trend Mean Radius:", 
+
+  "correlation_label": "Korelacija (Mean Radius ↔ Rezultat):", 
+
+  "correlation_desc": "Korelacija pokazuje koliko je tehnička stabilnost (Mean Radius) povezana sa rezultatom. Negativna jaka korelacija znači da zatezanje grupe direktno poboljšava rezultat.",
+  "mean_radius_desc": "Mean Radius trend pokazuje da li se grupa zatvara ili širi kroz vreme. Negativan trend znači tehničko poboljšanje." 
+
+},
+"timing": { 
+
+  "title": "Analiza vremena opaljenja", 
+
+  "mean_time": "Prosečno vreme:", 
+
+  "std_dev": "Standardna devijacija:", 
+
+  "zone_performance": "Performanse po vremenskim zonama", 
+
+  "fast": "Rano opaljenje", 
+
+  "optimal": "Optimalno opaljenje", 
+
+  "stable": "Stabilno opaljenje", 
+
+  "slow": "Kasno opaljenje", 
+
+  "correlation_title": "Analiza povezanosti vremena i rezultata", 
+
+  "explained_variance": "Objašnjena varijansa (R²):",
+
+  "pearson_description": "Pearson korelacija pokazuje povezanost između vremena opaljenja i rezultata.", 
+
+"pearson_direction": { 
+
+  "positive": "Duže ciljanje je povezano sa boljim rezultatom.", 
+
+  "negative": "Duže ciljanje je povezano sa padom rezultata.", 
+
+  "neutral": "Vreme opaljenja nema jasan uticaj na rezultat." 
+
+}
+
+},
+"technical_status": { 
+
+  "stable_group": "Stabilna grupa", 
+
+  "unstable_technique": "Nestabilna tehnika" 
+
+}, 
+
+    "mental": { 
+
+      "title": "Mental Performance", 
+
+      "immediate_recovery": "Immediate Recovery:", 
+
+      "recovery_depth": "Avg Recovery Depth:", 
+
+      "recovery_training_desc": "Recovery Score meri koliko brzo se strelac oporavlja nakon pada ispod dinamičkog praga.", 
+
+      "recovery_qualification_desc": "Recovery Score meri sposobnost mentalnog oporavka tokom takmičenja.", 
+
+      "cascade_desc": "Cascade Index pokazuje procenat padova performanse praćenih nizom slabijih hitaca.", 
+
+      "tempo_desc": "Reakcija tempa nakon pada performanse (Z-score).", 
+
+      "fatigue_desc": "Fatigue Drift pokazuje promenu performanse između prve i druge polovine meča." 
+
+    },
+    "closing": { 
+
+  "title": "Closing Performance", 
+
+  "average": "Prosečan:", 
+
+  "best_growth": "Najveći rast u završnici:", 
+
+  "biggest_drop": "Najveći pad u završnici:",
+  "description": "Closing Performance meri razliku između prvih 15 i poslednjih 15 hitaca. Pozitivna vrednost znači jači završetak, negativna znači pad u završnom segmentu."  
+
+}, 
+
+"status": "Status", 
+
+    "tempo": { 
+
+      "stable": "Stabilan tempo", 
+
+      "slow_after_error": "Produžavanje nakon greške", 
+
+      "fast_after_error": "Ubrzavanje nakon greške" 
+
+    }, 
+
+    "recovery": { 
+
+      "no_data": "Nema podataka", 
+
+      "elite": "Elite Recovery", 
+
+      "stable_reset": "Stabilan reset", 
+
+      "extended_drop": "Produžen pad", 
+
+      "cascade_drop": "Serijski pad" 
+
+    }, 
+
+    "fatigue": { 
+
+      "stable_finish": "Stabilan završetak", 
+
+      "decline": "Pad kroz meč", 
+
+      "growth": "Rast kroz meč" 
+
+    }, 
+
+    "cascade": { 
+
+      "none": "Bez kaskade", 
+
+      "mild": "Blaga kaskada", 
+
+      "moderate": "Umerena kaskada", 
+
+      "strong": "Serijski pad" 
+
+    }, 
+
+    "pti": { 
+
+      "excellent": "Odličan transfer", 
+
+      "good": "Dobar transfer", 
+
+      "moderate": "Umeren transfer", 
+
+      "weak": "Slab transfer"
+      
+
+    }, 
+
+    "correlation_strength": { 
+
+      "none": "Bez značajne povezanosti", 
+
+      "weak": "Slaba povezanost", 
+
+      "moderate": "Umerena povezanost", 
+
+      "strong": "Jaka povezanost", 
+
+      "very_strong": "Veoma jaka povezanost",
+        "very_strong_negative": "Veoma jaka negativna povezanost", 
+
+  "moderate_negative": "Umerena negativna povezanost", 
+
+  "weak_negative": "Slaba negativna povezanost", 
+
+  "unexpected_positive": "Neočekivana pozitivna povezanost", 
+
+  "insignificant": "Slaba ili bez značajne povezanosti" 
+
+
+    },
+     
+
+    "focus": { 
+
+      "stable": "Stabilan fokus", 
+
+      "micro_instability": "Mikro nestabilnost", 
+
+      "oscillation": "Povećana oscilacija",
+      "description": "Rolling standardna devijacija (5-hitac prozor) koja meri mikro stabilnost fokusa kroz meč." 
+
+    } 
+
+  }, 
+
+ 
+
+  "print": { 
+
+    "match_report": "IZVEŠTAJ MEČA", 
+
+    "competition": "Takmičenje", 
+
+    "shooter": "Strelac", 
+
+    "date": "Datum", 
+
+    "start_time": "Vreme početka", 
+
+    "total": "Ukupno", 
+
+    "shot_count": "Broj hitaca", 
+
+    "total_match_time": "Ukupno vreme meča", 
+
+    "duration": "Trajanje", 
+
+    "average": "Prosek", 
+
+    "longest_103": "Najduži niz 10.3+", 
+
+    "longest_105": "Najduži niz 10.5+", 
+
+    "series_analytics": "Analitika po serijama", 
+
+    "series": "Serija", 
+
+    "max": "MAX", 
+
+    "min": "MIN", 
+
+    "avg": "AVG", 
+
+    "series_split": "Raspodela serije (5 + 5)", 
+
+    "first_five": "Prvih 5", 
+
+    "second_five": "Drugih 5", 
+
+    "shot_time_analysis": "Analiza po vremenu opaljenja", 
+
+    "time_seconds": "Vreme (s)", 
+
+    "average_value": "Prosečna vrednost", 
+
+    "shot_statistics": "Statistika pogodaka", 
+
+    "value": "Vrednost", 
+
+    "count": "Broj", 
+
+    "mean_radius_by_series": "Mean Radius po seriji" 
+
+  } 
+
+} 

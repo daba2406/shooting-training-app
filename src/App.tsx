@@ -3,7 +3,7 @@ import type {Shot, Series, ShootingSession, MatchEvent} from "./types";
 import "./App.css";  
 import ArchiveView from "./components/ArchiveView";
 import SetupView from "./components/SetupView";
-
+import { useTranslation } from "react-i18next";
 import PrintCanvasTarget from "./components/PrintCanvasTarget";
 
 import { 
@@ -32,7 +32,7 @@ export default function App() {
 
   const MAX_SHOTS = 10; 
 
- 
+ const { t } = useTranslation();
 
   // ================= LOAD FROM STORAGE ================= 
 
@@ -861,7 +861,7 @@ const getMaxSeriesCount = () => {
 
   if (matchTimeExpired) {  
 
-  alert("Vreme meča je isteklo."); 
+  alert(t("live.alerts.time_expired")); 
 
   return; 
 
@@ -870,7 +870,7 @@ const getMaxSeriesCount = () => {
 
     if (!matchRunning) { 
 
-  alert("Prvo pokrenite mec.");
+  alert(t("live.alerts.start_match_first")); 
   return;
 
 } 
@@ -884,7 +884,7 @@ const getMaxSeriesCount = () => {
     if (!selectedScore) return; 
     if (manualTimeMode) {
       if (!manualShotTime || parseFloat(manualShotTime) <= 0) {
-        alert('Unesite vreme hica.');
+        alert(t("live.alerts.enter_shot_time")); 
         return;
       }
     }
@@ -2230,7 +2230,7 @@ onBack={() => setView("setup")}
 
  
 
-    <h2 style={{ marginBottom: "15px" }}>IZVEŠTAJ MEČA</h2> 
+    <h2 style={{ marginBottom: "15px" }}>{t("print.match_report")}</h2> 
 
  
 
@@ -2244,12 +2244,12 @@ onBack={() => setView("setup")}
 
  
 
-      <div><strong>Takmičenje:</strong> {activeSessionState.competitionName ?? "Trening"}</div> 
-      <div><strong>Strelac:</strong> {activeSessionState.shooterName ?? "-"}</div>
-      <div><strong>Datum:</strong>{" "} 
+      <div><strong>{t("print.competition")}</strong> {activeSessionState.competitionName ?? "Trening"}</div> 
+      <div><strong>{t("print.shooter")}</strong> {activeSessionState.shooterName ?? "-"}</div>
+      <div><strong>{t("print.date")}</strong>{" "} 
       {formatDateForPrint(activeSessionState.date)} </div> 
 
-      <div><strong>Vreme početka:</strong> {activeSessionState.startTime ?? "-"}</div> 
+      <div><strong>{t("print.start_time")}</strong> {activeSessionState.startTime ?? "-"}</div> 
 
  
 
@@ -2257,18 +2257,18 @@ onBack={() => setView("setup")}
 
  
 
-      <div><strong>Ukupno:</strong> {matchTotal.toFixed(1)}</div> 
+      <div><strong>{t("print.total")}</strong> {matchTotal.toFixed(1)}</div> 
       <div style={{ display: "flex", gap: "20px" }}> 
 
-        <div><strong>HIT:</strong> {hitCount}</div> 
+        <div><strong>{t("live.results.hit")}</strong> {hitCount}</div> 
 
-        <div><strong>MUŠ:</strong> {musCount}</div> 
+        <div><strong>{t("live.results.mus")}</strong> {musCount}</div> 
 
       </div> 
 
-      <div><strong>Broj hitaca:</strong> {allShots.length}</div> 
+      <div><strong>{t("print.shot_count")}</strong> {allShots.length}</div> 
 
-      <div><strong>Ukupno vreme meča:</strong> {formatDurationHMS(totalMatchTime)}</div> 
+      <div><strong>{t("print.total_match_time")}</strong> {formatDurationHMS(totalMatchTime)}</div> 
 
  
 
@@ -2278,7 +2278,7 @@ onBack={() => setView("setup")}
 
           <div> 
 
-            <strong>Trajanje:</strong>{" "} 
+            <strong>{t("print.duration")}</strong>{" "} 
 
             {formatDuration( 
 
@@ -2295,18 +2295,18 @@ onBack={() => setView("setup")}
 
  
 
-      <div><strong>Prosek:</strong> {averageScore.toFixed(2)}</div> 
+      <div><strong>{t("print.average")}</strong> {averageScore.toFixed(2)}</div> 
 
       <div><strong>SD:</strong> {standardDeviation.toFixed(3)}</div> 
       <div style={{ marginTop: "6px" }}> 
 
-        <strong>Najduzi niz 10.3+:</strong> {max103} 
+        <strong>{t("print.longest_103")}</strong> {max103} 
 
       </div> 
 
       <div> 
 
-      <strong>Najduzi niz 10.5+:</strong> {max105} 
+      <strong>{t("print.longest_105")}</strong> {max105} 
 
       </div> 
 
@@ -2318,7 +2318,7 @@ onBack={() => setView("setup")}
 
       <div style={{ marginTop: "10px" }}> 
 
-        <strong>Mean Radius po seriji:</strong> 
+        <strong>{t("print.mean_radius_by_series")}</strong> 
 
         {meanRadiusBySeries.map((mr, i) => ( 
 
@@ -2330,7 +2330,7 @@ onBack={() => setView("setup")}
 
     <div style={{ marginTop: "20px" }}> 
 
-  <strong>Analitika po serijama:</strong> 
+  <strong>{t("print.series_analytics")}</strong> 
 
  
 
@@ -2360,7 +2360,7 @@ onBack={() => setView("setup")}
 
           <th colSpan={2} key={series.index}> 
 
-            Serija {series.index} 
+            {t("print.series")} {series.index} 
             <span style={{ fontWeight: "normal" }}>
               {" "} ({series.total.toFixed(1)})
             </span>
@@ -2378,9 +2378,9 @@ onBack={() => setView("setup")}
 
           <> 
 
-            <th key={`v-${series.index}`}>Vrednost</th> 
+            <th key={`v-${series.index}`}>{t("live.table.value")}</th> 
 
-            <th key={`t-${series.index}`}>Vreme</th> 
+            <th key={`t-${series.index}`}>{t("live.table.time")}</th> 
 
           </> 
 
@@ -2396,7 +2396,7 @@ onBack={() => setView("setup")}
 
       <tr> 
 
-        <td><strong>MAX</strong></td> 
+        <td><strong>{t("print.max")}</strong></td> 
 
         {analyticsTable.max.map((row, i) => ( 
 
@@ -2416,7 +2416,7 @@ onBack={() => setView("setup")}
 
       <tr> 
 
-        <td><strong>MIN</strong></td> 
+        <td><strong>{t("print.min")}</strong></td> 
 
         {analyticsTable.min.map((row, i) => ( 
 
@@ -2436,7 +2436,7 @@ onBack={() => setView("setup")}
 
       <tr> 
 
-        <td><strong>AVG</strong></td> 
+        <td><strong>{t("print.avg")}</strong></td> 
 
         {analyticsTable.avg.map((row, i) => ( 
 
@@ -2460,7 +2460,7 @@ onBack={() => setView("setup")}
 
 <div style={{ marginTop: "20px" }}> 
 
-  <strong>Raspodela serije (5 + 5):</strong> 
+  <strong>{t("print.series_split")}</strong> 
 
  
 
@@ -2468,7 +2468,7 @@ onBack={() => setView("setup")}
 
     style={{ 
 
-      width: "100%", 
+      width: "95%", 
 
       marginTop: "10px", 
 
@@ -2490,7 +2490,7 @@ onBack={() => setView("setup")}
 
           <th key={series.index}> 
 
-            Serija {series.index} 
+            {t("print.series")} {series.index} 
 
           </th> 
 
@@ -2506,7 +2506,7 @@ onBack={() => setView("setup")}
 
       <tr> 
 
-        <td><strong>Prvih 5</strong></td> 
+        <td><strong>{t("print.first_five")}</strong></td> 
 
         {firstSecondFive.map(row => ( 
 
@@ -2520,7 +2520,7 @@ onBack={() => setView("setup")}
 
       <tr> 
 
-        <td><strong>Drugih 5</strong></td> 
+        <td><strong>{t("print.second_five")}</strong></td> 
 
         {firstSecondFive.map(row => ( 
 
@@ -2538,7 +2538,7 @@ onBack={() => setView("setup")}
 
  <div style={{ marginTop: "20px" }}> 
 
-  <strong>Analiza po vremenu opaljenja:</strong> 
+  <strong>{t("print.shot_time_analysis")}</strong> 
 
   <table 
 
@@ -2560,11 +2560,11 @@ onBack={() => setView("setup")}
 
       <tr> 
 
-        <th>Vreme (s)</th> 
+        <th>{t("print.time_seconds")}</th> 
 
-        <th>Broj pogodaka</th> 
+        <th>{t("print.shot_count")}</th> 
 
-        <th>Prosečna vrednost</th> 
+        <th>{t("print.average_value")}</th> 
 
       </tr> 
 
@@ -2615,7 +2615,7 @@ onBack={() => setView("setup")}
     <div className="print-summary-right"> 
 
 
-      <h3 style={{ marginBottom: "10px" }}>Statistika pogodaka</h3> 
+      <h3 style={{ marginBottom: "10px" }}>{t("print.shot_statistics")}</h3> 
 
 
       <table className="print-stats-table"> 
@@ -2624,9 +2624,9 @@ onBack={() => setView("setup")}
 
           <tr> 
 
-            <th>Vrednost</th> 
+            <th>{t("print.value")}</th> 
 
-            <th>Broj</th> 
+            <th>{t("print.count")}</th> 
 
             <th>%</th> 
 
@@ -2701,7 +2701,11 @@ onBack={() => setView("setup")}
 
  
 
-      <h3>Serija {i + 1} — Ukupno: {series.total.toFixed(1)}</h3> 
+      <h3> 
+
+  {t("print.series")} {i + 1} — {t("print.total")}: {series.total.toFixed(1)} 
+
+</h3> 
 
 
  
@@ -2760,13 +2764,13 @@ onBack={() => setView("setup")}
 
           <th>#</th> 
 
-          <th>Vrednost</th> 
+<th>{t("live.table.value")}</th> 
 
-          <th>Smer</th> 
+<th>{t("live.table.direction")}</th> 
 
-          <th>Vreme</th> 
+<th>{t("live.table.time")}</th> 
 
-          <th>Vreme u mecu</th> 
+<th>{t("live.table.match_time")}</th> 
 
         </tr> 
 
@@ -2832,13 +2836,13 @@ onBack={() => setView("setup")}
 
                 <td colSpan={5} style={{ fontSize: "12px", fontStyle: "italic" }}> 
 
-                  {event.type === "dry_fire" && "⚪ OKIDANJE NA PRAZNO"} 
+{event.type === "dry_fire" && `⚪ ${t("live.events.dry_fire")}`} 
 
-                  {event.type === "pause_on_line" && "⏸ PAUZA NA LINIJI"} 
+{event.type === "leave_line" && `↩ ${t("live.events.line_exit")}`} 
 
-                  {event.type === "leave_line" && "↩ IZLAZAK SA LINIJE"} 
+{event.type === "pause_on_line" && `⏸ ${t("live.events.pause")}`} 
 
-                  {event.type === "lower_rifle" && "⬇ SPUŠTANJE PUŠKE"} 
+{event.type === "lower_rifle" && `⬇ ${t("live.events.lower_rifle")}`} 
 
                   {" — "} 
 
@@ -2897,7 +2901,7 @@ onBack={() => setView("setup")}
 
   }}> 
 
-    ARHIVSKA SESIJA – READ ONLY 
+    {t("live.read_only")}
 
   </div> 
  
@@ -2928,7 +2932,7 @@ onBack={() => setView("setup")}
 
   > 
 
-    MEČ ZAVRŠEN 
+    {t("live.match_finished")}
 
   </div> 
 
@@ -2974,7 +2978,11 @@ background:
 
   > 
 
-    {liveSignal.message} 
+    {liveSignal?.type && liveSignal?.severity && ( 
+
+  t(`live.signal.${liveSignal.type}.${liveSignal.severity}`) 
+
+)} 
 
   </div> 
 
@@ -2984,7 +2992,7 @@ background:
 
   <button onClick={() => setView("archive")}> 
 
-    ARHIVA 
+    {t("live.archive")}
 
   </button> 
 
@@ -3011,7 +3019,7 @@ background:
 
   > 
 
-    NOVI MEČ 
+    {t("live.new_match")}
 
   </button> 
 
@@ -3033,7 +3041,7 @@ background:
 
     > 
 
-      NAZAD 
+      {t("live.back")} 
 
     </button> 
 
@@ -3041,7 +3049,7 @@ background:
 
    <button onClick={() => window.print()}> 
 
-    PRINT 
+    {t("live.print")}
 
   </button> 
 
@@ -3071,7 +3079,7 @@ background:
 
 > 
 
-  ZAVRŠI 
+  {t("live.finish")} 
 
 </button> 
 <button 
@@ -3140,7 +3148,7 @@ background:
 
 > 
 
-  UNDO 
+  {t("live.undo")}
 
 </button> 
 
@@ -3186,7 +3194,7 @@ background:
 
 > 
 
-  REDO 
+  {t("live.redo")}
 
 </button> 
 
@@ -3203,7 +3211,7 @@ background:
 
   /> 
 
-  Ručni unos vremena hica 
+  {t("live.manual.title")}
 
 </label> 
 
@@ -3213,7 +3221,7 @@ background:
 
     type="number" 
 
-    placeholder="Vreme hica (s)" 
+    placeholder= {t("live.manual.shot_time_seconds")} 
 
     value={manualShotTime} 
 
@@ -3292,7 +3300,7 @@ background:
 
   > 
 
-    START MEČA 
+    {t("live.start_match")}
 
   </button> 
 
@@ -3364,7 +3372,7 @@ background:
 
   > 
 
-    START POGODAK 
+    {t("live.start_shot")}
 
   </button> 
 
@@ -3380,7 +3388,7 @@ background:
 
   > 
 
-    STOP POGODAK 
+    {t("live.stop_shot")}
 
   </button> 
 
@@ -3390,7 +3398,7 @@ background:
 
   <div> 
 
-    Vreme: {shotElapsed.toFixed(2)} s 
+    {t("live.manual.time")} {shotElapsed.toFixed(2)} s 
 
   </div> 
 
@@ -3426,7 +3434,7 @@ background:
 
     > 
 
-      RESET 
+      {t("live.reset")} 
 
     </button> 
 
@@ -3440,7 +3448,7 @@ background:
 
   <div style={{ marginTop: "10px", fontSize: "18px", fontWeight: "bold" }}> 
 
-    Preostalo vreme:{" "} 
+    {t("live.metrics.remaining_time")}{" "} 
 
     {remainingTime !== null 
 
@@ -3468,9 +3476,13 @@ background:
 
   <div style={{ marginTop: "5px" }}> 
 
-    Tempo:{" "} 
+    {t("live.metrics.pace")}{" "} 
 
-    {tempoDifference >= 0 ? "ISPRED" : "IZA"}{" "} 
+{tempoDifference >= 0 
+
+  ? t("live.metrics.ahead") 
+
+  : t("live.metrics.behind")} 
 
     ({tempoDifference.toFixed(1)} hitaca) 
 
@@ -3480,7 +3492,7 @@ background:
 
           <div style={{ marginTop: "10px" }}> 
 
-  <strong>Događaji u meču</strong> 
+  <strong>{t("live.events.title")}</strong> 
 
   <div style={{ display: "flex", gap: "8px", marginTop: "5px" }}> 
 
@@ -3488,7 +3500,7 @@ background:
     disabled={activeSessionState.completed}
     onClick={() => addMatchEvent("leave_line")}> 
 
-      IZLAZAK SA LINIJE 
+      {t("live.events.line_exit")}
 
     </button> 
 
@@ -3496,7 +3508,7 @@ background:
     disabled={activeSessionState.completed}
     onClick={() => addMatchEvent("pause_on_line")}> 
 
-      PAUZA NA LINIJI 
+      {t("live.events.pause")}
 
     </button> 
 
@@ -3510,7 +3522,7 @@ background:
 
 > 
 
-  OKIDANJE NA PRAZNO 
+  {t("live.events.dry_fire")}
 
 </button> 
 
@@ -3522,7 +3534,7 @@ background:
 
 > 
 
-  SPUŠTANJE PUŠKE 
+  {t("live.events.lower_rifle")}
 
 </button> 
 
@@ -3620,7 +3632,7 @@ background:
 
             <div className="offset-title"> 
 
-              POMERANJE (poslednjih 5) 
+              {t("live.metrics.displacement_last5")}
 
             </div> 
 
@@ -3650,7 +3662,7 @@ background:
 
               <div className="click-title"> 
 
-                KOREKCIJA NIŠANA 
+                {t("live.corrections.title")}
 
               </div> 
 
@@ -3662,7 +3674,7 @@ background:
 
                   X: {clickX > 0 ? "→" : clickX < 0 ? "←" : "•"}{" "} 
 
-                  {Math.abs(clickX)} klik 
+                  {Math.abs(clickX)} {t("live.corrections.click")}
 
                 </div> 
 
@@ -3670,7 +3682,7 @@ background:
 
                   Y: {clickY > 0 ? "↑" : clickY < 0 ? "↓" : "•"}{" "} 
 
-                  {Math.abs(clickY)} klik 
+                  {Math.abs(clickY)} {t("live.corrections.click")} 
 
                 </div> 
 
@@ -3737,13 +3749,13 @@ background:
 
                   <th>#</th> 
 
-                  <th>Vrednost</th> 
+<th>{t("live.table.value")}</th> 
 
-                  <th>Smer</th> 
+<th>{t("live.table.direction")}</th> 
 
-                  <th>Vreme</th> 
+<th>{t("live.table.time")}</th> 
 
-                  <th>Vreme u mecu</th>
+<th>{t("live.table.match_time")}</th> 
 
                 </tr> 
 
@@ -3851,13 +3863,13 @@ background:
 
 > 
 
-{event.type === "dry_fire" && "⚪ OKIDANJE NA PRAZNO"} 
+{event.type === "dry_fire" && `⚪ ${t("live.events.dry_fire")}`} 
 
-{event.type === "leave_line" && "↩ IZLAZAK SA LINIJE"} 
+{event.type === "leave_line" && `↩ ${t("live.events.line_exit")}`} 
 
-{event.type === "pause_on_line" && "⏸ PAUZA NA LINIJI"} 
+{event.type === "pause_on_line" && `⏸ ${t("live.events.pause")}`} 
 
-{event.type === "lower_rifle" && "⬇ SPUŠTANJE PUŠKE"} 
+{event.type === "lower_rifle" && `⬇ ${t("live.events.lower_rifle")}`} 
 
           {" — "} 
 
@@ -3941,17 +3953,17 @@ for (let i = 0; i < seriesList.length; i += 2) {
 
             <div className="stats-left"> 
 
-              <div>HIT: {hitCount}</div> 
+              <div>{t("live.results.hit")} {hitCount}</div> 
 
-              <div>MUŠ: {musCount}</div> 
+              <div>{t("live.results.mus")} {musCount}</div> 
 
             </div> 
 
             <div className="stats-right"> 
 
-              <div>Ukupno: {matchTotal.toFixed(1)}</div> 
+              <div>{t("live.results.total")} {matchTotal.toFixed(1)}</div> 
 
-              <div>Očekivano: {expectedResult.toFixed(1)}</div> 
+              <div>{t("live.results.expected")} {expectedResult.toFixed(1)}</div> 
 
             </div> 
 

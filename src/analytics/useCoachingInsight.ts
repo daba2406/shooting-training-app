@@ -22,467 +22,459 @@ interface MentalProfile {
 
  
 
+type InsightItem = { 
+
+  key: string; 
+
+  params?: Record<string, any>; 
+
+}; 
+
+ 
+
 export function generateCoachingInsight( 
 
   profile: MentalProfile 
 
-): { insight: string; recommendation: string; composite: string } { 
+): { 
+
+  insightKeys: InsightItem[]; 
+
+  recommendationKeys: InsightItem[]; 
+
+  compositeKey: string; 
+
+} { 
 
  
 
-  const { 
-
-    recovery, 
-
-    cascade, 
-
-    tempoZ, 
-
-    fatigue, 
-
-    focus 
-
-  } = profile; 
+  const { recovery, cascade, tempoZ, fatigue, focus } = profile; 
 
  
 
-  let insightParts: string[] = []; 
+  const insightKeys: InsightItem[] = []; 
 
-  let recommendationParts: string[] = []; 
-
- let severityScore = 0; 
-
-
-
-// Recovery severity 
-
-if (recovery < 70) { 
-
-  severityScore += 3; 
-
-
-
-} 
+  const recommendationKeys: InsightItem[] = []; 
 
  
 
-// Cascade severity 
-
-if (cascade > 40) { 
-
-  severityScore += 3; 
-
-
-
-} else if (cascade > 25) { 
-
-  severityScore += 2; 
-
-} 
+  let severityScore = 0; 
 
  
-
-// Tempo severity 
-
-if (Math.abs(tempoZ) > 1) { 
-
-  severityScore += 2; 
-
-} 
-
- 
-
-// Fatigue severity 
-
-if (fatigue < -0.5) { 
-
-  severityScore += 2; 
-
-} 
-
- 
-
-// Focus severity 
-
-if (focus > 0.5) { 
-
-  severityScore += 1; 
-
-} 
 
   // ✅ Recovery 
 
-if (recovery < 70) { 
+  if (recovery < 70) { 
+
+    severityScore += 3; 
 
  
 
-  insightParts.push( 
+    insightKeys.push({ 
 
-    `Oporavak nakon greške je sporiji od optimalnog (Recovery ${recovery.toFixed(1)}).` 
+      key: "recovery_slow", 
 
-  ); 
+      params: { value: recovery.toFixed(1) } 
 
- 
-
-  recommendationParts.push( 
-
-    `U ${Math.round(100 - recovery)}% situacija reset traje više od jednog hica. Uvesti obavezni 1–2 sekundi mentalni prekid nakon hica ispod dinamičkog praga pre ponovnog podizanja puške.` 
-
-  ); 
+    }); 
 
  
 
-} else if (recovery >= 85 && cascade < 20) { 
+    recommendationKeys.push({ 
+
+      key: "recovery_protocol", 
+
+      params: { percent: Math.round(100 - recovery) } 
+
+    }); 
 
  
 
-  insightParts.push( 
-
-    "Mentalni reset nakon greške je stabilan i bez širenja pada." 
-
-  ); 
+  } else if (recovery >= 85 && cascade < 20) { 
 
  
 
-  recommendationParts.push( 
+    insightKeys.push({ 
 
-    "Održavati postojeću rutinu resetovanja i povremeno je testirati u kontrolisanim uslovima sa namernim greškama." 
+      key: "recovery_stable" 
 
-  ); 
-
- 
-
-} else { 
+    }); 
 
  
 
-insightParts.push( 
+    recommendationKeys.push({ 
 
-  `Reset nakon greške je stabilan (uspešnost ${recovery.toFixed(1)}%), ali povremeno zahteva više od jednog hica za potpunu stabilizaciju.` 
+      key: "recovery_maintain" 
 
-); 
-
- 
-
-  recommendationParts.push( 
-
-    "Raditi na skraćivanju mentalnog intervala između greške i sledećeg hica kako bi se reset sveo na jedan pokušaj." 
-
-  ); 
-
-} 
+    }); 
 
  
 
- // ✅ Cascade 
-
-if (cascade > 40) { 
+  } else { 
 
  
 
-  insightParts.push( 
+    insightKeys.push({ 
 
-    `U ${cascade.toFixed(1)}% padova dolazi do produžene serije slabijih hitaca.` 
+      key: "recovery_partial", 
 
-  ); 
+      params: { value: recovery.toFixed(1) } 
 
- 
-
-  recommendationParts.push( 
-
-    "Uvesti obavezni reset protokol odmah nakon prvog slabijeg hica (prekid niza, spuštanje puške, verbalni reset signal) pre nastavka." 
-
-  ); 
+    }); 
 
  
 
-} else if (cascade > 25) { 
+    recommendationKeys.push({ 
 
- 
+      key: "recovery_shorten" 
 
-  insightParts.push( 
-
-    `U ${cascade.toFixed(1)}% situacija pad performanse prerasta u mini-seriju.` 
-
-  ); 
-
- 
-
-  recommendationParts.push( 
-
-    "Simulirati namerne greške tokom treninga i vežbati povratak u stabilan režim već sledećim hicem." 
-
-  ); 
-
- 
-
-} else if (cascade > 10) { 
-
- 
-
-  insightParts.push( 
-
-    `Prisutan je povremen obrazac širenja pada (${cascade.toFixed(1)}%).` 
-
-  ); 
-
- 
-
-  recommendationParts.push( 
-
-    "Raditi na skraćivanju reakcije nakon greške bez menjanja tempa i tehnike." 
-
-  ); 
-
- 
-
-} 
-
- 
-
- // ✅ Tempo 
-
-if (tempoZ < -1.0) { 
-
- 
-
-  insightParts.push( 
-
-    `Tempo pokazuje izraženo ubrzavanje nakon greške (Z = ${tempoZ.toFixed(2)}).` 
-
-  ); 
-
- 
-
-  recommendationParts.push( 
-
-    "Uvesti obaveznu pauzu od 1–2 sekunde nakon greške pre sledećeg podizanja puške kako bi se prekinula impulsivna reakcija." 
-
-  ); 
-
- 
-
-} else if (tempoZ < -0.5) { 
-
- 
-
-  insightParts.push( 
-
-    `Tempo blago ubrzava nakon greške (Z = ${tempoZ.toFixed(2)}).` 
-
-  ); 
-
- 
-
-  recommendationParts.push( 
-
-    "Stabilizovati ritam disanja i zadržati standardno vreme nišanjenja bez ubrzavanja sledećeg hica." 
-
-  ); 
-
- 
-
-} else if (tempoZ > 1.0) { 
-
- 
-
-  insightParts.push( 
-
-    `Tempo pokazuje izraženo produžavanje nakon greške (Z = ${tempoZ.toFixed(2)}).` 
-
-  ); 
-
- 
-
-  recommendationParts.push( 
-
-    "Raditi na vraćanju automatizma bez preteranog produžavanja nišanjenja nakon greške." 
-
-  ); 
-
- 
-
-} else if (tempoZ > 0.5) { 
-
- 
-
-  insightParts.push( 
-
-    `Tempo se produžava nakon greške (Z = ${tempoZ.toFixed(2)}).` 
-
-  ); 
-
- 
-
-  recommendationParts.push( 
-
-    "Zadržati isti vremenski obrazac kao u stabilnim serijama i izbegavati preanalizu sledećeg hica." 
-
-  ); 
-
-} 
-
- 
-
-// ✅ Fatigue 
-
-if (fatigue < -0.6) { 
-
- 
-
-  insightParts.push( 
-
-    `Izražen pad performanse u završnici (drift ${fatigue.toFixed(2)}).` 
-
-  ); 
-
- 
-
-  recommendationParts.push( 
-
-    "Uvesti produžene serije sa simuliranim završnim pritiskom i kontrolom tempa u poslednjih 15 hitaca." 
-
-  ); 
-
- 
-
-} else if (fatigue < -0.3) { 
-
- 
-
-  insightParts.push( 
-
-    `Blagi pad performanse u drugoj polovini meča (drift ${fatigue.toFixed(2)}).` 
-
-  ); 
-
- 
-
-  recommendationParts.push( 
-
-    "Fokusirati trening na održavanje stabilnog ritma i mentalne rutine u završnoj fazi meča." 
-
-  ); 
-
- 
-
-} else if (fatigue > 0.6) { 
-
- 
-
-  insightParts.push( 
-
-    `Performansa značajno raste u završnici (drift ${fatigue.toFixed(2)}).` 
-
-  ); 
-
- 
-
-  recommendationParts.push( 
-
-    "Analizirati strukturu početka meča kako bi se stabilan ritam uspostavio ranije." 
-
-  ); 
-
- 
-
-} else if (fatigue > 0.3) { 
-
- 
-
-  insightParts.push( 
-
-    `Uočava se blagi rast performanse u drugoj polovini (drift ${fatigue.toFixed(2)}).` 
-
-  ); 
-
- 
-
-  recommendationParts.push( 
-
-    "Razmotriti kraće adaptivne rutine na početku meča kako bi stabilnost bila prisutna od starta." 
-
-  ); 
-
-} 
-
- 
-
- // ✅ Focus Stability 
-
-if (focus > 0.6) { 
-
- 
-
-  insightParts.push( 
-
-    `Izražene mikro-oscilacije fokusa (rolling std ${focus.toFixed(2)}).` 
-
-  ); 
-
- 
-
-  recommendationParts.push( 
-
-    "Uvesti striktno ponavljanje iste mentalne i fizičke rutine pre svakog hica kako bi se smanjile unutrašnje fluktuacije." 
-
-  ); 
-
- 
-
-} else if (focus > 0.4) { 
-
- 
-
-  insightParts.push( 
-
-    `Uočljive mikro-fluktuacije unutar serija (rolling std ${focus.toFixed(2)}).` 
-
-  ); 
-
- 
-
-  recommendationParts.push( 
-
-    "Raditi na stabilizaciji pažnje unutar serije bez promene tehnike ili tempa." 
-
-  ); 
-
- 
-
-} else if (focus > 0.25) { 
-
- 
-
-  insightParts.push( 
-
-    `Blage oscilacije fokusa unutar kraćih sekvenci (rolling std ${focus.toFixed(2)}).` 
-
-  ); 
-
- 
-
-  recommendationParts.push( 
-
-    "Održavati postojeću rutinu uz dodatni naglasak na kontinuitet između uzastopnih hitaca." 
-
-  ); 
-
-} 
-
- 
-
-  if (recommendationParts.length === 0) { 
-
-    recommendationParts.push( 
-
-      "Održavati postojeći trenažni režim uz periodičnu proveru mentalnih obrazaca." 
-
-    ); 
+    }); 
 
   } 
 
-// ✅ Composite Coaching Insight v3 
+ 
+
+  // ✅ Cascade 
+
+  if (cascade > 40) { 
+
+    severityScore += 3; 
+
+ 
+
+    insightKeys.push({ 
+
+      key: "cascade_strong", 
+
+      params: { value: cascade.toFixed(1) } 
+
+    }); 
+
+ 
+
+    recommendationKeys.push({ 
+
+      key: "cascade_interrupt" 
+
+    }); 
+
+ 
+
+  } else if (cascade > 25) { 
+
+    severityScore += 2; 
+
+ 
+
+    insightKeys.push({ 
+
+      key: "cascade_moderate", 
+
+      params: { value: cascade.toFixed(1) } 
+
+    }); 
+
+ 
+
+    recommendationKeys.push({ 
+
+      key: "cascade_simulation" 
+
+    }); 
+
+ 
+
+  } else if (cascade > 10) { 
+
+ 
+
+    insightKeys.push({ 
+
+      key: "cascade_mild", 
+
+      params: { value: cascade.toFixed(1) } 
+
+    }); 
+
+ 
+
+    recommendationKeys.push({ 
+
+      key: "cascade_reaction_speed" 
+
+    }); 
+
+  } 
+
+ 
+
+  // ✅ Tempo 
+
+  if (tempoZ < -1.0) { 
+
+ 
+
+    insightKeys.push({ 
+
+      key: "tempo_fast_strong", 
+
+      params: { value: tempoZ.toFixed(2) } 
+
+    }); 
+
+ 
+
+    recommendationKeys.push({ 
+
+      key: "tempo_pause_after_error" 
+
+    }); 
+
+ 
+
+  } else if (tempoZ < -0.5) { 
+
+ 
+
+    insightKeys.push({ 
+
+      key: "tempo_fast_mild", 
+
+      params: { value: tempoZ.toFixed(2) } 
+
+    }); 
+
+ 
+
+    recommendationKeys.push({ 
+
+      key: "tempo_breathing_control" 
+
+    }); 
+
+ 
+
+  } else if (tempoZ > 1.0) { 
+
+ 
+
+    insightKeys.push({ 
+
+      key: "tempo_slow_strong", 
+
+      params: { value: tempoZ.toFixed(2) } 
+
+    }); 
+
+ 
+
+    recommendationKeys.push({ 
+
+      key: "tempo_automation" 
+
+    }); 
+
+ 
+
+  } else if (tempoZ > 0.5) { 
+
+ 
+
+    insightKeys.push({ 
+
+      key: "tempo_slow_mild", 
+
+      params: { value: tempoZ.toFixed(2) } 
+
+    }); 
+
+ 
+
+    recommendationKeys.push({ 
+
+      key: "tempo_rhythm_consistency" 
+
+    }); 
+
+  } 
+
+ 
+
+  // ✅ Fatigue 
+
+  if (fatigue < -0.6) { 
+
+ 
+
+    insightKeys.push({ 
+
+      key: "fatigue_strong_decline", 
+
+      params: { value: fatigue.toFixed(2) } 
+
+    }); 
+
+ 
+
+    recommendationKeys.push({ 
+
+      key: "fatigue_finish_training" 
+
+    }); 
+
+ 
+
+  } else if (fatigue < -0.3) { 
+
+ 
+
+    insightKeys.push({ 
+
+      key: "fatigue_mild_decline", 
+
+      params: { value: fatigue.toFixed(2) } 
+
+    }); 
+
+ 
+
+    recommendationKeys.push({ 
+
+      key: "fatigue_rhythm_stability" 
+
+    }); 
+
+ 
+
+  } else if (fatigue > 0.6) { 
+
+ 
+
+    insightKeys.push({ 
+
+      key: "fatigue_strong_growth", 
+
+      params: { value: fatigue.toFixed(2) } 
+
+    }); 
+
+ 
+
+    recommendationKeys.push({ 
+
+      key: "fatigue_early_structure" 
+
+    }); 
+
+ 
+
+  } else if (fatigue > 0.3) { 
+
+ 
+
+    insightKeys.push({ 
+
+      key: "fatigue_mild_growth", 
+
+      params: { value: fatigue.toFixed(2) } 
+
+    }); 
+
+ 
+
+    recommendationKeys.push({ 
+
+      key: "fatigue_adaptive_start" 
+
+    }); 
+
+  } 
+
+ 
+
+  // ✅ Focus 
+
+  if (focus > 0.6) { 
+
+ 
+
+    insightKeys.push({ 
+
+      key: "focus_strong_instability", 
+
+      params: { value: focus.toFixed(2) } 
+
+    }); 
+
+ 
+
+    recommendationKeys.push({ 
+
+      key: "focus_strict_routine" 
+
+    }); 
+
+ 
+
+  } else if (focus > 0.4) { 
+
+ 
+
+    insightKeys.push({ 
+
+      key: "focus_moderate_instability", 
+
+      params: { value: focus.toFixed(2) } 
+
+    }); 
+
+ 
+
+    recommendationKeys.push({ 
+
+      key: "focus_stabilization" 
+
+    }); 
+
+ 
+
+  } else if (focus > 0.25) { 
+
+ 
+
+    insightKeys.push({ 
+
+      key: "focus_mild_instability", 
+
+      params: { value: focus.toFixed(2) } 
+
+    }); 
+
+ 
+
+    recommendationKeys.push({ 
+
+      key: "focus_continuity" 
+
+    }); 
+
+  } 
+
+ 
+
+  if (recommendationKeys.length === 0) { 
+
+    recommendationKeys.push({ 
+
+      key: "maintain_regime" 
+
+    }); 
+
+  } 
+
+ 
+
+// ✅ Composite Coaching Insight (original logic preserved) 
 
  
 
@@ -558,80 +550,46 @@ if (focus > 0.5 && 1 > maxSeverity) {
 
  
 
-let compositeInsight = ""; 
+let compositeKey = "stable_profile"; 
 
  
 
 if (!dominantFactor) { 
 
- 
-
-  compositeInsight = 
-
-    "Ukupan mentalni profil pokazuje stabilnost bez dominantnih slabosti. Reakcija na greške, tempo i završnica su u ravnoteži."; 
-
- 
+  compositeKey = "stable_profile"; 
 
 } else if (dominantFactor === "recovery") { 
 
- 
-
-  compositeInsight = 
-
-    "Najizraženiji obrazac vezan je za produženi mentalni reset nakon greške, što može narušiti kontinuitet serije. Stabilizacija reakcije odmah nakon pada treba biti prioritet."; 
-
- 
+  compositeKey = "dominant_recovery"; 
 
 } else if (dominantFactor === "cascade") { 
 
- 
-
-  compositeInsight = 
-
-    "Dominantan obrazac je serijsko širenje pada nakon početne greške, što ukazuje na emocionalnu inerciju u toku meča. Fokus treba usmeriti na prekidanje niza već sledećim hicem."; 
-
- 
+  compositeKey = "dominant_cascade"; 
 
 } else if (dominantFactor === "tempo") { 
 
- 
-
-  compositeInsight = 
-
-    "Tempo reakcija nakon greške pokazuje izraženo odstupanje od stabilnog obrasca. Kontrola ritma i disanja nakon pada može značajno stabilizovati performansu."; 
-
- 
+  compositeKey = "dominant_tempo"; 
 
 } else if (dominantFactor === "fatigue") { 
 
- 
-
-  compositeInsight = 
-
-    "Završnica meča pokazuje pad performanse koji može biti povezan sa mentalnim ili fizičkim zamorom. Održavanje stabilnosti u poslednjem segmentu treba biti fokus treninga."; 
-
- 
+  compositeKey = "dominant_fatigue"; 
 
 } else if (dominantFactor === "focus") { 
 
- 
-
-  compositeInsight = 
-
-    "Uočljive su mikro-oscilacije fokusa unutar kraćih sekvenci, što može uticati na preciznost u kontinuitetu. Stabilnost mentalne rutine unutar serije treba dodatno učvrstiti."; 
-
- 
+  compositeKey = "dominant_focus"; 
 
 } 
 
-return { 
+ 
 
-  insight: insightParts.join(" "), 
+  return { 
 
-  recommendation: recommendationParts.join(" "), 
+    insightKeys, 
 
-  composite: compositeInsight 
+    recommendationKeys, 
 
-}; 
+    compositeKey 
+
+  }; 
 
 } 
